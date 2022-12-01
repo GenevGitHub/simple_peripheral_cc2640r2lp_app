@@ -79,6 +79,23 @@ extern "C"
 #define DASHBOARD_POWER_ON_TIME                 4
 #define DASHBOARD_POWER_ON_TIME_UUID            0x6804
 #define DASHBOARD_POWER_ON_TIME_LEN             4
+/*
+#define DASHBOARD_BLE_STATUS                    5
+#define DASHBOARD_BLE_STATUS_UUID               0x6805
+#define DASHBOARD_BLE_STATUS_LEN                5
+
+#define DASHBOARD_BATTERY_STATUS                6
+#define DASHBOARD_BATTERY_STATUS_UUID           0x6806
+#define DASHBOARD_BATTERY_STATUS_LEN            6
+
+#define DASHBOARD_UNITSELECT                    7
+#define DASHBOARD_UNITSELECT_UUID               0x6807
+#define DASHBOARD_UNITSELECT_LEN                7
+
+#define DASHBOARD_DASH_SPEED                    8
+#define DASHBOARD_DASH_SPEED_UUID               0x6808
+#define DASHBOARD_DASH_SPEED_LEN                8
+*/
 /*********************************************************************
  * TYPEDEFS
  */

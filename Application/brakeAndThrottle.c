@@ -9,6 +9,7 @@
  * INCLUDES
  */
 #include "brakeAndThrottle.h"
+#include "ledControl.h"
 #include <stdint.h>
 /*********************************************************************
  * CONSTANTS
@@ -28,7 +29,7 @@ static uint8_t  brakeIndex = 0;
 static uint16_t brakeValues[BRAKE_AND_THROTTLE_SAMPLES] = {BRAKE_ADC_THRESHOLD_L};
 static uint8_t  throttleIndex = 0;
 static uint16_t throttleValues[BRAKE_AND_THROTTLE_SAMPLES] = {THROTTLE_ADC_THRESHOLD_L};
-static uint8_t speedMode;
+uint8_t speedMode;
 /**********************************************************************
  *  Local functions
  */
@@ -43,7 +44,7 @@ static uint8_t speedMode;
  */
 void brakeAndThrottle_init()
 {
-    speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS;
+    speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE;
 }
 /*********************************************************************
  * @fn      brake_start
@@ -128,29 +129,31 @@ uint8_t brakeAndThrottle_getSpeedMode()
     return speedMode;
 }
 /*********************************************************************
- * @fn      brakeAndThrottle_swapSpeedMode
+ * @fn      brakeAndThrottle_toggleSpeedMode
  *
- * @brief   To swap the speed Mode of the escooter
+ * @brief   To swap / toggle the speed Mode of the escooter
  *
  * @param   none
  *
  * @return  none
  */
-void brakeAndThrottle_swapSpeedMode()
+void brakeAndThrottle_toggleSpeedMode()
 {
-    if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE)
+    if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER)
+    {
+        speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE;
+    }
+    else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE)
     {
         speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS;
     }
     else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS)
     {
-        speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_ECO;
-    }
-    else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_ECO)
-    {
-        speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE;
+        speedMode = BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER;
     }
     //Save the current setting
+
+    ledControl_setSpeedMode(speedMode);  // change speed mode display on dash board
 }
 /*********************************************************************
  * @fn      brakeAndThrottle_registerCBs
@@ -262,13 +265,13 @@ void brakeAndThrottle_ADC_conversion()
         errorMsg |= THROTTLE_ERROR;
     }
     uint8_t reductionRatio = 0;
-    if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_ECO)
+    if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER)
     {
-        reductionRatio = BRAKE_AND_THROTTLE_SPEED_MODE_ECO_REDUCTION_RATIO;
+        reductionRatio = BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER_REDUCTION_RATIO;
     }
-    else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE)
+    else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE)
     {
-        reductionRatio = BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE_REDUCTION_RATIO;
+        reductionRatio = BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE_REDUCTION_RATIO;
     }
     else if(speedMode == BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS)
     {

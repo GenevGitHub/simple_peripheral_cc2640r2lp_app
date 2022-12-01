@@ -26,13 +26,13 @@ extern "C"
 #define BRAKE_AND_THROTTLE_ADC_SAMPLING_PERIOD                    100
 #define BRAKE_AND_THROTTLE_SAMPLES                                10
 //Speed modes
-#define BRAKE_AND_THROTTLE_SPEED_MODE_ECO                         0x00
-#define BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE                       0x01
+#define BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER                      0x00
+#define BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE                     0x01
 #define BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS                      0x02
 #define BRAKE_AND_THROTTLE_MAXIMUMN_SPEED                         1500
 //Speed mode reduction ratio
-#define BRAKE_AND_THROTTLE_SPEED_MODE_ECO_REDUCTION_RATIO         60
-#define BRAKE_AND_THROTTLE_SPEED_MODE_AMBLE_REDUCTION_RATIO       80
+#define BRAKE_AND_THROTTLE_SPEED_MODE_AMBLER_REDUCTION_RATIO      60
+#define BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE_REDUCTION_RATIO     80
 #define BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS_REDUCTION_RATIO      100
 //Hard braking definition
 #define HARD_BRAKING_THROTTLE_PERCENTAGE                          5
@@ -92,7 +92,7 @@ extern void brakeAndThrottle_stop();
 extern void brakeAndThrottle_toggle();
 extern void brakeAndThrottle_setSpeedMode(uint8_t speedMode);
 extern uint8_t brakeAndThrottle_getSpeedMode();
-extern void brakeAndThrottle_swapSpeedMode();
+extern void brakeAndThrottle_toggleSpeedMode();
 extern void brakeAndThrottle_registerCBs(brakeAndThrottle_CBs_t *obj);
 extern void brakeAndThrottle_registerTimer(brakeAndThrottle_timerManager_t *obj);
 extern void brakeAndThrottle_registerADC1(brakeAndThrottle_adcManager_t *obj);

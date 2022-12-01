@@ -222,8 +222,8 @@ extern "C"
 #define STM32MCP_TAIL_LIGHT_OFF                                                              0x05
 #define STM32MCP_TOGGLE_TAIL_LIGHT                                                           0x06
 
-#define STM32MCP_SYSTEM_MAXIMUM_VOLTAGE                                                      60000  // for 37000 mV battery, max V is 42500 mV - we will assume 42000 mV for all calculations
-#define STM32MCP_SYSTEM_MIMIMUM_VOLTAGE                                                      19000  // for 37000 mV battery, min usable V is 30000 mV - below this will damage the battery pack
+#define STM32MCP_SYSTEM_MAXIMUM_VOLTAGE                                                      42000  // for 37000 mV battery, max V is 42500 mV - we will assume 42000 mV for all calculations
+#define STM32MCP_SYSTEM_MIMIMUM_VOLTAGE                                                      30000  // for 37000 mV battery, min usable V is 30000 mV - below this will damage the battery pack
 /*********************************************************************
  * MACROS
  */

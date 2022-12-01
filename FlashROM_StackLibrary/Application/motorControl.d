@@ -169,11 +169,8 @@ Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/ti
 Application/motorControl.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/IModule.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Event__epilogue.h
 Application/motorControl.obj: ../Application/periodicCommunication.h
-Application/motorControl.obj: ../Application/brakeAndThrottle.h
-Application/motorControl.obj: ../Application/lightControl.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h
-Application/motorControl.obj: ../Application/buzzerControl.h
 Application/motorControl.obj: ../Application/dataAnalysis.h
+Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
@@ -181,6 +178,11 @@ Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limi
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
+Application/motorControl.obj: ../Application/brakeAndThrottle.h
+Application/motorControl.obj: ../Application/ledControl.h
+Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+Application/motorControl.obj: ../Application/lightControl.h
+Application/motorControl.obj: ../Application/buzzerControl.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/peripheral.h
 
@@ -522,15 +524,9 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/E
 
 ../Application/periodicCommunication.h:
 
-../Application/brakeAndThrottle.h:
-
-../Application/lightControl.h:
+../Application/dataAnalysis.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h:
-
-../Application/buzzerControl.h:
-
-../Application/dataAnalysis.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
@@ -545,6 +541,16 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
+
+../Application/brakeAndThrottle.h:
+
+../Application/ledControl.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+../Application/lightControl.h:
+
+../Application/buzzerControl.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h:
 

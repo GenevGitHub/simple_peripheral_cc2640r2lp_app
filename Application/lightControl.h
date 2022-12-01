@@ -107,15 +107,16 @@ typedef struct
 extern void lightControl_init();
 extern void lightControl_registerAppCB(lightControl_CB_t *object);  // what does this do?
 //extern void lightControl_registerLightManager(lightControl_lightManager_t *object);   // what does this do?
-extern void lightControl_registerTimer(lightControl_ALStimerManager_t *ALSTimer);  // what does this do?
+extern void lightControl_registerTimer(lightControl_ALStimerManager_t *ALSTimer);
 extern void lightControl_timerInterruptHandler();
-static uint8_t light_MODE_AUTO(void);
-static uint8_t light_MODE_OFF(void);
-static uint8_t light_MODE_ON(void);
+static void light_MODE_AUTO(void);
+static void light_MODE_OFF(void);
+static void light_MODE_ON(void);
 static void lightControl_ALS_Controller(uint32_t luxValue);
-static void lightControl_changeLightMode(uint8_t light_mode);
-extern void lightControl_change(uint8_t light_mode);
+static void lightControl_changeLightMode();
+extern void lightControl_change();
 extern uint8_t getLightMode(void);
+extern uint8_t getLightStatus(void);
 
 /*********************************************************************
 *********************************************************************/

@@ -16,14 +16,16 @@ extern "C"
  * INCLUDES
  */
 #include "simple_peripheral.h"
+#include "dataAnalysis.h"
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
 /*********************************************************************
  * CONSTANTS
  */
-#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      1000
-#define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      6000
+#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      300    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 300ms
+#define DATA_ANALYSIS_POINTS                         31     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (31 - 1) * 300 = 9000ms
+#define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      9000   // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (31 - 1) * 300 = 9000ms
 #define PERIODIC_COMMUNICATION_ACTIVATE              0x01
 #define PERIODIC_COMMUNICATION_DEACTIVATE            0x00
 /*********************************************************************

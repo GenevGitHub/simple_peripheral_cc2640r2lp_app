@@ -10,6 +10,7 @@ C_SRCS += \
 ../Application/brakeAndThrottle.c \
 ../Application/buzzerControl.c \
 ../Application/dataAnalysis.c \
+../Application/ledControl.c \
 ../Application/lightControl.c \
 ../Application/motorControl.c \
 ../Application/periodicCommunication.c \
@@ -21,6 +22,7 @@ C_DEPS += \
 ./Application/brakeAndThrottle.d \
 ./Application/buzzerControl.d \
 ./Application/dataAnalysis.d \
+./Application/ledControl.d \
 ./Application/lightControl.d \
 ./Application/motorControl.d \
 ./Application/periodicCommunication.d \
@@ -32,6 +34,7 @@ OBJS += \
 ./Application/brakeAndThrottle.obj \
 ./Application/buzzerControl.obj \
 ./Application/dataAnalysis.obj \
+./Application/ledControl.obj \
 ./Application/lightControl.obj \
 ./Application/motorControl.obj \
 ./Application/periodicCommunication.obj \
@@ -43,6 +46,7 @@ OBJS__QUOTED += \
 "Application\brakeAndThrottle.obj" \
 "Application\buzzerControl.obj" \
 "Application\dataAnalysis.obj" \
+"Application\ledControl.obj" \
 "Application\lightControl.obj" \
 "Application\motorControl.obj" \
 "Application\periodicCommunication.obj" \
@@ -54,6 +58,7 @@ C_DEPS__QUOTED += \
 "Application\brakeAndThrottle.d" \
 "Application\buzzerControl.d" \
 "Application\dataAnalysis.d" \
+"Application\ledControl.d" \
 "Application\lightControl.d" \
 "Application\motorControl.d" \
 "Application\periodicCommunication.d" \
@@ -65,6 +70,7 @@ C_SRCS__QUOTED += \
 "../Application/brakeAndThrottle.c" \
 "../Application/buzzerControl.c" \
 "../Application/dataAnalysis.c" \
+"../Application/ledControl.c" \
 "../Application/lightControl.c" \
 "../Application/motorControl.c" \
 "../Application/periodicCommunication.c" \

@@ -21,24 +21,24 @@
  */
 static lightControl_CB_t *lightControl_CB;
 static lightControl_ALStimerManager_t *lightControl_ALStimerManager;
-static uint8_t (*lightModeArray[3])(void) = {light_MODE_OFF, light_MODE_ON, light_MODE_AUTO};
+static void (*lightModeArray[3])(void) = {light_MODE_OFF, light_MODE_ON, light_MODE_AUTO};
 /*********************************************************************
  * LOCAL VARIABLES
  */
-uint32_t ALS_Sample = 0;                        // declare as static when debugging is finished
+uint32_t ALS_Sample = 0;                        // declare as static when not debugging
 static uint8_t bitluxIndex = 0x00;
 static uint8_t lux_Index = 0x00;
 static uint8_t bitMask = 0x00;
-uint8_t light_mode = LIGHT_MODE_INITIAL;        // declare as static when not debugging is finished
-uint8_t light_status = LIGHT_STATUS_INITIAL;    // declare as static when not debugging is finished
+uint8_t light_mode = LIGHT_MODE_INITIAL;        // declare as static when not debugging
+uint8_t light_status = LIGHT_STATUS_INITIAL;    // declare as static when not debugging
 static uint8_t lightStatusNew = LIGHT_STATUS_INITIAL;
 
 // for debugging only
 uint32_t ALS_Sample_Array[42] = {288, 346, 300, 280, 280, 288, 105, 180, 299, 0,
-12288, 28840, 67283, 85288, 45288, 907288, 2880, 51055, 6745, 699,
-0, 283, 281, 270, 283, 288, 288, 287, 287, 1287,
-287, 1137, 87, 2887000, 28870, 288700, 28370, 5000, 9000, 6155,
-788999, 2887000};
+                                 12288, 28840, 67283, 85288, 45288, 907288, 2880, 51055, 6745, 699,
+                                 0, 283, 281, 270, 283, 288, 288, 287, 287, 1287,
+                                 287, 1137, 87, 2887000, 28870, 288700, 28370, 5000, 9000, 6155,
+                                 788999, 2887000};
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -55,6 +55,18 @@ uint8_t getLightMode(){
     return light_mode;
 }
 /*********************************************************************
+ * @fn      getLightStatuse
+ *
+ * @brief   call this function to retrieve the current light status
+ *
+ * @param   None
+ *
+ * @return  light_status
+ *********************************************************************/
+uint8_t getLightStatus(void){
+    return light_status;
+}
+/*********************************************************************
  * @fn      light_MODE_AUTO
  *
  * @brief   Execute AUTO light mode routine
@@ -63,13 +75,13 @@ uint8_t getLightMode(){
  *
  * @return  light_status
  *********************************************************************/
-uint8_t ALSCount = 0;   // for debugging only
-uint8_t light_MODE_AUTO(){
-    if (ALSCount >= 42){       // for debugging only
-            ALSCount = 0;          // for debugging only
-    }                                  // for debugging only
-    ALS_Sample = ALS_Sample_Array[ALSCount];       // for debugging only
-    ALSCount++;                            // for debugging only
+uint8_t ALSCount = 0;                               // for debugging only
+void light_MODE_AUTO(){
+    if (ALSCount >= 42){                            // for debugging only
+            ALSCount = 0;                           // for debugging only
+    }                                               // for debugging only
+    ALS_Sample = ALS_Sample_Array[ALSCount];        // for debugging only
+    ALSCount++;                                     // for debugging only
 //************* convert ALS_Data to luxIndex and compute sumluxIndex  ***************************
     lightControl_ALS_Controller(ALS_Sample);
 //
@@ -83,10 +95,11 @@ uint8_t light_MODE_AUTO(){
         light_status = lightStatusNew;  // Sends command to change light state
         // Action: "light status changed"
         //GPIO_write(Board_GPIO_LED, lightCommand);
-        //Action: "command change and send new light mode and new light status to APP"
+        // Action: "command change and send new light mode and new light status to APP"
+        // Action: LED display -> light on if light_status == ON. light off if light_status == OFF
     }
     lightControl_ALStimerManager->timerStart();
-    return 0;
+    //return 0;
 }
 /*********************************************************************
  * @fn      light_MODE_OFF
@@ -97,7 +110,7 @@ uint8_t light_MODE_AUTO(){
  *
  * @return  None
  *********************************************************************/
-uint8_t light_MODE_OFF(){
+void light_MODE_OFF(){
     //Obviously, if light is already OFF, there is no need to send command to dashboard to change the state of light
     if (light_status != LIGHT_STATUS_OFF) { // only when the light state is different to the command.....
     // if light is previously ON, send command to turn OFF light.
@@ -105,8 +118,9 @@ uint8_t light_MODE_OFF(){
         // Action: "light status changed"
         //GPIO_write(Board_GPIO_LED, 0);
         //"command change and send new light mode and new light status to APP"
+        // Action: LED display -> light off
     }
-    return 0;
+    //return 0;
 }
 /*********************************************************************
  * @fn      light_MODE_ON
@@ -117,7 +131,7 @@ uint8_t light_MODE_OFF(){
  *
  * @return  None
  *********************************************************************/
-uint8_t light_MODE_ON(){
+void light_MODE_ON(){
     //Obviously, if light is already ON, there is no need to send command to dashboard to change the state of light
     if (light_status != LIGHT_STATUS_ON) {// only when the light state is different to the command.....
     // if light is previously OFF, send command to turn ON light.
@@ -125,8 +139,9 @@ uint8_t light_MODE_ON(){
         // Action: "light status changed"
         //GPIO_write(Board_GPIO_LED, 1);
         // Action: "command change and send new light mode and new light status to APP"
+        // Action: LED display -> light on
     }
-    return 0;
+    //return 0;
 }
 /*********************************************************************
  * EXTERN FUNCTIONS
@@ -159,19 +174,22 @@ void lightControl_init(){
  *
  * @return  None
  *********************************************************************/
-void lightControl_change(uint8_t lightmode){
+void lightControl_change(){
     lux_Index = 0x00;
     bitMask = 0x00;
-    ALSCount = 0;   // for debugging only
-    if(lightmode != 2)
+    light_mode++;   //Toggles to the next light modes
+    if(light_mode > 2)
+    {                 // the case of changing from AUTO mode to OFF mode
+        light_mode = 0;
+    }
+    if(light_mode != 2)
     {                 // the case of changing from AUTO mode to OFF mode
         lightControl_ALStimerManager->timerStop();    // clock runs immediately at start-up --> stop timer 8
     }
-    if(lightmode == 2)
-    {
-        lightControl_ALStimerManager->timerStart();   // whenever auto mode is re-entered --> restart timer 8.  Timer 8 repeats at a set period after timer starts
+    if(light_mode == 2)
+    {               // whenever auto mode is re-selected --> restart timer 8
+        lightControl_ALStimerManager->timerStart();
     }
-    light_mode = lightmode;
     lightControl_changeLightMode(light_mode);
 }
 /*********************************************************************
@@ -183,9 +201,9 @@ void lightControl_change(uint8_t lightmode){
  *
  * @return  None
  *********************************************************************/
-void lightControl_changeLightMode(uint8_t light_mode){
-
+void lightControl_changeLightMode(){
     (*lightModeArray[light_mode])();
+    // Change light_mode on LED display.  If light_mode to AUTO -> turn on "AUTO" light.  Else -> "AUTO" light is off.
 }
 /*********************************************************************
  * @fn      lightControl_ALS_Controller
@@ -214,10 +232,8 @@ void lightControl_ALS_Controller(uint32_t luxValue)
  *
  * @return  None
  */
-//uint8_t countInterrupt = 0;   // for debugging only
 void lightControl_timerInterruptHandler()
 {
-//    countInterrupt++;   // for debugging only
     light_MODE_AUTO(); //call light_MODE_AUTO function, the light intensity value will then be passed to lightControl_ALS_Controller(ALS_Sample)
 }
 

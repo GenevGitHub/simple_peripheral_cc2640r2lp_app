@@ -18,14 +18,12 @@ extern "C"
 #include <math.h>
 #include <time.h>
 //Constants
-#define DATA_ANALYSIS_POINTS            21              // Number of data points (time interval) used for numerical integration
-#define MCU_SAMPLING_TIME               500             // unit in millisecond - must be the same as and linked to sampling time
-#define SPEED_SAMPLING_TIME             250             // unit in millisecond - must be the same as and linked to sampling time
-#define NUMUDINDEX                      20             // Number of Usage Data Set stored in flash memory
-// Note: Data Analysis Time Interval = (DATA_ANALYSIS_POINTS - 1) x MCU_SAMPLING_TIME
-// Option 1:  (25-1) x 250ms = 6000ms.  6000ms x 900 = 5400000ms = 1.5 hours -> 19 bytes per set x 900 = 17.1kB
-// Option 2:  (21-1) x 250ms = 5000ms.  5000ms x 900 = 4500000ms = 1.25 hours -> 19 bytes per set x 900 = 17.1kB
-// Option 3:  (41-1) x 250ms = 10000ms.  10000ms x 450 = 4500000ms = 1.25 hours -> 19 bytes per set x 450 = 8.55kB
+//#define DATA_ANALYSIS_POINTS            31              // Number of data points (time interval) used for numerical integration //  this shall equal DATA_ANALYSIS_POINTS
+//#define DATA_ANALYSIS_SAMPLING_TIME     300             // unit in millisecond - must be the same as and linked to sampling time // Is this the same as PERIODIC_COMMUNICATION_HF_SAMPLING_TIME
+#define UDARRAYSIZE                     20              // Number of Usage Data Set stored in flash memory
+#define UDTRIGGER                       40
+// Note: Data Analysis Time Interval = (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME
+// Option 1:  (31-1) x 300ms = 9000ms.  9000ms x 40 = 360000ms = 6 minutes. 6 minutes x 20 = 120 minutes = 2 hours
 #define WHEELRADIUS                     10.16           // wheel radius in centimeter
 #define BCF                             0.9             // Battery Capacity Safety Factor
 #define KM2MILE                         0.621           // convert length from km to miles
@@ -56,22 +54,23 @@ extern "C"
 #define FLASHING_RED                    0x00
 #define BATTERY_STATUS_INITIAL          GLOWING_AQUA
 //  Simulate MCU data
-//static uint32_t jjMax = 500;                          // Set jjMax to the number of MCU dummy data to be sent to dashboard
 #define jjMax                           5000
 
 //typedef
 // This set of data is stored in flash memory
 typedef struct usageData{
-        uint32_t dataCount;                             // to Cloud - require device parameters
-        uint16_t dataTimeStamp;                         // to Cloud - require device parameters
+        uint32_t UDCounter;                             // to Cloud - require device parameters
+        uint32_t totalPowerConsumption;                 // to Cloud, App display input - require device parameters
+        uint32_t totalMileage;                          // to Cloud, App display input - require device parameters
+}UD;
+// This set of data is temporary on the dashboard - this set of data is sent to the APP for displaying when connected with BLE
+typedef struct appData{
+        uint32_t ADCounter;                             // to Cloud - require device parameters
         uint16_t avgBatteryVoltage;                     // to Cloud - require device parameters
-        uint8_t avgSpeed;                               // to Cloud - require device parameters. average speed is optional
+        uint8_t avgSpeed;                               // to Cloud - require device parameters
         uint32_t accumPowerConsumption;                 // to Cloud, App display input - require device parameters
         uint32_t accumMileage;                          // to Cloud, App display input - require device parameters
         uint16_t errorCode;                             // to Cloud, Both LED display and App Display
-}UD;
-// This set of data is temporary - this set of data is sent to the APP for displaying only and are erased when Device shuts down
-typedef struct appData{
         uint16_t batteryPercentage;                     // App display input - require device parameters
         uint8_t batteryStatus;                          // Both LED display and App display input - require device parameters
         float instantEconomy;                           // Disable for now  // App display input - require retrieving saved data
@@ -83,29 +82,31 @@ typedef struct appData{
 //Battery status related Function declaration
 extern uint8_t computeBatteryPercentage();
 extern uint8_t determineBatteryStatus();
-extern uint8_t getBatteryPercentage();
-extern uint8_t getUnitSelectDash();
-extern void changeUnitSelectDash(void);
+extern uint8_t dataAnalysis_getBatteryPercentage();
+extern uint8_t dataAnalysis_getUnitSelectDash();
+extern void dataAnalysis_changeUnitSelectDash(void);
 
 //Local Functions declaration
 extern void dataAnalysis_Init();
 extern uint8_t coefficient_array_init();
-extern float LEDSpeed();
+extern void LEDSpeed(uint16_t xCounter);
 extern void dataSim(uint32_t jj);
+extern void dataAnalyt();
+extern void data2UDArray();
 extern void re_Initialize();
-extern void get_AnalysisData();
+extern void get_UDArrayData();
 extern void dataAnalysis_timerInterruptHandler();
 
 //Performance related Function declaration
-extern void dummyData();
+extern void dummyUDArray();
 extern uint32_t computePowerConsumption(); // output in mW-hr
 extern uint32_t computeDistanceTravelled();// output in decimeter
-extern uint8_t computeAverageSpeed();   // output in km/hr
+extern uint8_t computeAverageSpeed(uint32_t deltaMileage);   // output in km/hr
 extern uint32_t computeAvgBatteryVoltage(); // output in mV
+extern float computeInstantEconomy(uint32_t deltaPowerConsumption, uint32_t deltaMileage); // unit in W-hr / km
 extern float computeEconomy();  // unit in W-hr / km
 extern uint32_t computeRange(); // output in metres
 extern float computeCO2Saved(); // in kg
-extern float computeInstantEconomy(); // unit in W-hr / km
 //
 #ifdef __cplusplus
 }

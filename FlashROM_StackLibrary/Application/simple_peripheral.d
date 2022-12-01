@@ -251,6 +251,14 @@ Application/simple_peripheral.obj: ../Application/motorControl.h
 Application/simple_peripheral.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL.h
 Application/simple_peripheral.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h
 Application/simple_peripheral.obj: ../Application/periodicCommunication.h
+Application/simple_peripheral.obj: ../Application/dataAnalysis.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 
 ../Application/simple_peripheral.c:
 
@@ -753,4 +761,20 @@ C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UD
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h:
 
 ../Application/periodicCommunication.h:
+
+../Application/dataAnalysis.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 

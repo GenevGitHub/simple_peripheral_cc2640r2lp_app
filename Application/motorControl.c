@@ -23,6 +23,7 @@
 #include "periodicCommunication.h"
 #include "simple_peripheral.h"
 #include "brakeAndThrottle.h"
+#include "ledControl.h"
 #include "lightControl.h"
 #include "buzzerControl.h"
 #include "dataAnalysis.h"
@@ -127,6 +128,9 @@ void motorcontrol_init(void)
 
     buzzerControl_init();
     //buzzerControl_registerCBs(&buzzerControlCBs);
+
+    ledControl_Init();
+
 }
 /*********************************************************************
  * @fn      motorcontrol_registerCB
@@ -157,16 +161,15 @@ static void motorcontrol_processGetRegisterFrameMsg(uint8_t *txPayload, uint8_t 
     {
     case STM32MCP_BUS_VOLTAGE_REG_ID:
         {
-            // keep voltage in mV - do not convert it to V
-            uint16_t voltage = *((uint16_t*) rxPayload) * 1000; // rxPayload in mV, voltage in V
-            // this is battery percentage.  batteryLevel is used for LED display bar - rename to batteryPercentage.  Chee 13/11/2022
-            uint8_t batteryLevel = (uint8_t) ((((uint32_t)voltage - STM32MCP_SYSTEM_MIMIMUM_VOLTAGE)*100/(STM32MCP_SYSTEM_MAXIMUM_VOLTAGE - STM32MCP_SYSTEM_MIMIMUM_VOLTAGE)) & 0xFF);
-            // uint16_t current = .....;
-            motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_LEVEL, BATTERY_BATTERY_LEVEL_LEN, (uint8_t *) &batteryLevel);
+            // voltage must be in mV
+            uint16_t voltage = *((uint16_t*) rxPayload) * 1000; // rxPayload in V, voltage in mV
+            // this is battery percentage.  batteryLevel is used for LED display battery bar - renamed batteryLevel to batteryPercentage.  Chee 13/11/2022
+            uint8_t batteryPercentage = (uint8_t) ((((uint32_t)voltage - STM32MCP_SYSTEM_MIMIMUM_VOLTAGE)*100/(STM32MCP_SYSTEM_MAXIMUM_VOLTAGE - STM32MCP_SYSTEM_MIMIMUM_VOLTAGE)) & 0xFF);
+            motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_LEVEL, BATTERY_BATTERY_LEVEL_LEN, (uint8_t *) &batteryPercentage);
             motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_VOLTAGE, BATTERY_BATTERY_VOLTAGE_LEN, (uint8_t *) &voltage);
             break;
         }
-        // current sensor to be added to MCU.  Reserved case for current measurement
+        // !!!!!!!!!!!!!!!!!!!!!!!!!  current sensor to be added to MCU.  Reserved case for current measurement
 //    case STM32MCP_BUS_CURRENT_REG_ID:
 //        {
               // keep current in mV - do not convert it to A
@@ -183,18 +186,18 @@ static void motorcontrol_processGetRegisterFrameMsg(uint8_t *txPayload, uint8_t 
     case STM32MCP_SPEED_MEASURED_REG_ID:
         {
             int32_t rawRPM = *((int32_t*) rxPayload);
-            uint8_t speedNorm = 25;         // what is speedNorm?
+            uint8_t speedNorm = 25;         // !!!!!!!!!!  what is speedNorm?  speed (in cm per sec) = rpm * 2 * pi / 60 * wheelRadius (cm) = rpm / 0.93989.  SpeedNorm = 0.93989 rpm/cm/s
             if(rawRPM >= 0)
             {
                 uint16_t rpm = (uint16_t) (rawRPM & 0xFFFF);
-                uint16_t speed = rpm/(uint16_t)speedNorm;       // how does rpm/speedNorm give us speed?  speed (in cm/s) = 2 * pi * rpm / 60 * wheelRadius (in cm)
+                uint16_t speed = rpm/(uint16_t)speedNorm;       // !!!!!!!! how does rpm/speedNorm give us speed?  speed (in cm/s) = 2 * pi * rpm / 60 * wheelRadius (in cm)
                 motorcontrol_setGatt(CONTROLLER_SERV_UUID, CONTROLLER_MOTOR_RPM, CONTROLLER_MOTOR_RPM_LEN, (uint8_t *) &rpm);
                 motorcontrol_setGatt(CONTROLLER_SERV_UUID, CONTROLLER_MOTOR_SPEED, CONTROLLER_MOTOR_SPEED_LEN, (uint8_t *) &speed);
             }
             break;
         }
     default:
-        break;
+            break;
     }
 }
 /*********************************************************************
@@ -341,12 +344,18 @@ static void motorcontrol_controllerCB(uint8_t paramID)
  *
  * @return  TRUE or FALSE
  */
-static void motorcontrol_dashboardCB(uint8_t paramID)
+static void motorcontrol_dashboardCB(uint8_t paramID)       // !!!!!!!!!!!!!!!!!!!!!! what does this function do?
 {
-    uint8_t lightmode; // = LIGHT_MODE_INITIAL;
-    uint8_t lightstatus; // = LIGHT_STATUS_INITIAL;
+    uint8_t lightmode;      // = LIGHT_MODE_INITIAL;
+    uint8_t lightstatus;    // = LIGHT_STATUS_INITIAL;
     switch(paramID)
     {
+    case DASHBOARD_ERROR_CODE:
+
+        break;
+    case DASHBOARD_SPEED_MODE:
+
+        break;
     case DASHBOARD_LIGHT_MODE:
         Dashboard_GetParameter(DASHBOARD_LIGHT_MODE, &lightmode);
         if(lightmode == LIGHT_MODE_OFF)
@@ -359,13 +368,30 @@ static void motorcontrol_dashboardCB(uint8_t paramID)
         }
         else if(lightmode == LIGHT_MODE_AUTO)
         {
-            //getLightStatus();
+            lightstatus = getLightStatus();
         }
-        //lightControl_SetLightMode(lightmode);
-        //lightControl_SetLightStatus(lightstatus)
+        ledControl_setLightMode(lightmode);
+        ledControl_setLightStatus(lightstatus);
         break;
+//    case DASHBOARD_POWER_ON_TIME:
+
+//        break;
+//    case DASHBOARD_BLE_STATUS:
+
+//        break;
+//    case DASHBOARD_BATTERY_STATUS:
+
+//        break;
+//    case DASHBOARD_UNITSELECT:
+
+//        break;
+
+//    case DASHBOARD_DASH_SPEED:
+
+//        break;
     default:
         break;
+
     }
 }
 /*********************************************************************
@@ -382,48 +408,35 @@ uint8_t messageid;  // for debugging only
 static void motorcontrol_singleButtonCB(uint8_t messageID)
 {
     messageid = messageID;  // for debugging only
-    uint8_t lightmode;
+    //uint8_t lightmode;
     switch(messageID)
     {
-    // case = 0x01
-    case SINGLE_BUTTON_SINGLE_LONG_PRESS_MSG:
-    {    // toggle Power ON/OFF
+    case SINGLE_BUTTON_SINGLE_LONG_PRESS_MSG:       // case = 0x01
+    {    // toggle Power ON/OFF or Enter/Exit Sleep Mode
 
     }
         break;
-    // case = 0x02
-    case SINGLE_BUTTON_SINGLE_SHORT_PRESS_MSG:
+    case SINGLE_BUTTON_SINGLE_SHORT_PRESS_MSG:      // case = 0x02
     {
-        lightmode = getLightMode();
-        lightmode++;   //Toggles to the next light modes
-        if(lightmode > 2)
-        {                 // the case of changing from AUTO mode to OFF mode
-            lightmode = 0;
-        }
-        lightControl_change(lightmode);
+        lightControl_change();
     }
         break;
-    // case = 0x03
-    case SINGLE_BUTTON_SINGLE_SHORT_LONG_PRESS_MSG:
+    case SINGLE_BUTTON_SINGLE_SHORT_LONG_PRESS_MSG: // case = 0x03
     {
         // toggle BLE ON/OFF
     }
         break;
-    // case = 0x04
-    case SINGLE_BUTTON_DOUBLE_SHORT_PRESS_MSG:
-    {
-        // toggle speed modes
+    case SINGLE_BUTTON_DOUBLE_SHORT_PRESS_MSG:      // case = 0x04
+    {   // toggle speed modes
+        brakeAndThrottle_toggleSpeedMode();
     }
         break;
-    // case = 0x05
-    case SINGLE_BUTTON_TREBLE_SHORT_PRESS_MSG:
-    {
-        // toggle units
-        changeUnitSelectDash();
+    case SINGLE_BUTTON_TREBLE_SHORT_PRESS_MSG:      // case = 0x05
+    {   // toggle units
+        dataAnalysis_changeUnitSelectDash();
     }
         break;
-    // case 0x00 and all other cases
-    default:
+    default:                                        // case 0x00 and all other cases
         break;
     }
 }
