@@ -22,9 +22,6 @@ Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdl
 Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
 Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
-Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
-Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
-Application/periodicCommunication.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 Application/periodicCommunication.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/Controller.h
 Application/periodicCommunication.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/inc/bcomdef.h
 Application/periodicCommunication.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/osal/src/inc/comdef.h
@@ -82,12 +79,6 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/Controller.h:
 

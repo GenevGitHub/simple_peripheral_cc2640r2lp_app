@@ -23,16 +23,16 @@
 /******************************************************************
     Local Variables
 *******************************************************************/
-static Clock_Handle ClockHandle;
+static Clock_Handle Clock01Handle;
 static Clock_Params clkParams;
-static uint32_t clockTicks;
+static uint32_t clockTicks01;
 static Error_Block eb;
 /******************************************************************
     Local Functions
 *******************************************************************/
 static void UDHAL_TIM9_start();
 static void UDHAL_TIM9_stop();
-static void UDHAL_TIM9_OVClockFxn();
+static void UDHAL_TIM9_OVClockFxn01();
 /******************************************************************
     Macros
 *******************************************************************/
@@ -54,8 +54,8 @@ static buzzerControl_timerManager_t buzzerControl_timer =
 void UDHAL_TIM9_init(){
     Error_init(&eb);
     //buzzer duration times: BATTERYLOW_TIME = 100ms Repetitive @BUZZER_TIMER_BATTERYLOW_PERIOD
-    clockTicks = BUZZER_TIMER_BATTERYLOW_PERIOD * (1000 / Clock_tickPeriod) - 1; // minus 1 is required because one more tick is required to trigger overflow
-    ClockHandle = Clock_create(UDHAL_TIM9_OVClockFxn, clockTicks, &clkParams, &eb);
+    clockTicks01 = BUZZER_BATTERYLOW_BEEP_PERIOD * (1000 / Clock_tickPeriod) - 1; // minus 1 is required because one more tick is required to trigger overflow
+    Clock01Handle = Clock_create(UDHAL_TIM9_OVClockFxn01, clockTicks01, &clkParams, &eb);
     buzzerControl_registerTimer(&buzzerControl_timer);
 }
 /*********************************************************************
@@ -70,7 +70,8 @@ void UDHAL_TIM9_init(){
  */
 void UDHAL_TIM9_params_init(){
     Clock_Params_init(&clkParams);
-    clkParams.period = BUZZER_TIMER_BATTERYLOW_PERIOD;   //period can be re-assigned
+    clkParams.period = 0; //BUZZER_BATTERYLOW_BEEP_PERIOD * (1000 / Clock_tickPeriod) - 1;
+    //period does not seem to work - it is overcame by repetitively call timerStart() @ buzzerControl_processTimerOV()
     clkParams.startFlag = FALSE;
     clkParams.arg = (UArg)0x0000;
 }
@@ -84,7 +85,7 @@ void UDHAL_TIM9_params_init(){
  * @return  None.
  */
 static void UDHAL_TIM9_start(){
-    Clock_start(ClockHandle);  // Clock starts when battery percentage is below 5%.  Use function pointer timerManager -> timerStart();
+    Clock_start(Clock01Handle);  // Clock starts when battery percentage is below 5%.  Use function pointer timerManager -> timerStart();
 }
 /*********************************************************************
  * @fn      UDHAL_TIM9_stop
@@ -96,7 +97,7 @@ static void UDHAL_TIM9_start(){
  * @return  None.
  */
 static void UDHAL_TIM9_stop(){
-    Clock_stop(ClockHandle);   // Clock stops when battery percentage is above 8%.  Use function pointer timerManager -> timerStart();
+    Clock_stop(Clock01Handle);   // Clock stops when battery percentage is above 8%.  Use function pointer timerManager -> timerStart();
 }
 
 /*********************************************************************
@@ -109,7 +110,7 @@ static void UDHAL_TIM9_stop(){
  *
  * @return  none
  */
-static void UDHAL_TIM9_OVClockFxn(){
+static void UDHAL_TIM9_OVClockFxn01(){
     buzzerControl_processTimerOV();
 }
 

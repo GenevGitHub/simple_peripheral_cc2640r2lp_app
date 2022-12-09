@@ -22,6 +22,8 @@ extern "C"
 
 //Local Functions declaration
 extern void ledControl_Init();
+extern void ledControl_setAllOn();
+extern void ledControl_setAllOff();
 extern void ledControl_setDashSpeed(float dashSpeed);
 extern void ledControl_setBatteryStatus(uint8_t batteryStatus);
 extern void ledControl_setSpeedMode(uint8_t speedMode);

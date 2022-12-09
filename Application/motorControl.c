@@ -373,9 +373,6 @@ static void motorcontrol_dashboardCB(uint8_t paramID)       // !!!!!!!!!!!!!!!!!
         ledControl_setLightMode(lightmode);
         ledControl_setLightStatus(lightstatus);
         break;
-//    case DASHBOARD_POWER_ON_TIME:
-
-//        break;
 //    case DASHBOARD_BLE_STATUS:
 
 //        break;
@@ -404,6 +401,7 @@ static void motorcontrol_dashboardCB(uint8_t paramID)       // !!!!!!!!!!!!!!!!!
  *
  * @return  TRUE or FALSE
  */
+uint8_t advertEnable = FALSE;
 uint8_t messageid;  // for debugging only
 static void motorcontrol_singleButtonCB(uint8_t messageID)
 {
@@ -413,6 +411,7 @@ static void motorcontrol_singleButtonCB(uint8_t messageID)
     {
     case SINGLE_BUTTON_SINGLE_LONG_PRESS_MSG:       // case = 0x01
     {    // toggle Power ON/OFF or Enter/Exit Sleep Mode
+        // ICallPlatform_pwrNotify(unsigned int eventType, uintptr_t eventArg, uintptr_t clientArg)
 
     }
         break;
@@ -423,7 +422,17 @@ static void motorcontrol_singleButtonCB(uint8_t messageID)
         break;
     case SINGLE_BUTTON_SINGLE_SHORT_LONG_PRESS_MSG: // case = 0x03
     {
-        // toggle BLE ON/OFF
+        //GAPRole_GetParameter(GAPROLE_CONNHANDLE, &connectionHandle);
+        if (advertEnable == FALSE){
+            advertEnable = TRUE;
+            GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertEnable);
+            //newState = GAPROLE_WAITING;
+            //SimplePeripheral_processStateChangeEvt(newState);
+        }
+        else if (advertEnable == TRUE){
+            advertEnable = FALSE;
+            GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertEnable); // this causes the firmware to stop
+        }
     }
         break;
     case SINGLE_BUTTON_DOUBLE_SHORT_PRESS_MSG:      // case = 0x04

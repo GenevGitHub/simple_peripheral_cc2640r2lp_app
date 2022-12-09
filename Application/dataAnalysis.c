@@ -33,7 +33,7 @@ static uint16_t DATA_ANALYSIS_SAMPLING_TIME = PERIODIC_COMMUNICATION_HF_SAMPLING
 // Simpson's 1/3 rule coefficients
 static uint8_t coefficient_array[DATA_ANALYSIS_POINTS] = {0};       // same size as DATA_ANALYSIS_POINTS
 //Default battery status at each POWER ON
-uint8_t batteryStatus =  BATTERY_STATUS_INITIAL;
+uint8_t batteryStatus;  // =  BATTERY_STATUS_INITIAL;
 //Default Unit Settings
 uint8_t UnitSelectDash = SI_UNIT;  // Keep the last units selected by user in memory, the same units is used on restart
 uint8_t UnitSelectApp = SI_UNIT;    // Mobile app allow user to select the desired display unit - the App units and Dash units are NOT linked
@@ -49,7 +49,7 @@ static uint16_t (*ptrvb)[DATA_ANALYSIS_POINTS] = &batteryVoltage;
 static uint16_t (*ptrcb)[DATA_ANALYSIS_POINTS] = &batteryCurrent;
 //
 static uint16_t xCount = 1;                     // At initialization, xCount begins at 0. After the 1st set, xCount begins at index 1.
-static time_t t;
+//static time_t t;
 static uint32_t UDDataCounter = 0;          // At new, UDDataCounter = 0
 static uint16_t UDIndex;                        // the last UDindex saved
 static uint16_t UDIndexPrev;
@@ -57,9 +57,12 @@ static UD UDArray[UDARRAYSIZE] = {0};            // UDArray is the "storage arra
 static UD (*ptrUDArray)[UDARRAYSIZE] = &UDArray; // Provides a pointer option
 static AD ADArray = {0};                        //Since this data set is temporary, array struct is not necesary.  ADArray data that are displayed on the mobile app.
 
-static float lengthConvFactorDash;
-//static uint8_t batteryPercentageInit;
+static float lenConvFactorDash;
+static float lenConvFactor02;
+static float massConvFactor;
 static uint32_t avgBatteryVoltage = 0;
+uint16_t batteryPercentage = BATTERY_PERCENTAGE_INITIAL;
+uint8_t batteryLow = 0;
 static uint8_t UDTriggerCounter = 0;
 static uint32_t ADDataCounter = 0;
 static uint32_t sumDeltaMileage;              // unit in decimeters.  This is the previous data on the total distance travelled
@@ -220,7 +223,7 @@ void dummyUDArray(){
  */
 extern void dataAnalysis_timerInterruptHandler()
 {
-        // get data from MCU at every DATA_ANALYSIS_SAMPLING_TIME interval
+        // motorControl.c pass data from MCU at every DATA_ANALYSIS_SAMPLING_TIME interval to dataSim(uint32_t jj)
 }
 /*
  * @fun      dataAnalysis_Init
@@ -232,29 +235,54 @@ extern void dataAnalysis_timerInterruptHandler()
  * @return  Nil
 */
 extern void dataAnalysis_Init(){
-    uint16_t batteryVoltageStartUp;  //= get Battery Voltage ;
+    uint16_t batteryVoltageStartUp;
     uint16_t batteryCurrentStartUp;
     // At the instant of POWER ON, we need to obtain BATTERY status for LED display
-    // dashboard will demand MCU to obtain one battery voltage and current measurement immediately at STARTUP
-    batteryVoltageStartUp = 40000;  //or = get Battery Voltage in mV;
-    batteryCurrentStartUp = 3000;     //or = get Battery Current in mA;
-    //
+    // dashboard will instruct motor controller to obtain a battery voltage and current measurement
+    batteryVoltageStartUp = 30100;  //or = getBatteryVoltage in mV;
+    batteryCurrentStartUp = 3000;     //or = getBatteryCurrent in mA;
     avgBatteryVoltage = batteryVoltageStartUp;
-    ADArray.batteryPercentage = round((float)(batteryVoltageStartUp - BATTERY_MIN_VOLTAGE))* 100 /(BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE);
-    ADArray.batteryStatus = determineBatteryStatus();
-    dummyUDArray();
+    dummyUDArray();     // read UDArray data that are stored in memory
     get_UDArrayData();
-    if (UnitSelectDash == IMP_UNIT) {lengthConvFactorDash = KM2MILE;}
-    else if (UnitSelectDash == SI_UNIT) {lengthConvFactorDash = 1;}
-    srand((unsigned) time(&t)); // delete this later!!!!
+    // defining ADArray variables at initialization allow connectivity with Mobile App instantly.
+    ADArray.accumPowerConsumption = totalPowerConsumedPrev;
+    ADArray.accumMileage = totalMileagePrev;
+    ADArray.avgSpeed = 0;
+    ADArray.avgBatteryVoltage = avgBatteryVoltage;
+    ADArray.errorCode = 0;
+    ADArray.batteryStatus = determineBatteryStatus();
+    ADArray.batteryPercentage = computeBatteryPercentage();
+    ADArray.instantEconomy = computeInstantEconomy(0, 0);
+    ADArray.economy = computeEconomy();
+    ADArray.range = computeRange();
+    ADArray.co2Saved = computeCO2Saved();
+
+    if (UnitSelectDash == IMP_UNIT) {
+        lenConvFactorDash = KM2MILE;
+        lenConvFactor02 = CM2INCH;
+        massConvFactor = KG2LBS;
+    }
+    else if (UnitSelectDash == SI_UNIT) {
+        lenConvFactorDash = 1;
+        lenConvFactor02 = 1;
+        massConvFactor = 1;
+    }
     *((*ptrrpm)) = 0;         // unit in rpm = get rpm
     *((*ptrSp)) = round((*((*ptrrpm))) * 2 * (float) M_PI / 60 * WHEELRADIUS);          // Unit in cm / sec
-    *((*ptrcb)) = batteryCurrentStartUp; //rand()%13 * 1000;                 // unit in mA = get battery current in mA
-    *((*ptrvb)) = batteryVoltageStartUp; //*((*ptrvb)) - xCount * 10;         // unit in mV = get battery voltage in mV
-    dataAnalyt();
-    //ledControl_setBatteryStatus(ADArray.batteryStatus);     // Send battery status to LED display
-    ADDataCounter = 0;
+    *((*ptrcb)) = batteryCurrentStartUp;          // unit in mA = get battery current in mA
+    *((*ptrvb)) = batteryVoltageStartUp;          // unit in mV = get battery voltage in mV
+
+    ledControl_setBatteryStatus(ADArray.batteryStatus);     // Send battery status to LED display
     ledControl_setUnitSelectDash(UnitSelectDash);       // Send Unit Select to LED display
+
+    if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
+        batteryLow = 1;
+        buzzerControl_Start();
+    }
+    if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
+        batteryLow = 0;
+        buzzerControl_Stop();
+    }
 }
 /*
  * @fn      get_UDArrayData
@@ -288,7 +316,7 @@ extern void get_UDArrayData(){
  * @return  Nil
 */
 extern void LEDSpeed(uint16_t xCounter){
-    float dashSpeed = ((float) speed[xCounter] * 0.036 * lengthConvFactorDash);
+    float dashSpeed = ((float) speed[xCounter] * 0.036 * lenConvFactorDash);
     ledControl_setDashSpeed(dashSpeed); // Send dashSpeed to LED display and App immediately
 }
 /*
@@ -300,6 +328,7 @@ extern void LEDSpeed(uint16_t xCounter){
  *
  * @return  Nil
 */
+//static uint8_t ledControl_call = 0;
 void dataAnalyt(){
     uint32_t deltaPowerConsumption, deltaMileage;
     ADArray.ADCounter = ADDataCounter;            // totalDataCount is total count of all computed datasets
@@ -311,19 +340,18 @@ void dataAnalyt(){
     ADArray.accumMileage = totalMileagePrev + sumDeltaMileage;
     ADArray.avgSpeed = computeAverageSpeed(deltaMileage);
     ADArray.avgBatteryVoltage = computeAvgBatteryVoltage();
-    ADArray.errorCode = 7;
+    ADArray.errorCode = 0;
     ADArray.batteryStatus = determineBatteryStatus();
     ADArray.batteryPercentage = computeBatteryPercentage();
     ADArray.instantEconomy = computeInstantEconomy(deltaPowerConsumption, deltaMileage);
     ADArray.economy = computeEconomy();
     ADArray.range = computeRange();
     ADArray.co2Saved = computeCO2Saved();
-    re_Initialize();    // Re-initialize arrays after data analysis
-    ledControl_setBatteryStatus(batteryStatus);     // Send battery status and errorCode to led display
-    ledControl_setErrorCodeWarning(ADArray.errorCode);
     // Action Required: Send ADArray to Mobile App.  ADArray cold be stored in Mobile memory, then Mobile could send ADArray to cloud when WIFI is available.
-    UDTriggerCounter++;
+    re_Initialize();    // Re-initialize rpm, speed, batteryVoltage and batteryCurrent arrays after data analysis
     ADDataCounter++;
+    UDTriggerCounter++;
+    //ledControl_call = 1;
 }
 /*
  * @fn      data2UDArray
@@ -357,6 +385,7 @@ void data2UDArray(){
  *
  * @return  Nil
 */
+
 extern void dataSim(uint32_t jj){
     //uint32_t deltaPowerConsumption, deltaMileage;
     // Simulates and fills the input data arrays with dummy MCU data
@@ -366,17 +395,32 @@ extern void dataSim(uint32_t jj){
     *((*ptrvb)+ xCount) = 40000; //*((*ptrvb)) - xCount * 10;         // unit in mV = get battery voltage in mV
     LEDSpeed(xCount);       // covert speed to the selected dashboard unit (dashSpeed) then sent to led display
     xCount++;
-    // ************  Data analysis is carried out periodically for computing distance travelled, power consumed, economy etc.... Data are stored in fixed size arrays.
-    // ************  Once the arrays are filled with fresh data, data parsing / computations are carried out.  The OR statement accomodates the case of SHUT DOWN where the last array is not fully filled.
-    if (xCount >= DATA_ANALYSIS_POINTS){ // and when Power OFF
+    // ************  Data evaluation is performed periodically to compute, e.g. distance traveled, power consumed, economy etc....
+    // ************  Each time the speed, voltage and current arrays are full, dataAnalyt() is called.  dataAnalyt() is also called at device SHUT DOWN - where the speed, voltage and current array may not be full.
+    if (xCount >= DATA_ANALYSIS_POINTS){ // and also when Power OFF // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
         dataAnalyt();
+        ledControl_setBatteryStatus(ADArray.batteryStatus);     // Send battery status and errorCode to led display
+        ledControl_setErrorCodeWarning(ADArray.errorCode);
+        //batteryPercentage
+        if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
+            batteryLow = 1;
+            buzzerControl_Start();
+        }
+        if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
+            batteryLow = 0;
+            buzzerControl_Stop();
+        }
     }
-    // The UDArray stores total Power Consumed and total distance travelled data in memory
-    // It is stored once every (DATA_ANALYSIS_SAMPLING_TIME x (DATA_ANALYSIS_POINTS -1) x UDTRIGGER / 1000) seconds.
+    //if (ledControl_call == 1){
+    //    ledControl_call = 0;
+    //}
+    // The UDArray is used to store the history of total Power Consumed and total distance travelled data in memory.
+    // To minimize the SRAM occupied, it is stored only once every (DATA_ANALYSIS_SAMPLING_TIME x (DATA_ANALYSIS_POINTS -1) x UDTRIGGER / 1000) seconds.
     // e.g. ( 300 ms x (31 -1) x 40 / 1000) = 360 seconds = 6 minutes
-    if (UDTriggerCounter >= UDTRIGGER){     // and when Power_OFF)
+    if (UDTriggerCounter >= UDTRIGGER){     // and also when Power_OFF  // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
         data2UDArray();
     }
+
 }
 /*
  * @fn      computePowerConsumption
@@ -388,14 +432,16 @@ extern void dataSim(uint32_t jj){
  *
  * @return  energy consumption value (unit milli W-hr) in type: uint32_t
 */
+uint32_t deltaPowerConsumption;     // for debugging only
 uint32_t computePowerConsumption(){
-    uint32_t deltaPowerConsumption = 0;
+    //uint32_t
+    deltaPowerConsumption = 0;
     for(uint8_t ii=0; ii < DATA_ANALYSIS_POINTS; ii++){
         uint32_t tempholder = (batteryVoltage[ii] * batteryCurrent[ii]) * 0.0001;         // required to avoid possible byte size limitation issue
         deltaPowerConsumption += (*((*ptrc)+ ii)) * tempholder;
     }
     deltaPowerConsumption = round((float)deltaPowerConsumption/3000*DATA_ANALYSIS_SAMPLING_TIME/3600);       // output in milli-W-hr
-    return deltaPowerConsumption;
+    return deltaPowerConsumption;   //  -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      computeDistanceTravelled
@@ -407,13 +453,15 @@ uint32_t computePowerConsumption(){
  *
  * @return  distanceTravelled (unit in decimeters) in type: uint32_t
 */
+uint32_t deltaDistanceTravelled;    // for debugging only
 uint32_t computeDistanceTravelled(){
-    uint32_t deltaDistanceTravelled = 0;
+    //uint32_t
+    deltaDistanceTravelled = 0;
     for(uint8_t x=0; x<DATA_ANALYSIS_POINTS; x++){
          deltaDistanceTravelled += ((*((*ptrc)+ x)) * speed[x]);            // for computational accuracy reasons, calculations are performed in centimeter/second
     }
     deltaDistanceTravelled = round((float)deltaDistanceTravelled*DATA_ANALYSIS_SAMPLING_TIME/30000);          // output is then converted to decimeter
-    return deltaDistanceTravelled;
+    return deltaDistanceTravelled; // -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      averageSpeed
@@ -454,7 +502,7 @@ uint32_t computeAvgBatteryVoltage(){
             //errorCode = batteryError;
         }
         else {avgBatteryVoltage = round((float) avgBatteryVoltage / (xCount));}        // output in mV
-        return avgBatteryVoltage;
+        return avgBatteryVoltage;   // Unit in mV
 }
 /*
  * @fn      computeBatteryPercentage
@@ -465,10 +513,13 @@ uint32_t computeAvgBatteryVoltage(){
  *
  * @return  batteryPercentage
 */
+
 uint8_t computeBatteryPercentage(){
+    //uint8_t
+    batteryPercentage = 0;
     if(avgBatteryVoltage > BATTERY_MAX_VOLTAGE) {avgBatteryVoltage = BATTERY_MAX_VOLTAGE;}      // ensure battery % cannot exceed 100%
     else if(avgBatteryVoltage < BATTERY_MIN_VOLTAGE) {avgBatteryVoltage = BATTERY_MIN_VOLTAGE;} // ensure battery % cannot be less than 0%
-    uint8_t batteryPercentage = round((avgBatteryVoltage - BATTERY_MIN_VOLTAGE))* 100 /(BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE);
+    batteryPercentage = round((avgBatteryVoltage - BATTERY_MIN_VOLTAGE))* 100 /(BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE);
     return batteryPercentage;
 }
 /*
@@ -481,12 +532,13 @@ uint8_t computeBatteryPercentage(){
  * @return  batteryStatus
 */
 uint8_t determineBatteryStatus(){
-    if (avgBatteryVoltage > LEVEL45) {return GLOWING_AQUA;}
-    else if (avgBatteryVoltage <= LEVEL45 && avgBatteryVoltage > LEVEL34) {return GLOWING_GREEN;}
-    else if (avgBatteryVoltage <= LEVEL34 && avgBatteryVoltage > LEVEL23) {return YELLOW;}
-    else if (avgBatteryVoltage <= LEVEL23 && avgBatteryVoltage > LEVEL12) {return ORANGE;}
-    else if (avgBatteryVoltage <= LEVEL12 && avgBatteryVoltage > LEVEL01) {return RED;}
-    else {return FLASHING_RED;}
+    if (avgBatteryVoltage > LEVEL45) {batteryStatus = GLOWING_AQUA;}
+    else if (avgBatteryVoltage <= LEVEL45 && avgBatteryVoltage > LEVEL34) {batteryStatus = GLOWING_GREEN;}
+    else if (avgBatteryVoltage <= LEVEL34 && avgBatteryVoltage > LEVEL23) {batteryStatus = YELLOW;}
+    else if (avgBatteryVoltage <= LEVEL23 && avgBatteryVoltage > LEVEL12) {batteryStatus = ORANGE;}
+    else if (avgBatteryVoltage <= LEVEL12 && avgBatteryVoltage > LEVEL01) {batteryStatus = RED;}
+    else {batteryStatus = FLASHING_RED;}
+    return batteryStatus;
 }
 /*
  * @fn      computeInstantEconomy
@@ -497,12 +549,14 @@ uint8_t determineBatteryStatus(){
  *
  * @return  instantEconomy (in W-hr/km)
 */
+float instantEconomy; // unit in W-hr / km - for debugging
 float computeInstantEconomy(uint32_t deltaPowerConsumption, uint32_t deltaMileage){
-    float instantEconomy = 0; // unit in W-hr / km
+    //float
+    instantEconomy = 0; // unit in W-hr / km
     if ((deltaMileage)<=0){
-        instantEconomy=0;}      //******** Safeguard from stack overflow due to division by 0
+        instantEconomy=9999.99;}      //******** Safeguard from stack overflow due to division by 0
     else {instantEconomy = (float)(deltaPowerConsumption) * 10 / deltaMileage;} // unit in W-hr / km
-    return instantEconomy;
+    return instantEconomy;  // Unit in W-hr / km     -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      computeEconomy
@@ -513,11 +567,13 @@ float computeInstantEconomy(uint32_t deltaPowerConsumption, uint32_t deltaMileag
  *
  * @return  economy (in W-hr/km)
 */
+float economy;      // unit in W-hr / km
 float computeEconomy(){
-        float economy = 0;      // unit in W-hr / km
-        if ((ADArray.accumMileage - totalMileage0) > 0) {economy = (float)(ADArray.accumPowerConsumption - totalPowerConsumed0) * 10 / (ADArray.accumMileage - totalMileage0);}  // Unit in W-hr / km
-        else {economy = 9999.99;}           // Safeguard from stack overflow due to division by 0
-        return economy; // Unit in W-hr / km
+        //float
+    economy = 0;      // unit in W-hr / km
+    if ((ADArray.accumMileage - totalMileage0) > 0) {economy = (float)(ADArray.accumPowerConsumption - totalPowerConsumed0) * 10 / (ADArray.accumMileage - totalMileage0);}  // Unit in W-hr / km
+    else {economy = 9999.99;}           // Safeguard from stack overflow due to division by 0
+    return economy; // Unit in W-hr / km     -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      computeRange
@@ -528,11 +584,13 @@ float computeEconomy(){
  *
  * @return  Range
 */
+float range;// for debugging only
 uint32_t computeRange(){
-        float range = 0;
-        if (ADArray.economy > 0) {range = ((float) ADArray.batteryPercentage * BATTERY_MAX_CAPACITY * BCF / ADArray.economy / 100);}       // output in metres
-        else {range = 0;}           // Safeguard from stack overflow due to division by 0
-        return range;   // output in metres
+        //float
+    range = 0;
+    if (ADArray.economy > 0) {range = ((float) ADArray.batteryPercentage * BATTERY_MAX_CAPACITY * BCF / ADArray.economy / 100);}       // output in metres
+    else {range = 0;}           // Safeguard from stack overflow due to division by 0
+    return range;   // output in metres  -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      computeCO2Saved
@@ -543,14 +601,15 @@ uint32_t computeRange(){
  *
  * @return  co2Saved
 */
-float co2Saved = 0; // in kg
+float co2Saved; // in kg
 float computeCO2Saved(){
-        //float co2Saved = 0; // in kg
-        if (ADArray.accumMileage > 0){
-            co2Saved = ((float) ADArray.accumMileage / 10000) * (COEFF01 - ((float) (ADArray.accumPowerConsumption) / (float) (ADArray.accumMileage) * 0.10) * COEFF02);  // in kg
-        }
-        else {co2Saved = 0;}            // Safeguard from stack overflow due to division by 0
-        return co2Saved;
+        //float
+    co2Saved = 0; // in kg
+    if (ADArray.accumMileage > 0){
+       co2Saved = ((float) ADArray.accumMileage / 10000) * (COEFF01 - ((float) (ADArray.accumPowerConsumption) / (float) (ADArray.accumMileage) * 0.10) * COEFF02);  // in kg
+    }
+    else {co2Saved = 0;}            // Safeguard from stack overflow due to division by 0
+    return co2Saved;    // in kg -> convert to the desired unit before displaying on App
 }
 /*
  * @fn      re_Initialize
@@ -604,11 +663,15 @@ extern uint8_t dataAnalysis_getUnitSelectDash(){
 extern void dataAnalysis_changeUnitSelectDash(){
     if (UnitSelectDash == IMP_UNIT) {
         UnitSelectDash = SI_UNIT;
-        lengthConvFactorDash = 1;
+        lenConvFactorDash = 1;
+        lenConvFactor02 = 1;
+        massConvFactor = 1;
     }
     else if (UnitSelectDash == SI_UNIT) {
         UnitSelectDash = IMP_UNIT;
-        lengthConvFactorDash = KM2MILE;
+        lenConvFactorDash = KM2MILE;
+        lenConvFactor02 = CM2INCH;
+        massConvFactor = KG2LBS;
     }
     ledControl_setUnitSelectDash(UnitSelectDash);
 }

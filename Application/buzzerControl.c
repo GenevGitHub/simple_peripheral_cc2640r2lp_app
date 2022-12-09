@@ -94,5 +94,7 @@ void buzzerControl_Stop(){
  * @return  none
  */
 void buzzerControl_processTimerOV(){
-    // call buzzer to beep once
+    // When timer9  overflows, this func is called to instruct buzzerControl to make a short beep
+    // Insert code to instruct buzzerControl to make a short beep here
+    buzzerControl_Start();  // then, repeat timer until timerStop is activated
 }

@@ -27,12 +27,11 @@ extern "C"
  */
 //Constants for timing duration
 #define SINGLE_BUTTON_TIMER_OV_TIME_LONG           1500  //Time expressed in ms, time interval for long press
-#define SINGLE_BUTTON_TIMER_OV_TIME_SHORT          350   //Time expressed in ms, time interval for short press
+#define SINGLE_BUTTON_TIMER_OV_TIME_SHORT          500   //Time expressed in ms, time interval for short press
 
 //Button state
 #define SINGLE_BUTTON_WAITING_STATE                0x00
 #define SINGLE_BUTTON_EXECUTING_STATE              0x01
-//#define SINGLE_BUTTON_TERMINATION_STATE            0x02 // this state is not necessary
 
 //constants for SINGLE_BUTTON processed messageID
 #define SINGLE_BUTTON_SINGLE_LONG_PRESS_MSG        0x01

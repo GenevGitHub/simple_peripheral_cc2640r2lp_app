@@ -16,7 +16,6 @@ extern "C"
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
 //Constants
 //#define DATA_ANALYSIS_POINTS            31              // Number of data points (time interval) used for numerical integration //  this shall equal DATA_ANALYSIS_POINTS
 //#define DATA_ANALYSIS_SAMPLING_TIME     300             // unit in millisecond - must be the same as and linked to sampling time // Is this the same as PERIODIC_COMMUNICATION_HF_SAMPLING_TIME
@@ -27,7 +26,7 @@ extern "C"
 #define WHEELRADIUS                     10.16           // wheel radius in centimeter
 #define BCF                             0.9             // Battery Capacity Safety Factor
 #define KM2MILE                         0.621           // convert length from km to miles
-#define CM2INCH                         0.394           // convert length from cm to feet
+#define CM2INCH                         0.3937           // convert length from cm to inch
 #define KG2LBS                          2.205           // convert kilogram to pounds
 #define SI_UNIT                         0x00
 #define IMP_UNIT                        0x01
@@ -52,7 +51,7 @@ extern "C"
 #define ORANGE                          0x02
 #define RED                             0x01
 #define FLASHING_RED                    0x00
-#define BATTERY_STATUS_INITIAL          GLOWING_AQUA
+#define BATTERY_STATUS_INITIAL          0x05
 //  Simulate MCU data
 #define jjMax                           5000
 

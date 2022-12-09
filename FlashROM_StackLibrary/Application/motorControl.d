@@ -175,9 +175,6 @@ Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 Application/motorControl.obj: ../Application/brakeAndThrottle.h
 Application/motorControl.obj: ../Application/ledControl.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
@@ -535,12 +532,6 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 
 ../Application/brakeAndThrottle.h:
 

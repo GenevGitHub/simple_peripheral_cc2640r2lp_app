@@ -34,7 +34,31 @@
  */
 void ledControl_Init()
 {
-
+    // At Start-Up/initiation, lit all LED on Dashboard. Then, turn off ones that are not required to be on.
+}
+/*********************************************************************
+ * @fn      ledControl_setAllOn
+ *
+ * @brief   call this function to lit all LED on display
+ *
+ * @param   Nil
+ *
+ * @return  Nil
+ */
+void ledControl_setAllOn(){
+    // I2C to command lit all LED on Dashboard
+}
+/*********************************************************************
+ * @fn      ledControl_setAllOff
+ *
+ * @brief   call this function to turn off all LED on display
+ *
+ * @param   Nil
+ *
+ * @return  Nil
+ */
+void ledControl_setAllOff(){
+    // I2C to command turn off all LED on Dashboard
 }
 /*********************************************************************
  * @fn      ledControl_setDashSpeed

@@ -20,7 +20,7 @@ extern "C"
 #define BUZZER_BATTERYLOW_BEEP_DURATION                50
 
 //  BUZZER repeat beeps at the following period (in milliseconds)
-#define BUZZER_TIMER_BATTERYLOW_PERIOD              30000
+#define BUZZER_BATTERYLOW_BEEP_PERIOD                  30000
 
 
 typedef void (*buzzerControl_timerStart)(void);

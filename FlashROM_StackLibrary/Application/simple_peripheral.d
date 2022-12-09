@@ -256,9 +256,6 @@ Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
 Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 
 ../Application/simple_peripheral.c:
 
@@ -771,10 +768,4 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 

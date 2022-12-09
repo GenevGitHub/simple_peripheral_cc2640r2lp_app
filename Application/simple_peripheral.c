@@ -199,8 +199,8 @@ Char sbpTaskStack[SBP_TASK_STACK_SIZE];
 // Scan response data (max size = 31 bytes)
 static uint8_t scanRspData[] =
 {
-  // complete name
-  0x0E,
+  // complete name // This is the name seen under Local name in advertisement data
+  0x0A,
   GAP_ADTYPE_LOCAL_NAME_COMPLETE,
   'G',
   'E',
@@ -208,13 +208,9 @@ static uint8_t scanRspData[] =
   'E',
   'V',
   ' ',
-  'L',
-  'I',
-  'M',
-  'I',
-  'T',
-  'E',
-  'D',
+  'G',
+  'o',
+  '1',
 
   // connection interval range
   0x05,   // length of this data
@@ -255,17 +251,17 @@ static uint8_t advertData[] =
   'E',
   'V',
   ' ',
-  'L',
-  'I',
-  'M',
-  'I',
-  'T',
-  'E',
-  'D'
+  'G',
+  'O',
+  'X',
+  'X',
+  'X',
+  'X',
+  'X'
 };
 
 // GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "GENEV LIMITED";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "GENEV";    // this is the name seen during scanning
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -920,8 +916,6 @@ static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState)
 
         DevInfo_SetParameter(DEVINFO_SYSTEM_ID, DEVINFO_SYSTEM_ID_LEN, systemId);
         //Start advertising
-        uint8_t advertEnable = TRUE;
-        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertEnable);
 
         }
         break;

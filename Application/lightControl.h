@@ -27,7 +27,7 @@ extern "C"
 */
 #define LUX_THRESHOLD                       350  // light shall be ON when light intensity is consistently below this lux value
 #define ALS_NUMSAMPLES                      8    // The number of samples used for light intensity evaluation --> must be 8
-#define ALS_SAMPLING_TIME                   1000  // in milliseconds, is the time between ALS samples, i.e. sampling time
+#define ALS_SAMPLING_TIME                   250  // in milliseconds, is the time between ALS samples, i.e. sampling time
 // lightControl timer is timer 8
 // For example, total time interval between AUTO light ON/OFF is (ALS_NUMSPLES - 1) * ALS_SAMPLING_TIME => (8-1) * 250 = 1750 milliseconds
 // For example, total time interval between AUTO light ON/OFF is (ALS_NUMSPLES - 1) * ALS_SAMPLING_TIME => (8-1) * 300 = 2100 milliseconds

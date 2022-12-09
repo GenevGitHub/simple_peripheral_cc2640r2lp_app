@@ -18,9 +18,6 @@ Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 Application/dataAnalysis.obj: ../Application/buzzerControl.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h
 Application/dataAnalysis.obj: ../Application/ledControl.h
@@ -63,12 +60,6 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 
 ../Application/buzzerControl.h:
 

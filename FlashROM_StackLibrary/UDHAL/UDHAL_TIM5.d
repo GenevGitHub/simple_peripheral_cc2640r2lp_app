@@ -128,9 +128,6 @@ UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
 UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
 UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
-UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h
-UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h
-UDHAL/UDHAL_TIM5.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h
 
 ../UDHAL/UDHAL_TIM5.c:
 
@@ -387,10 +384,4 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/time.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/abi_prefix.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/xlocale/_time.h:
 
