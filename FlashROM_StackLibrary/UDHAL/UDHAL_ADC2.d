@@ -13,6 +13,11 @@ UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h
 UDHAL/UDHAL_ADC2.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_ADC2.h
 UDHAL/UDHAL_ADC2.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/brakeAndThrottle.h
+UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
+UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h
+UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h
+UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
+UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/target/Board.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/target/cc2640r2lp/cc2640r2lp_board.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/boards/CC2640R2_LAUNCHXL/Board.h
@@ -20,8 +25,6 @@ UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/PWM.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/SPI.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h
-UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h
-UDHAL/UDHAL_ADC2.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/UART.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/Watchdog.h
 UDHAL/UDHAL_ADC2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/Board.h
@@ -68,6 +71,16 @@ C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UD
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/brakeAndThrottle.h:
 
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
+
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/target/Board.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/target/cc2640r2lp/cc2640r2lp_board.h:
@@ -81,10 +94,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/PWM.h:
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/SPI.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/UART.h:
 

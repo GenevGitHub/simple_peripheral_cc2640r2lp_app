@@ -10,6 +10,7 @@ extern "C"
  * INCLUDES
  */
 #include "simple_peripheral.h"
+#include <stdint.h>
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
@@ -27,6 +28,8 @@ extern "C"
  */
 extern void motorcontrol_init(void);
 extern void motorcontrol_registerCB(simplePeripheral_bleCBs_t *obj);
+extern void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload);
+
 /*********************************************************************
 *********************************************************************/
 

@@ -169,7 +169,7 @@
 typedef struct
 {
   appEvtHdr_t hdr;  // event header.
-  uint8_t *pData;  // event data
+  uint8_t *pData;   // event data
 }sbpEvt_t;
 
 /*********************************************************************
@@ -200,17 +200,9 @@ Char sbpTaskStack[SBP_TASK_STACK_SIZE];
 static uint8_t scanRspData[] =
 {
   // complete name // This is the name seen under Local name in advertisement data
-  0x0A,
+  0x09,
   GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-  'G',
-  'E',
-  'N',
-  'E',
-  'V',
-  ' ',
-  'G',
-  'o',
-  '1',
+  'G','E','N','E','V',' ','G','o',
 
   // connection interval range
   0x05,   // length of this data
@@ -243,60 +235,42 @@ static uint8_t advertData[] =
   0xC2,
   0x0C,
 
-  0x0E,
+  0x09,
   GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-  'G',
-  'E',
-  'N',
-  'E',
-  'V',
-  ' ',
-  'G',
-  'O',
-  'X',
-  'X',
-  'X',
-  'X',
-  'X'
+  'G','E','N','E','V',' ','G','O',
 };
 
-// GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "GENEV";    // this is the name seen during scanning
+// GAP GATT Attributes: GAP_DEVICE_NAME_LEN = 21
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "GENEV Go";    // this is the name seen during advertising - shall be device name: GENEV GO
 
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
 
-static void SimplePeripheral_init( void );                                                 //understand what it is doing
-static void SimplePeripheral_taskFxn(UArg a0, UArg a1);                                    //understand what it is doing
-
+static void SimplePeripheral_init( void );
+static void SimplePeripheral_taskFxn(UArg a0, UArg a1);
 
 static uint8_t SimplePeripheral_processStackMsg(ICall_Hdr *pMsg);
 static uint8_t SimplePeripheral_processGATTMsg(gattMsgEvent_t *pMsg);
 static void SimplePeripheral_processAppMsg(sbpEvt_t *pMsg);
 
-
-static void SimplePeripheral_stateChangeCB(gaprole_States_t newState);                     //understand what it is doing
-static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState);             //understand what it is doing
-
+static void SimplePeripheral_stateChangeCB(gaprole_States_t newState);
+static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState);
 
 static void SimplePeripheral_pairStateCB(uint16_t connHandle, uint8_t state,
                                          uint8_t status);
 static void SimplePeripheral_processPairState(uint8_t state, uint8_t status);
-
 
 static void SimplePeripheral_passcodeCB(uint8_t *deviceAddr, uint16_t connHandle,
                                         uint8_t uiInputs, uint8_t uiOutputs,
                                         uint32_t numComparison);
 static void SimplePeripheral_processPasscode(uint8_t uiOutputs);
 
-
 static void SimplePeripheral_connEvtCB(Gap_ConnEventRpt_t *pReport);
 static void SimplePeripheral_processConnEvt(Gap_ConnEventRpt_t *pReport);
 
 static void SimplePeripheral_processMC_GATT_Evt(uint8_t state, uint8_t *data);
-static void SimplePeripheral_processMC_ADV_Evt(uint8_t state, uint8_t *data);
-static uint8_t SimplePeripheral_enqueueMsg(uint8_t event, uint8_t state, uint8_t *pData);  //understand what it is doing
+static uint8_t SimplePeripheral_enqueueMsg(uint8_t event, uint8_t state, uint8_t *pData);
 /*********************************************************************
  * EXTERN FUNCTIONS
  */
@@ -400,7 +374,6 @@ bStatus_t SimplePeripheral_UnRegistertToAllConnectionEvent (connectionEventRegis
 
   return(status);
 }
-
  /*********************************************************************
  * @fn      SimplePeripheral_createTask
  *
@@ -422,7 +395,6 @@ void SimplePeripheral_createTask(void)
 
   Task_construct(&sbpTask, SimplePeripheral_taskFxn, &taskParams, NULL);
 }
-
 /*********************************************************************
  * @fn      SimplePeripheral_init
  *
@@ -481,7 +453,7 @@ static void SimplePeripheral_init(void)
   // http://software-dl.ti.com/lprf/sdg-latest/html/
   {
     // By setting this to zero, the device will go into the waiting state after
-    // being discoverable for 30.72 second, and will not being advertising again
+    // being discoverable for 30.72 second, and will not begin advertising again
     // until re-enabled by the application
     uint16_t advertOffTime = 0;
 
@@ -491,23 +463,21 @@ static void SimplePeripheral_init(void)
     uint16_t desiredSlaveLatency = DEFAULT_DESIRED_SLAVE_LATENCY;
     uint16_t desiredConnTimeout = DEFAULT_DESIRED_CONN_TIMEOUT;
 
-    GAPRole_SetParameter(GAPROLE_ADVERT_OFF_TIME, sizeof(uint16_t),
-                         &advertOffTime);
+    GAPRole_SetParameter(GAPROLE_ADVERT_OFF_TIME, sizeof(uint16_t), &advertOffTime); // <- this sets the time / how long to remain off (in sec) after advertising stops before starting again
 
-    GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData),
-                         scanRspData);
+    GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
+
     GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
 
-    GAPRole_SetParameter(GAPROLE_PARAM_UPDATE_ENABLE, sizeof(uint8_t),
-                         &enableUpdateRequest);
-    GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t),
-                         &desiredMinInterval);
-    GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t),
-                         &desiredMaxInterval);
-    GAPRole_SetParameter(GAPROLE_SLAVE_LATENCY, sizeof(uint16_t),
-                         &desiredSlaveLatency);
-    GAPRole_SetParameter(GAPROLE_TIMEOUT_MULTIPLIER, sizeof(uint16_t),
-                         &desiredConnTimeout);
+    GAPRole_SetParameter(GAPROLE_PARAM_UPDATE_ENABLE, sizeof(uint8_t), &enableUpdateRequest);
+
+    GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desiredMinInterval);
+
+    GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desiredMaxInterval);
+
+    GAPRole_SetParameter(GAPROLE_SLAVE_LATENCY, sizeof(uint16_t), &desiredSlaveLatency);
+
+    GAPRole_SetParameter(GAPROLE_TIMEOUT_MULTIPLIER, sizeof(uint16_t), &desiredConnTimeout);
   }
 
   // Set the Device Name characteristic in the GAP GATT Service
@@ -522,12 +492,16 @@ static void SimplePeripheral_init(void)
     // Use the same interval for general and limited advertising.
     // Note that only general advertising will occur based on the above configuration
     uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
-    //uint16_t advTimeout = 20;
+
+    // Note that advTimeout sets the time duration in seconds at which the peripheral is discover-able, except when...
+    // advTimeout = 0.  when advTimeout = 0, the discover-able time duration is infinity.
+    // e.g. advTimeout = 30, the peripheral is discover-able for 30 seconds, after which will switch over to waiting state.
+    uint16_t advTimeout = 120;                                       // Advertising time-out
     GAP_SetParamValue(TGAP_LIM_DISC_ADV_INT_MIN, advInt);
     GAP_SetParamValue(TGAP_LIM_DISC_ADV_INT_MAX, advInt);
+    GAP_SetParamValue(TGAP_LIM_ADV_TIMEOUT, advTimeout);
     GAP_SetParamValue(TGAP_GEN_DISC_ADV_INT_MIN, advInt);
     GAP_SetParamValue(TGAP_GEN_DISC_ADV_INT_MAX, advInt);
-    //GAP_SetParamValue(TGAP_LIM_ADV_TIMEOUT, advTimeout);
   }
 
   // Setup the GAP Bond Manager. For more information see the section in the
@@ -563,6 +537,7 @@ static void SimplePeripheral_init(void)
   GGS_AddService(GATT_ALL_SERVICES);           // GAP GATT Service
   DevInfo_AddService();                        // Device Information Service
   GATTServApp_AddService(GATT_ALL_SERVICES);   // GATT Service
+
   Controller_AddService();
   Battery_AddService();
   Dashboard_AddService();
@@ -573,7 +548,6 @@ static void SimplePeripheral_init(void)
   // these function calls before the GAPRole_StartDevice use.
   // (because Both cases are updating the gapRole_IRK & gapRole_SRK variables).
   VOID GAPRole_StartDevice(&SimplePeripheral_gapRoleCBs);
-
 
   // Start Bond Manager and register callback
   VOID GAPBondMgr_Register(&simplePeripheral_BondMgrCBs);
@@ -855,12 +829,6 @@ static void SimplePeripheral_processAppMsg(sbpEvt_t *pMsg)
         ICall_free(pMsg->pData);
         break;
 	  }
-	case SBP_MC_ADV_EVT:
-	  {
-        SimplePeripheral_processMC_ADV_Evt(pMsg->hdr.state, pMsg->pData);
-        ICall_free(pMsg->pData);
-        break;
-	  }
     default:
       // Do nothing.
       break;
@@ -879,7 +847,6 @@ static void SimplePeripheral_stateChangeCB(gaprole_States_t newState)
 {
   SimplePeripheral_enqueueMsg(SBP_STATE_CHANGE_EVT, newState, NULL);
 }
-
 /*********************************************************************
  * @fn      SimplePeripheral_processStateChangeEvt
  *
@@ -889,8 +856,10 @@ static void SimplePeripheral_stateChangeCB(gaprole_States_t newState)
  *
  * @return  None.
  */
+gaprole_States_t gap_change_event;  // for debugging only
 static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState)
 {
+  gap_change_event = newState;      // for debugging only
   switch (newState)
   {
     case GAPROLE_STARTED:
@@ -916,18 +885,18 @@ static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState)
 
         DevInfo_SetParameter(DEVINFO_SYSTEM_ID, DEVINFO_SYSTEM_ID_LEN, systemId);
         //Start advertising
-
+        //Dashboard LED led not lit
         }
         break;
     case GAPROLE_ADVERTISING:
         {
-        //Dashboard LED led lights flashing
+        //Dashboard LED led light flashing
         }
         break;
 
     case GAPROLE_CONNECTED:
         {
-        //Dashboard LED led lights on
+        //Dashboard LED led light on
         linkDBInfo_t linkInfo;
         uint8_t numActive = 0;
 
@@ -956,17 +925,14 @@ static void SimplePeripheral_processStateChangeEvt(gaprole_States_t newState)
 
     case GAPROLE_WAITING:
         {
-        //Dashboard LED no light
+        //Dashboard LED not lit
         attRsp_freeAttRsp(bleNotConnected);
-        //Start advertising
-        uint8_t advertEnable = TRUE;
-        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertEnable);
         }
         break;
 
     case GAPROLE_WAITING_AFTER_TIMEOUT:
         {
-        //Dashboard LED no light
+        //Dashboard LED not lit
         attRsp_freeAttRsp(bleNotConnected);
         }
         break;
@@ -1151,18 +1117,6 @@ static void SimplePeripheral_processMC_GATT_Evt(uint8_t state, uint8_t *data)
     default:
         break;
     }
-}
-/*********************************************************************
- * @fn      SimplePeripheral_processMC_ADV_Evt
- *
- * @brief   Process connection event.
- *
- * @param   event: A ICALL event indicates the motorControl threads puts a ble message into the queue
- *          state: The bluetooth state
- */
-static void SimplePeripheral_processMC_ADV_Evt(uint8_t state, uint8_t *data)
-{
-    GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), data);
 }
 /*********************************************************************
  *

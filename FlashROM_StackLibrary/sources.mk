@@ -133,7 +133,7 @@ PROFILES \
 STM32MCP \
 Startup \
 TOOLS \
-TSL25403 \
+TSL2561 \
 UDHAL \
 singleButton \
 

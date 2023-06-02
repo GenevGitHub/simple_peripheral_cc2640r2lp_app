@@ -1,5 +1,6 @@
 /*
- * UDHAL_ADC1.h
+ *  UDHAL_ADC1.h
+ *  ADC1 is assigned for reading brake ADC signals
  *
  *  Created on: 14 Feb 2022
  *      Author: harrysiu

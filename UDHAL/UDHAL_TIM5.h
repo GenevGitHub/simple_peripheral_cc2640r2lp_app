@@ -1,6 +1,6 @@
 /*
  * UDHAL_TIM5.h
- *  This library is used for singleButton.h to counter the button press duration
+ *  This library (timer) is used for low frequency communication
  *  Created on:   26 Jan 2021 by Siu Yeung Yik
  *  Last Updated: 26 Jan 2021 by Siu Yeung Yik
  */

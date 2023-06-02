@@ -274,7 +274,7 @@ void gapRole_clockHandler(UArg a0);
  *
  * Public function defined in peripheral.h.
  */
-bStatus_t GAPRole_SetParameter(uint16_t param, uint8_t len, void *pValue)
+bStatus_t GAPRole_SetParameter(uint16_t param, uint8_t len, void* pValue)
 {
   bStatus_t ret = SUCCESS;
   switch (param)
@@ -1283,7 +1283,8 @@ static void gapRole_processGAPMsg(gapEventHdr_t *pMsg)
           }
 
           // Start advertising, if enabled.
-          gapRole_setEvent(START_ADVERTISING_EVT);
+          gapRole_AdvEnabled = FALSE;
+          //gapRole_setEvent(START_ADVERTISING_EVT);
         }
       }
       break;
@@ -1624,6 +1625,7 @@ static void gapRole_setEvent(uint32_t event)
  * @return  none
  */
 void gapRole_clockHandler(UArg a0)
+
 {
   gapRole_setEvent(a0);
 }

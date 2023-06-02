@@ -2,7 +2,8 @@
 
  @file  UDHAL_TIM.c
 
- @brief This library is used for singleButton.h to counter the button press duration
+ @brief This library is used for low frequency communication
+ (Timer 3 is not required and will be replaced and removed after amendment is completed)
 
 
  *****************************************************************************/

@@ -50,6 +50,7 @@
 #include "gattservapp.h"
 #include "gapbondmgr.h"
 
+#include "dataAnalysis.h"
 #include "Controller.h"
 
 /*********************************************************************
@@ -93,7 +94,7 @@ static CONST uint8 Controller_Heat_Sink_TemperatureUUID[ATT_BT_UUID_SIZE] =
 };
 
 // Controller_Error_Code UUID
-CONST uint8 Controller_Error_CodeUUID[ATT_UUID_SIZE] =
+static CONST uint8 Controller_Error_CodeUUID[ATT_UUID_SIZE] =
 {
      TI_BASE_UUID_128(CONTROLLER_ERROR_CODE_UUID)
 };
@@ -128,29 +129,30 @@ static CONST uint8 Controller_Total_Energy_EfficiencyUUID[ATT_UUID_SIZE] =
      TI_BASE_UUID_128(CONTROLLER_TOTAL_ENERGY_EFFICIENCY_UUID)
 };
 
-// Controller_Trip_Distance_Travelled UUID
-static CONST uint8 Controller_Trip_Distance_TravelledUUID[ATT_UUID_SIZE] =
+// Controller_Range UUID
+static CONST uint8 Controller_RangeUUID[ATT_UUID_SIZE] =
 {
-     TI_BASE_UUID_128(CONTROLLER_TRIP_DISTANCE_TRAVELLED_UUID)
+  TI_BASE_UUID_128(CONTROLLER_RANGE_UUID)
 };
 
-// Controller_Trip_Energy_Consumption UUID
-static CONST uint8 Controller_Trip_Energy_ConsumptionUUID[ATT_UUID_SIZE] =
+// Controller_co2Saved UUID
+static CONST uint8 Controller_co2SavedUUID[ATT_UUID_SIZE] =
 {
-     TI_BASE_UUID_128(CONTROLLER_TRIP_ENERGY_CONSUMPTION_UUID)
+  TI_BASE_UUID_128(CONTROLLER_CO2SAVED_UUID)
 };
 
-// Controller_Trip_Energy_Efficiency UUID
-static CONST uint8 Controller_Trip_Energy_EfficiencyUUID[ATT_UUID_SIZE] =
+// Controller_Motor_Temperature UUID
+static CONST uint8 Controller_Motor_TemperatureUUID[ATT_BT_UUID_SIZE] =
 {
-     TI_BASE_UUID_128(CONTROLLER_TRIP_ENERGY_EFFICIENCY_UUID)
+  LO_UINT16(CONTROLLER_MOTOR_TEMPERATURE_UUID), HI_UINT16(CONTROLLER_MOTOR_TEMPERATURE_UUID)
 };
 
-// Controller_Trip_RESET UUID
-static CONST uint8 Controller_Trip_ResetUUID[ATT_UUID_SIZE] =
+// Controller_Instant_Economy UUID
+static CONST uint8 Controller_Instant_EconomyUUID[ATT_UUID_SIZE] =
 {
-     TI_BASE_UUID_128(CONTROLLER_TRIP_RESET_UUID)
+  TI_BASE_UUID_128(CONTROLLER_INSTANT_ECONOMY_UUID)
 };
+
 /*********************************************************************
  * LOCAL VARIABLES
  */
@@ -167,7 +169,7 @@ static CONST gattAttrType_t ControllerDecl = { ATT_UUID_SIZE, ControllerUUID };
 
 // Characteristic "Controller_Voltage" Properties (for declaration)
 static uint8_t Controller_VoltageProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
-// Characteristic "Controller_Voltage" Value variable
+// Characteristic "Controller_Voltage" Value variable -> need to break it up into bits of 8 bits for communication
 static uint8_t Controller_VoltageVal[CONTROLLER_VOLTAGE_LEN] = {0};
 // Characteristic "Controller_Voltage" CCCD
 static gattCharCfg_t *Controller_VoltageConfig;
@@ -182,7 +184,7 @@ static gattCharCfg_t *Controller_CurrentConfig;
 // Characteristic "Controller_Heat_Sink_Temperature" Properties (for declaration)
 static uint8_t Controller_Heat_Sink_TemperatureProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 // Characteristic "Controller_Heat_Sink_Temperature" Value variable
-static uint8_t Controller_Heat_Sink_TemperatureVal[CONTROLLER_HEAT_SINK_TEMPERATURE_LEN] = {0};
+static uint8_t Controller_Heat_Sink_TemperatureVal[CONTROLLER_HEAT_SINK_TEMPERATURE_LEN] = {15};        // Should change type to int8_t because temperature can be negative
 // Characteristic "Controller_Heat_Sink_Temperature" CCCD
 static gattCharCfg_t *Controller_Heat_Sink_TemperatureConfig;
 
@@ -203,7 +205,7 @@ static gattCharCfg_t *Controller_Motor_RPM_Config;
 // Characteristic "Controller_Motor_Speed" Properties (for declaration)
 static uint8_t Controller_Motor_SpeedProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 // Characteristic "Controller_Motor_Speed" Value variable
-static uint8_t Controller_Motor_SpeedVal[CONTROLLER_MOTOR_SPEED_LEN] = {0};
+static uint8_t Controller_Motor_SpeedVal[CONTROLLER_MOTOR_SPEED_LEN] = {0}; // round(Controller_Motor_RPM_Val * 2 * (float) M_PI / 60 * WHEELRADIUS);
 // Characteristic "Controller_Motor_Speed" CCCD
 static gattCharCfg_t *Controller_Motor_SpeedConfig;
 
@@ -228,36 +230,39 @@ static uint8_t Controller_Total_Energy_EfficiencyVal[CONTROLLER_TOTAL_ENERGY_EFF
 // Characteristic "Controller_Total_Energy_Efficiency" CCCD
 static gattCharCfg_t *Controller_Total_Energy_EfficiencyConfig;
 
-// Characteristic "Controller_Trip_Distance_Travelled" Properties (for declaration)
-static uint8_t Controller_Trip_Distance_TravelledProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
-// Characteristic "Controller_Trip_Distance_Travelled" Value variable
-static uint8_t Controller_Trip_Distance_TravelledVal[CONTROLLER_TRIP_DISTANCE_TRAVELLED_LEN] = {0};
-// Characteristic "Controller_Trip_Distance_Travelled" CCCD
-static gattCharCfg_t *Controller_Trip_Distance_TravelledConfig;
+// Characteristic "Controller_Range" Properties (for declaration)
+static uint8 Controller_RangeProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
+// Characteristic "Controller_Range" Value variable
+static uint8 Controller_RangeVal[CONTROLLER_RANGE_LEN] = {0};
+// Characteristic "Controller_Range" CCCD
+static gattCharCfg_t *Controller_RangeConfig;
 
-// Characteristic "Controller_Trip_Energy_Consumption" Properties (for declaration)
-static uint8_t Controller_Trip_Energy_ConsumptionProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
-// Characteristic "Controller_Trip_Energy_Consumption" Value variable
-static uint8_t Controller_Trip_Energy_ConsumptionVal[CONTROLLER_TRIP_ENERGY_CONSUMPTION_LEN] = {0};
-// Characteristic "Controller_Trip_Energy_Consumption" CCCD
-static gattCharCfg_t *Controller_Trip_Energy_ConsumptionConfig;
+// Characteristic "Controller_co2Saved" Properties (for declaration)
+static uint8 Controller_co2SavedProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
+// Characteristic "Controller_co2Saved" Value variable
+static uint8 Controller_co2SavedVal[CONTROLLER_CO2SAVED_LEN] = {0};
+// Characteristic "Controller_co2Saved" CCCD
+static gattCharCfg_t *Controller_co2SavedConfig;
 
-// Characteristic "Controller_Trip_Energy_Efficiency" Properties (for declaration)
-static uint8_t Controller_Trip_Energy_EfficiencyProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
-// Characteristic "Controller_Trip_Energy_Efficiency" Value variable
-static uint8_t Controller_Trip_Energy_EfficiencyVal[CONTROLLER_TRIP_ENERGY_EFFICIENCY_LEN] = {0};
-// Characteristic "Controller_Trip_Energy_Efficiency" CCCD
-static gattCharCfg_t *Controller_Trip_Energy_EfficiencyConfig;
+// Characteristic "Controller_Motor_Temperature" Properties (for declaration)
+static uint8_t Controller_Motor_TemperatureProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
+// Characteristic "Controller_Motor_Temperature" Value variable
+static uint8_t Controller_Motor_TemperatureVal[CONTROLLER_MOTOR_TEMPERATURE_LEN] = {0};
+// Characteristic "Controller_Motor_Temperature" CCCD
+static gattCharCfg_t *Controller_Motor_TemperatureConfig;
 
-// Characteristic "Controller_Trip_Reset" Properties (for declaration)
-static uint8_t Controller_Trip_ResetProps = GATT_PERMIT_AUTHEN_WRITE;
-// Characteristic "Controller_Trip_Reset" Value variable
-static uint8_t Controller_Trip_ResetVal[CONTROLLER_TRIP_RESET_LEN] = {0};
-// Characteristic "Controller_Trip_Reset" CCCD
-static gattCharCfg_t *Controller_Trip_ResetConfig;
+// Characteristic "Controller_Instant_Economy" Properties (for declaration)
+static uint8 Controller_Instant_EconomyProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
+// Characteristic "Controller_Instant_Economy" Value variable
+static uint8 Controller_Instant_EconomyVal[CONTROLLER_INSTANT_ECONOMY_LEN] = {0};
+// Characteristic "Controller_Instant_Economy" CCCD
+static gattCharCfg_t *Controller_Instant_EconomyConfig;
 
 /*********************************************************************
+*
+*
 * Profile Attributes - Table
+*
 */
 static gattAttribute_t ControllerAttrTbl[] =
 {
@@ -294,7 +299,7 @@ static gattAttribute_t ControllerAttrTbl[] =
           {ATT_BT_UUID_SIZE, charUserDescUUID},
           GATT_PERMIT_READ,
           0,
-          "Voltage"
+          "Voltage (mV)"
         },
     // Controller_Current Characteristic Declaration
     {
@@ -322,7 +327,7 @@ static gattAttribute_t ControllerAttrTbl[] =
           {ATT_BT_UUID_SIZE, charUserDescUUID},
           GATT_PERMIT_READ,
           0,
-          "Current"
+          "Current (mA)"
         },
     // Controller_Heat_Sink_Temperature Characteristic Declaration
     {
@@ -350,7 +355,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Heat Sink Temperature"
+        "Heat Sink Temperature (C)"
       },
     // Controller_Error_Code Characteristic Declaration
     {
@@ -378,7 +383,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Error Code"
+        "Controller Error Code"
       },
     // Controller_Motor_RPM Characteristic Declaration
     {
@@ -420,7 +425,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         { ATT_UUID_SIZE, Controller_Motor_SpeedUUID },
         GATT_PERMIT_READ,
         0,
-        Controller_Motor_SpeedVal
+        Controller_Motor_SpeedVal  //round(Controller_Motor_RPM_Val * 2 * (float) M_PI / 60 * WHEELRADIUS)
       },
       // Controller_Motor_Speed CCCD
       {
@@ -434,7 +439,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Motor Speed"
+        "Motor Speed (100kph)"   // 100 x km/hr
       },
     // Controller_Total_Distance_Travelled Characteristic Declaration
     {
@@ -462,7 +467,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Total distance travelled"
+        "Total Distance Travelled (dm)"
       },
     // Controller_Total_Energy_Consumption Characteristic Declaration
     {
@@ -490,7 +495,7 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Total Energy Consumption"
+        "Total Energy Consumption (mWh)"
       },
     // Controller_Total_Energy_Efficiency Characteristic Declaration
     {
@@ -518,120 +523,122 @@ static gattAttribute_t ControllerAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Total Energy Efficiency"
+        "Overall Economy (100Whpk)"   // unit in W-hr / km x 100
       },
-    // Controller_Trip_Distance_Travelled Characteristic Declaration
+      // Range
+      // Controller_Range Characteristic Declaration
+      {
+          { ATT_BT_UUID_SIZE, characterUUID },
+          GATT_PERMIT_READ,
+          0,
+          &Controller_RangeProps
+      },
+          // Controller_Range Characteristic Value
+          {
+             { ATT_UUID_SIZE, Controller_RangeUUID },
+             GATT_PERMIT_READ,
+             0,
+             Controller_RangeVal
+          },
+          // Controller_Range CCCD
+          {
+             { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+             GATT_PERMIT_READ | GATT_PERMIT_WRITE,
+             0,
+             (uint8 *)&Controller_RangeConfig
+          },
+          // Controller_Range user descriptor
+          {
+             {ATT_BT_UUID_SIZE, charUserDescUUID},
+             GATT_PERMIT_READ,
+             0,
+             "Range Available (m)"  // in meters
+          },
+    // CO2SAVED
+    // Controller_co2Saved Characteristic Declaration
+    {
+        { ATT_BT_UUID_SIZE, characterUUID },
+        GATT_PERMIT_READ,
+        0,
+        &Controller_co2SavedProps
+    },
+        // Controller_co2Saved Characteristic Value
+        {
+           { ATT_UUID_SIZE, Controller_co2SavedUUID },
+           GATT_PERMIT_READ,
+           0,
+           Controller_co2SavedVal
+        },
+        // Controller_co2Saved CCCD
+        {
+           { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+           GATT_PERMIT_READ | GATT_PERMIT_WRITE,
+           0,
+           (uint8 *)&Controller_co2SavedConfig
+        },
+        // Controller_co2Saved user descriptor
+        {
+           {ATT_BT_UUID_SIZE, charUserDescUUID},
+           GATT_PERMIT_READ,
+           0,
+           "CO2 Saved (grams)"   // in grams
+        },
+    // Controller_Motor_Temperature Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
       GATT_PERMIT_READ,
       0,
-      &Controller_Trip_Distance_TravelledProps
+      &Controller_Motor_TemperatureProps
     },
-      // Controller_Trip_Distance_Travelled Characteristic Value
+      // Controller_Motor_Temperature Characteristic Value
       {
-        { ATT_UUID_SIZE, Controller_Trip_Distance_TravelledUUID },
+        { ATT_BT_UUID_SIZE, Controller_Motor_TemperatureUUID },
         GATT_PERMIT_READ,
         0,
-        Controller_Trip_Distance_TravelledVal
+        Controller_Motor_TemperatureVal
       },
-      // Controller_Trip_Distance_Travelled CCCD
+      // Controller_Motor_Temperature CCCD
       {
         { ATT_BT_UUID_SIZE, clientCharCfgUUID },
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
-        (uint8 *)&Controller_Trip_Distance_TravelledConfig
+        (uint8 *)&Controller_Motor_TemperatureConfig
       },
-      // Controller_Trip_Distance_Travelled user descriptor
+      // Controller_Motor_Temperature user descriptor
       {
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Trip Distance Travelled"
+        "Motor Temperature (C)"
       },
-    // Controller_Trip_Energy_Consumption Characteristic Declaration
+  // Controller_Instant_Economy Characteristic Declaration
+  {
+    { ATT_BT_UUID_SIZE, characterUUID },
+    GATT_PERMIT_READ,
+    0,
+    &Controller_Instant_EconomyProps
+  },
+    // Controller_Instant_Economy Characteristic Value
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
+      { ATT_UUID_SIZE, Controller_Instant_EconomyUUID },
       GATT_PERMIT_READ,
       0,
-      &Controller_Trip_Energy_ConsumptionProps
+      Controller_Instant_EconomyVal
     },
-      // Controller_Trip_Energy_Consumption Characteristic Value
-      {
-        { ATT_UUID_SIZE, Controller_Trip_Energy_ConsumptionUUID },
-        GATT_PERMIT_READ,
-        0,
-        Controller_Trip_Energy_ConsumptionVal
-      },
-      // Controller_Trip_Energy_Consumption CCCD
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
-        0,
-        (uint8 *)&Controller_Trip_Energy_ConsumptionConfig
-      },
-      // Controller_Trip_Energy_Consumption user descriptor
-      {
-        {ATT_BT_UUID_SIZE, charUserDescUUID},
-        GATT_PERMIT_READ,
-        0,
-        "Trip Energy Consumption"
-      },
-    // Controller_Trip_Energy_Efficiency Characteristic Declaration
+    // Controller_Instant_Economy CCCD
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
+      { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+      GATT_PERMIT_READ | GATT_PERMIT_WRITE,
+      0,
+      (uint8 *)&Controller_Instant_EconomyConfig
+    },
+    // Controller_Instant_Economy user descriptor
+    {
+      {ATT_BT_UUID_SIZE, charUserDescUUID},
       GATT_PERMIT_READ,
       0,
-      &Controller_Trip_Energy_EfficiencyProps
-    },
-      // Controller_Trip_Energy_Efficiency Characteristic Value
-      {
-        { ATT_UUID_SIZE, Controller_Trip_Energy_EfficiencyUUID },
-        GATT_PERMIT_READ,
-        0,
-        Controller_Trip_Energy_EfficiencyVal
-      },
-      // Controller_Trip_Energy_Efficiency CCCD
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
-        0,
-        (uint8 *)&Controller_Trip_Energy_EfficiencyConfig
-      },
-      // Controller_Trip_Energy_Efficiency user descriptor
-      {
-        {ATT_BT_UUID_SIZE, charUserDescUUID},
-        GATT_PERMIT_READ,
-        0,
-        "Trip Energy Efficiency"
-      },
-    // Controller_Trip_Reset Characteristic Declaration
-    {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &Controller_Trip_ResetProps
-    },
-      // CController_Trip_Reset Characteristic Value
-      {
-        { ATT_UUID_SIZE, Controller_Trip_ResetUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_AUTHEN_WRITE,
-        0,
-        Controller_Trip_ResetVal
-      },
-      // Controller_Trip_Reset CCCD
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
-        0,
-        (uint8 *)&Controller_Trip_ResetConfig
-      },
-      // Controller_Trip_Reset user descriptor
-      {
-        {ATT_BT_UUID_SIZE, charUserDescUUID},
-        GATT_PERMIT_READ,
-        0,
-        "Trip Reset"
-      },
+      "Instantaneous Economy (100Whpk)"   // unit in W-hr / km x 100
+    }
 };
 
 /*********************************************************************
@@ -750,32 +757,40 @@ bStatus_t Controller_AddService( void )
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Total_Energy_EfficiencyConfig );
 
   // Allocate Client Characteristic Configuration table
-  Controller_Trip_Distance_TravelledConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
-  if ( Controller_Trip_Distance_TravelledConfig == NULL )
+  Controller_RangeConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
+  if ( Controller_RangeConfig == NULL )
   {
     return ( bleMemAllocError );
   }
   // Initialize Client Characteristic Configuration attributes
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Trip_Distance_TravelledConfig );
+  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_RangeConfig );
 
   // Allocate Client Characteristic Configuration table
-  Controller_Trip_Energy_ConsumptionConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
-  if ( Controller_Trip_Energy_ConsumptionConfig == NULL )
+  Controller_co2SavedConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
+  if ( Controller_co2SavedConfig == NULL )
   {
     return ( bleMemAllocError );
   }
   // Initialize Client Characteristic Configuration attributes
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Trip_Energy_ConsumptionConfig );
+  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_co2SavedConfig );
 
   // Allocate Client Characteristic Configuration table
-  Controller_Trip_Energy_EfficiencyConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
-  if ( Controller_Trip_Energy_EfficiencyConfig == NULL )
+  Controller_Motor_TemperatureConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
+  if ( Controller_Motor_TemperatureConfig == NULL )
   {
     return ( bleMemAllocError );
   }
   // Initialize Client Characteristic Configuration attributes
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Trip_Energy_EfficiencyConfig );
+  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Motor_TemperatureConfig );
 
+  // Allocate Client Characteristic Configuration table
+  Controller_Instant_EconomyConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
+  if ( Controller_Instant_EconomyConfig == NULL )
+  {
+    return ( bleMemAllocError );
+  }
+  // Initialize Client Characteristic Configuration attributes
+  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Controller_Instant_EconomyConfig );
 
   // Register GATT attribute list and CBs with GATT Server App
   status = GATTServApp_RegisterService( ControllerAttrTbl,
@@ -785,13 +800,12 @@ bStatus_t Controller_AddService( void )
 
   return ( status );
 }
-
-/*
+/****************************************************************************
  * Controller_RegisterAppCBs - Registers the application callback function.
  *                    Only call this function once.
  *
  *    appCallbacks - pointer to application callbacks.
- */
+ ****************************************************************************/
 bStatus_t Controller_RegisterAppCBs( ControllerCBs_t *appCallbacks )
 {
   if ( appCallbacks )
@@ -805,8 +819,7 @@ bStatus_t Controller_RegisterAppCBs( ControllerCBs_t *appCallbacks )
     return ( bleAlreadyInRequestedMode );
   }
 }
-
-/*
+/****************************************************************************
  * Controller_SetParameter - Set a Battery parameter.
  *
  *    param - Profile parameter ID
@@ -815,17 +828,17 @@ bStatus_t Controller_RegisterAppCBs( ControllerCBs_t *appCallbacks )
  *          the parameter ID and WILL be cast to the appropriate
  *          data type (example: data type of uint16 will be cast to
  *          uint16 pointer).
- */
+ ****************************************************************************/
 bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
 {
   bStatus_t ret = SUCCESS;
   switch ( param )
   {
     case CONTROLLER_VOLTAGE:
+    {
         if ( len == CONTROLLER_VOLTAGE_LEN )
         {
         memcpy(Controller_VoltageVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_VoltageConfig, (uint8_t *)&Controller_VoltageVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -836,11 +849,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_CURRENT:
+    {
         if ( len == CONTROLLER_CURRENT_LEN )
         {
         memcpy(Controller_CurrentVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_CurrentConfig, (uint8_t *)&Controller_CurrentVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -851,11 +865,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_HEAT_SINK_TEMPERATURE:
+    {
         if ( len == CONTROLLER_HEAT_SINK_TEMPERATURE_LEN )
         {
         memcpy(Controller_Heat_Sink_TemperatureVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Heat_Sink_TemperatureConfig, (uint8_t *)&Controller_Heat_Sink_TemperatureVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -866,11 +881,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_ERROR_CODE:
+    {
         if ( len == CONTROLLER_ERROR_CODE_LEN )
         {
         memcpy(Controller_Error_CodeVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Error_CodeConfig, (uint8_t *)&Controller_Error_CodeVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -881,11 +897,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_MOTOR_RPM:
+    {
         if ( len == CONTROLLER_MOTOR_RPM_LEN )
         {
         memcpy(Controller_Motor_RPM_Val, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Motor_RPM_Config, (uint8_t *)&Controller_Motor_RPM_Val, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -896,11 +913,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_MOTOR_SPEED:
+    {
         if ( len == CONTROLLER_MOTOR_SPEED_LEN )
         {
         memcpy(Controller_Motor_SpeedVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Motor_SpeedConfig, (uint8_t *)&Controller_Motor_SpeedVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -911,11 +929,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_TOTAL_DISTANCE_TRAVELLED:
+    {
         if ( len == CONTROLLER_TOTAL_DISTANCE_TRAVELLED_LEN )
         {
         memcpy(Controller_Total_Distance_TravelledVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Total_Distance_TravelledConfig, (uint8_t *)&Controller_Total_Distance_TravelledVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -926,11 +945,12 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_TOTAL_ENERGY_CONSUMPTION:
+    {
         if ( len == CONTROLLER_TOTAL_ENERGY_CONSUMPTION_LEN )
         {
         memcpy(Controller_Total_Energy_ConsumptionVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Total_Energy_ConsumptionConfig, (uint8_t *)&Controller_Total_Energy_ConsumptionVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -941,11 +961,13 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
+    }
     case CONTROLLER_TOTAL_ENERGY_EFFICIENCY:
+    {
         if ( len == CONTROLLER_TOTAL_ENERGY_EFFICIENCY_LEN )
+
         {
         memcpy(Controller_Total_Energy_EfficiencyVal, value, len);
-
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Controller_Total_Energy_EfficiencyConfig, (uint8_t *)&Controller_Total_Energy_EfficiencyVal, FALSE,
                                     ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
@@ -956,51 +978,71 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
         }
         break;
-    case CONTROLLER_TRIP_DISTANCE_TRAVELLED:
-        if ( len == CONTROLLER_TRIP_DISTANCE_TRAVELLED_LEN )
-        {
-        memcpy(Controller_Trip_Distance_TravelledVal, value, len);
-
-        // Try to send notification.
-        GATTServApp_ProcessCharCfg( Controller_Trip_Distance_TravelledConfig, (uint8_t *)&Controller_Trip_Distance_TravelledVal, FALSE,
-                                    ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
-                                    INVALID_TASK_ID,  Controller_ReadAttrCB);
-        }
-        else
-        {
-        ret = bleInvalidRange;
-        }
-        break;
-    case CONTROLLER_TRIP_ENERGY_CONSUMPTION:
-        if ( len == CONTROLLER_TRIP_ENERGY_CONSUMPTION_LEN )
-        {
-        memcpy(Controller_Trip_Energy_ConsumptionVal, value, len);
-
-        // Try to send notification.
-        GATTServApp_ProcessCharCfg( Controller_Trip_Energy_ConsumptionConfig, (uint8_t *)&Controller_Trip_Energy_ConsumptionVal, FALSE,
-                                    ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
-                                    INVALID_TASK_ID,  Controller_ReadAttrCB);
-        }
-        else
-        {
-        ret = bleInvalidRange;
-        }
-        break;
-    case CONTROLLER_TRIP_ENERGY_EFFICIENCY:
-        if ( len == CONTROLLER_TRIP_ENERGY_EFFICIENCY_LEN )
-        {
-        memcpy(Controller_Trip_Energy_EfficiencyVal, value, len);
-
-        // Try to send notification.
-        GATTServApp_ProcessCharCfg( Controller_Trip_Energy_EfficiencyConfig, (uint8_t *)&Controller_Trip_Energy_EfficiencyVal, FALSE,
-                                    ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
-                                    INVALID_TASK_ID,  Controller_ReadAttrCB);
-        }
-        else
-        {
-        ret = bleInvalidRange;
-        }
-        break;
+    }
+    case CONTROLLER_RANGE:
+    {
+            if ( len == CONTROLLER_RANGE_LEN )
+            {
+            memcpy(Controller_RangeVal, value, len);
+            // Try to send notification.
+            GATTServApp_ProcessCharCfg( Controller_RangeConfig, (uint8_t *)&Controller_RangeVal, FALSE,
+                                        ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
+                                        INVALID_TASK_ID,  Controller_ReadAttrCB);
+            }
+            else
+            {
+            ret = bleInvalidRange;
+            }
+            break;
+    }
+    case CONTROLLER_CO2SAVED:
+    {
+            if ( len == CONTROLLER_CO2SAVED_LEN )
+            {
+            memcpy(Controller_co2SavedVal, value, len);
+            // Try to send notification.
+            GATTServApp_ProcessCharCfg( Controller_co2SavedConfig, (uint8_t *)&Controller_co2SavedVal, FALSE,
+                                        ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
+                                        INVALID_TASK_ID,  Controller_ReadAttrCB);
+            }
+            else
+            {
+            ret = bleInvalidRange;
+            }
+            break;
+    }
+    case CONTROLLER_MOTOR_TEMPERATURE:
+    {
+        if ( len == CONTROLLER_MOTOR_TEMPERATURE_LEN )
+            {
+            memcpy(Controller_Motor_TemperatureVal, value, len);
+            // Try to send notification.
+            GATTServApp_ProcessCharCfg( Controller_Motor_TemperatureConfig, (uint8_t *)&Controller_Motor_TemperatureVal, FALSE,
+                                        ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
+                                        INVALID_TASK_ID,  Controller_ReadAttrCB);
+            }
+            else
+            {
+            ret = bleInvalidRange;
+            }
+            break;
+      }
+    case CONTROLLER_INSTANT_ECONOMY:
+    {
+        if ( len == CONTROLLER_INSTANT_ECONOMY_LEN )
+            {
+            memcpy(Controller_Instant_EconomyVal, value, len);
+            // Try to send notification.
+            GATTServApp_ProcessCharCfg( Controller_Instant_EconomyConfig, (uint8_t *)&Controller_Instant_EconomyVal, FALSE,
+                                        ControllerAttrTbl, GATT_NUM_ATTRS( ControllerAttrTbl ),
+                                        INVALID_TASK_ID,  Controller_ReadAttrCB);
+            }
+            else
+            {
+            ret = bleInvalidRange;
+            }
+            break;
+    }
     default:
       ret = INVALIDPARAMETER;
       break;
@@ -1008,9 +1050,8 @@ bStatus_t Controller_SetParameter( uint8 param, uint8 len, void *value )
   return ret;
 }
 
-
 /*
- * Controller_GetParameter - Get a Controller parameter.
+ * Controller_GetParameter - Get a Controller parameter/characteristic.
  *
  *    param - Profile parameter ID
  *    value - pointer to data to write.  This is dependent on
@@ -1023,8 +1064,44 @@ bStatus_t Controller_GetParameter( uint8 param, void *value )
   bStatus_t ret = SUCCESS;
   switch ( param )
   {
-    case CONTROLLER_TRIP_RESET:
-        memcpy((uint8_t*)value, Controller_Trip_ResetVal, CONTROLLER_TRIP_RESET_LEN);
+    case CONTROLLER_VOLTAGE:
+        memcpy((uint8_t*)value, Controller_VoltageVal, CONTROLLER_VOLTAGE_LEN);
+        break;
+    case CONTROLLER_CURRENT:
+        memcpy((uint8_t*)value, Controller_CurrentVal, CONTROLLER_CURRENT_LEN);
+        break;
+    case CONTROLLER_HEAT_SINK_TEMPERATURE:
+        memcpy((uint8_t*)value, Controller_Heat_Sink_TemperatureVal, CONTROLLER_HEAT_SINK_TEMPERATURE_LEN);
+        break;
+    case CONTROLLER_ERROR_CODE:
+        memcpy((uint8_t*)value, Controller_Error_CodeVal, CONTROLLER_ERROR_CODE_LEN);
+        break;
+    case CONTROLLER_MOTOR_RPM:
+        memcpy((uint8_t*)value, Controller_Motor_RPM_Val, CONTROLLER_MOTOR_RPM_LEN);
+        break;
+    case CONTROLLER_MOTOR_SPEED:
+        memcpy((uint8_t*)value, Controller_Motor_SpeedVal, CONTROLLER_MOTOR_SPEED_LEN);
+        break;
+    case CONTROLLER_TOTAL_DISTANCE_TRAVELLED:
+        memcpy((uint8_t*)value, Controller_Total_Distance_TravelledVal, CONTROLLER_TOTAL_DISTANCE_TRAVELLED_LEN);
+        break;
+    case CONTROLLER_TOTAL_ENERGY_CONSUMPTION:
+        memcpy((uint8_t*)value, Controller_Total_Energy_ConsumptionVal, CONTROLLER_TOTAL_ENERGY_CONSUMPTION_LEN);
+        break;
+    case CONTROLLER_TOTAL_ENERGY_EFFICIENCY:
+        memcpy((uint8_t*)value, Controller_Total_Energy_EfficiencyVal, CONTROLLER_TOTAL_ENERGY_EFFICIENCY_LEN);
+        break;
+    case CONTROLLER_RANGE:
+        memcpy((uint8_t*)value, Controller_RangeVal, CONTROLLER_RANGE_LEN);
+        break;
+    case CONTROLLER_CO2SAVED:
+        memcpy((uint8_t*)value, Controller_co2SavedVal, CONTROLLER_CO2SAVED_LEN);
+        break;
+    case CONTROLLER_MOTOR_TEMPERATURE:
+        memcpy((uint8_t*)value, Controller_Motor_TemperatureVal, CONTROLLER_MOTOR_TEMPERATURE_LEN);
+        break;
+    case CONTROLLER_INSTANT_ECONOMY:
+        memcpy((uint8_t*)value, Controller_Instant_EconomyVal, CONTROLLER_INSTANT_ECONOMY_LEN);
         break;
     default:
       ret = INVALIDPARAMETER;
@@ -1172,42 +1249,55 @@ static bStatus_t Controller_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAtt
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-  // See if request is regarding the Trip Distance Characteristic Value
-  else if (! memcmp(pAttr->type.uuid, Controller_Trip_Distance_TravelledUUID, pAttr->type.len) )
+  // See if request is regarding the Range Characteristic Value
+  else if (! memcmp(pAttr->type.uuid, Controller_RangeUUID, pAttr->type.len) )
   {
-    if ( offset > CONTROLLER_TOTAL_DISTANCE_TRAVELLED_LEN )  // Prevent malicious ATT ReadBlob offsets.
+    if ( offset > CONTROLLER_RANGE_LEN )  // Prevent malicious ATT ReadBlob offsets.
     {
       status = ATT_ERR_INVALID_OFFSET;
     }
     else
     {
-      *pLen = MIN(maxLen, CONTROLLER_TRIP_DISTANCE_TRAVELLED_LEN - offset);  // Transmit as much as possible
+      *pLen = MIN(maxLen, CONTROLLER_RANGE_LEN - offset);  // Transmit as much as possible
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-  // See if request is regarding the Trip Energy Consumption Characteristic Value
-  else if (! memcmp(pAttr->type.uuid, Controller_Trip_Energy_ConsumptionUUID, pAttr->type.len) )
+  // See if request is regarding the CO2SAVED Characteristic Value
+  else if (! memcmp(pAttr->type.uuid, Controller_co2SavedUUID, pAttr->type.len) )
   {
-    if ( offset > CONTROLLER_TOTAL_ENERGY_CONSUMPTION_LEN )  // Prevent malicious ATT ReadBlob offsets.
+    if ( offset > CONTROLLER_CO2SAVED_LEN )  // Prevent malicious ATT ReadBlob offsets.
     {
       status = ATT_ERR_INVALID_OFFSET;
     }
     else
     {
-      *pLen = MIN(maxLen, CONTROLLER_TRIP_ENERGY_CONSUMPTION_LEN - offset);  // Transmit as much as possible
+      *pLen = MIN(maxLen, CONTROLLER_CO2SAVED_LEN - offset);  // Transmit as much as possible
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-  // See if request is regarding the Trip Energy Efficiency Characteristic Value
-  else if (! memcmp(pAttr->type.uuid, Controller_Trip_Energy_EfficiencyUUID, pAttr->type.len) )
+  // See if request is regarding the Motor Temperature Characteristic Value
+  else if (! memcmp(pAttr->type.uuid, Controller_Motor_TemperatureUUID, pAttr->type.len) )
   {
-    if ( offset > CONTROLLER_TOTAL_ENERGY_EFFICIENCY_LEN )  // Prevent malicious ATT ReadBlob offsets.
+    if ( offset > CONTROLLER_MOTOR_TEMPERATURE_LEN )  // Prevent malicious ATT ReadBlob offsets.
     {
       status = ATT_ERR_INVALID_OFFSET;
     }
     else
     {
-      *pLen = MIN(maxLen, CONTROLLER_TRIP_ENERGY_EFFICIENCY_LEN - offset);  // Transmit as much as possible
+      *pLen = MIN(maxLen, CONTROLLER_MOTOR_TEMPERATURE_LEN - offset);  // Transmit as much as possible
+      memcpy(pValue, pAttr->pValue + offset, *pLen);
+    }
+  }
+  // See if request is regarding the Instant economy Characteristic Value
+  else if (! memcmp(pAttr->type.uuid, Controller_Instant_EconomyUUID, pAttr->type.len) )
+  {
+    if ( offset > CONTROLLER_INSTANT_ECONOMY_LEN )  // Prevent malicious ATT ReadBlob offsets.
+    {
+      status = ATT_ERR_INVALID_OFFSET;
+    }
+    else
+    {
+      *pLen = MIN(maxLen, CONTROLLER_INSTANT_ECONOMY_LEN - offset);  // Transmit as much as possible
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
@@ -1243,29 +1333,12 @@ static bStatus_t Controller_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAt
 {
   bStatus_t status  = SUCCESS;
   uint8_t   paramID = 0xFF;
-
   // See if request is regarding a Client Characterisic Configuration
   if ( ! memcmp(pAttr->type.uuid, clientCharCfgUUID, pAttr->type.len) )
   {
     // Allow only notifications.
     status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
                                              offset, GATT_CLIENT_CFG_NOTIFY);
-  }
-  else if(! memcmp(pAttr->type.uuid, Controller_Trip_ResetUUID, pAttr->type.len))
-  {
-      if ( offset + len > CONTROLLER_TRIP_RESET_LEN )
-      {
-        status = ATT_ERR_INVALID_OFFSET;
-      }
-      else
-      {
-        // Copy pValue into the variable we point to from the attribute table.
-        memcpy(pAttr->pValue + offset, pValue, len);
-
-        // Only notify application if entire expected value is written
-        if ( offset + len == CONTROLLER_TRIP_RESET_LEN)
-          paramID = CONTROLLER_TRIP_RESET;
-      }
   }
   else
   {

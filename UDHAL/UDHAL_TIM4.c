@@ -1,8 +1,8 @@
 /******************************************************************************
 
- @file  UDHAL_TIM.c
+ @file  UDHAL_TIM4.c
 
- @brief This library is used for singleButton.h to counter the button press duration
+ @brief This library is used for high frequency communication
 
 
  *****************************************************************************/
@@ -136,4 +136,5 @@ static void UDHAL_TIM4_stop()
 static void UDHAL_TIM4_OVClockFxn()
 {
     periodicCommunication_hf_communication();
+    // next step -> go to dataAnalysis.c
 }

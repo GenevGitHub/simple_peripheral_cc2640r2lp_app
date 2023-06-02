@@ -121,6 +121,9 @@ UDHAL/UDHAL_TIM6.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/pac
 UDHAL/UDHAL_TIM6.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h
 UDHAL/UDHAL_TIM6.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM6.h
 UDHAL/UDHAL_TIM6.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/brakeAndThrottle.h
+UDHAL/UDHAL_TIM6.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
+UDHAL/UDHAL_TIM6.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
+UDHAL/UDHAL_TIM6.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 
 ../UDHAL/UDHAL_TIM6.c:
 
@@ -363,4 +366,10 @@ C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h:
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM6.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/brakeAndThrottle.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 

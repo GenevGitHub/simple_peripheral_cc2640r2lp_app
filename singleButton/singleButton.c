@@ -21,7 +21,9 @@ uint32_t timerPeriod;
 uint8_t risingEdgeCount = 0;    // make this static if not debugging
 uint8_t fallingEdgeCount = 0;   // make this static if not debugging
 singleButton_timerManager_t *singleButton_timerManager; //singleButton_timerManager
+
 static singleButtonCBs_t *singleButtonCBs;
+
 /*********************************************************************
 * LOCAL FUNCTIONS
 */
@@ -35,7 +37,7 @@ static singleButtonCBs_t *singleButtonCBs;
  *
  * @return  none
  */
-void singleButton_Init()
+void singleButton_init()
 {
 
 }
@@ -78,10 +80,8 @@ void singleButton_registerCBs(singleButtonCBs_t *singleButtoncb)
  *
  * @return  none
  */
-uint8_t exitReturn;       // for debugging only
 void singleButton_processButtonEvt(uint8_t logicLevel)
 {
-    exitReturn = 0;       // for debugging only
     if(logicLevel == 0)
     {
         fallingEdgeCount++;
@@ -89,7 +89,6 @@ void singleButton_processButtonEvt(uint8_t logicLevel)
     if(fallingEdgeCount == 0)    // Ignores the rising edge after a long press
     {
         risingEdgeCount = 0;
-        exitReturn = 1;
         return;
     }
     if(logicLevel == 1)
@@ -100,17 +99,21 @@ void singleButton_processButtonEvt(uint8_t logicLevel)
     switch(buttonState)
     {
     case SINGLE_BUTTON_WAITING_STATE:
-        buttonState = SINGLE_BUTTON_EXECUTING_STATE;
-        timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_LONG;
-        singleButton_timerManager->timerSetPeriod(timerPeriod);
-        singleButton_timerManager->timerStart();
-       break;
+        {
+            buttonState = SINGLE_BUTTON_EXECUTING_STATE;
+            timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_LONG;
+            singleButton_timerManager->timerSetPeriod(timerPeriod);
+            singleButton_timerManager->timerStart();
+            break;
+        }
     case SINGLE_BUTTON_EXECUTING_STATE:
-        timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_SHORT;
-        singleButton_timerManager->timerStop();
-        singleButton_timerManager->timerSetPeriod(timerPeriod);
-        singleButton_timerManager->timerStart();
-       break;
+        {
+            timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_SHORT;
+            singleButton_timerManager->timerStop();
+            singleButton_timerManager->timerSetPeriod(timerPeriod);
+            singleButton_timerManager->timerStart();
+            break;
+        }
     default:
        break;
     }
@@ -145,7 +148,7 @@ void singleButton_processTimerOv(){
         buttonState = SINGLE_BUTTON_WAITING_STATE;
         buttonEvent = 0x02; //callback -> lightControl_change();
     }
-    // TOGGLE BLE ON/OFF
+    // TOGGLE BLE Advertising
     else if (risingEdgeCount == 1 && fallingEdgeCount == 2){
         risingEdgeCount = 0;
         fallingEdgeCount = 0;
@@ -174,78 +177,5 @@ void singleButton_processTimerOv(){
         buttonEvent = 0x00;
     }
 
-    singleButtonCBs->singleButtonCB_t(buttonEvent);
+    singleButtonCBs->singleButtonCB_t(buttonEvent); //(pointer_name)->(function pointer)(parameter)
 }
-/*
-void singleButton_processTimerOv()
-{
-    //Reset the time and change state to termination state
-    singleButton_timerManager -> timerStop();
-    // singleButton_timerManager -> timerStop();
-
-    // what about rising edge?  what about the case of fallingEdgeCount = 0
-    if(fallingEdgeCount == 1)
-    {
-        if(timerPeriod == SINGLE_BUTTON_TIMER_OV_TIME_LONG)
-        {
-            singleButtonCBs->singleButtonCB_t(SINGLE_BUTTON_SINGLE_LONG_PRESS_MSG);
-            fallingEdgeCount = 0;
-            buttonState = SINGLE_BUTTON_TERMINATION_STATE;  // <-- we don't really need the termination state.  Change this to WAITING STATE?
-        }
-        else if(timerPeriod == SINGLE_BUTTON_TIMER_OV_TIME_SHORT)
-        {
-            singleButtonCBs->singleButtonCB_t(SINGLE_BUTTON_SINGLE_SHORT_PRESS_MSG);
-            fallingEdgeCount = 0;
-            buttonState = SINGLE_BUTTON_WAITING_STATE;
-            lightControl_change();
-        }
-    }
-    else if(fallingEdgeCount == 2)
-    {
-        singleButtonCBs->singleButtonCB_t(SINGLE_BUTTON_DOUBLE_SHORT_PRESS_MSG);
-         fallingEdgeCount = 0;
-         buttonState = SINGLE_BUTTON_WAITING_STATE;
-    }
-    else if(fallingEdgeCount == 3)
-    {
-        singleButtonCBs->singleButtonCB_t(SINGLE_BUTTON_TREBLE_SHORT_PRESS_MSG);
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
-    }
-    else
-    {
-        singleButtonCBs->singleButtonCB_t(SINGLE_BUTTON_UNDEFINED_MSG);
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
-    }
-}
-*/
-/*
-void singleButton_processButtonEvt(uint8_t logicLevel)
-{
-    if(logicLevel == 0)
-    {
-        fallingEdgeCount++;
-    }
-    switch(buttonState)
-    {
-    case SINGLE_BUTTON_WAITING_STATE:
-        buttonState = SINGLE_BUTTON_EXECUTING_STATE;
-        timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_LONG;
-        singleButton_timerManager->timerSetPeriod(timerPeriod);
-        singleButton_timerManager->timerStart();
-       break;
-    case SINGLE_BUTTON_EXECUTING_STATE:
-        timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_SHORT;
-        singleButton_timerManager->timerStop();
-        singleButton_timerManager->timerSetPeriod(timerPeriod);
-        singleButton_timerManager->timerStart();
-       break;
-    case SINGLE_BUTTON_TERMINATION_STATE:
-       buttonState = SINGLE_BUTTON_WAITING_STATE;
-       break;
-    default:
-       break;
-    }
-}
-*/

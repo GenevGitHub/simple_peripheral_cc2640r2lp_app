@@ -14,6 +14,7 @@ UDHAL/UDHAL.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_types.h
 UDHAL/UDHAL.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h
 UDHAL/UDHAL.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_GPIO.h
+UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_I2C.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM1.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM3.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM4.h
@@ -22,6 +23,7 @@ UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM7.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM8.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM9.h
+UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM10.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_ADC1.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_ADC2.h
 UDHAL/UDHAL.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_UART.h
@@ -54,6 +56,8 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_GPIO.h:
 
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_I2C.h:
+
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM1.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM3.h:
@@ -69,6 +73,8 @@ C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UD
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM8.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM9.h:
+
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM10.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_ADC1.h:
 

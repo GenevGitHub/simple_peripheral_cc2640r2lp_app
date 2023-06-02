@@ -57,22 +57,38 @@ extern "C"
 * CONSTANTS
 */
 // Service UUID
-#define BATTERY_SERV_UUID 0x180F
+#define BATTERY_SERV_UUID                       0x180F
 
-//  Characteristic defines
-#define BATTERY_BATTERY_LEVEL      0
-#define BATTERY_BATTERY_LEVEL_UUID 0x2A19
-#define BATTERY_BATTERY_LEVEL_LEN  1
+//  Characteristic definition - in percentage
+#define BATTERY_BATTERY_LEVEL                   0
+#define BATTERY_BATTERY_LEVEL_UUID              0x2A19
+#define BATTERY_BATTERY_LEVEL_LEN               1
 
-//  Characteristic defines
-#define BATTERY_BATTERY_VOLTAGE      1
-#define BATTERY_BATTERY_VOLTAGE_UUID 0x2B18
-#define BATTERY_BATTERY_VOLTAGE_LEN  2
+//  Characteristic defines <- should display battery voltage in mV
+#define BATTERY_BATTERY_VOLTAGE                 1
+#define BATTERY_BATTERY_VOLTAGE_UUID            0x2B18
+#define BATTERY_BATTERY_VOLTAGE_LEN             2
 
-//  Characteristic defines
-#define BATTERY_BATTERY_TEMPERATURE      2
-#define BATTERY_BATTERY_TEMPERATURE_UUID 0x2A6E
-#define BATTERY_BATTERY_TEMPERATURE_LEN  1
+//  Characteristic defines <- currently no battery temperature sensor / measurement
+#define BATTERY_BATTERY_TEMPERATURE             2
+#define BATTERY_BATTERY_TEMPERATURE_UUID        0x2A6E
+#define BATTERY_BATTERY_TEMPERATURE_LEN         1
+
+//  Characteristic defines <- currently no battery error code
+#define BATTERY_BATTERY_ERROR_CODE              3
+#define BATTERY_BATTERY_ERROR_CODE_UUID         0x5800    // To be assigned/created UUID code
+#define BATTERY_BATTERY_ERROR_CODE_LEN          1
+
+//  Characteristic defines -> display battery status from 1 to 5
+#define BATTERY_BATTERY_STATUS                  4
+#define BATTERY_BATTERY_STATUS_UUID             0x2A1B
+#define BATTERY_BATTERY_STATUS_LEN              1
+
+// Battery Error Code
+#define BATTERY_NORMAL                          10
+#define BMS_COMMUNICATION_ERROR                 11
+#define BATTERY_TEMPERATURE_ABNORMAL            12
+#define BATTERY_OVER_CURRENT                    13
 
 /*********************************************************************
  * TYPEDEFS
@@ -94,13 +110,9 @@ typedef struct
   BatteryChange_t        pfnChangeCb;  // Called when characteristic value changes
 } BatteryCBs_t;
 
-
-
 /*********************************************************************
  * API FUNCTIONS
  */
-
-
 /*
  * Battery_AddService- Initializes the Battery service by registering
  *          GATT attributes with the GATT server.

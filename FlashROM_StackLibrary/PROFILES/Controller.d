@@ -51,6 +51,13 @@ PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/bles
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_common/hal_types.h
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/controller/cc26xx_r2/inc/ll.h
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/controller/cc26xx_r2/inc/ll_scheduler.h
+PROFILES/Controller.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/dataAnalysis.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdarg.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
+PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 PROFILES/Controller.obj: ../PROFILES/Controller.h
 
 ../PROFILES/Controller.c:
@@ -154,6 +161,20 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_comm
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/controller/cc26xx_r2/inc/ll.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/controller/cc26xx_r2/inc/ll_scheduler.h:
+
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/dataAnalysis.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdarg.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 
 ../PROFILES/Controller.h:
 

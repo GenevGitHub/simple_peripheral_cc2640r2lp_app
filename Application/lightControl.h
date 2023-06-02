@@ -25,12 +25,16 @@ extern "C"
 /*********************************************************************
 * CONSTANTS
 */
-#define LUX_THRESHOLD                       350  // light shall be ON when light intensity is consistently below this lux value
-#define ALS_NUMSAMPLES                      8    // The number of samples used for light intensity evaluation --> must be 8
-#define ALS_SAMPLING_TIME                   250  // in milliseconds, is the time between ALS samples, i.e. sampling time
+#define LUX_THRESHOLD                       500  // light shall be ON when light intensity is consistently below this lux value
+#define ALS_NUMSAMPLES                      2    // The number of samples used for light intensity evaluation --> must be 8
+#define ALS_SAMPLING_TIME                   1000  // in milliseconds, is the time between ALS samples, i.e. sampling time.
+// there is actually no need to sample light level too frequently.
+// Perhaps frequency of 1 second is sufficient.
 // lightControl timer is timer 8
 // For example, total time interval between AUTO light ON/OFF is (ALS_NUMSPLES - 1) * ALS_SAMPLING_TIME => (8-1) * 250 = 1750 milliseconds
 // For example, total time interval between AUTO light ON/OFF is (ALS_NUMSPLES - 1) * ALS_SAMPLING_TIME => (8-1) * 300 = 2100 milliseconds
+//
+// For example, total time interval between AUTO light ON/OFF is (ALS_NUMSPLES - 1) * ALS_SAMPLING_TIME => (3-1) * 1000 = 2000 milliseconds
 #define LIGHT_MODE_OFF                      0x00
 #define LIGHT_MODE_ON                       0x01
 #define LIGHT_MODE_AUTO                     0x02
@@ -39,7 +43,8 @@ extern "C"
 #define LIGHT_STATUS_OFF                    0x00
 #define LIGHT_STATUS_ON                     0x01
 #define LIGHT_STATUS_INITIAL                LIGHT_STATUS_OFF
-//ALS stands for ambient light sensor
+
+//ALS is an abbreviation for Ambient Light Sensor
 /*********************************************************************
  * TYPEDEFS
  */
@@ -53,7 +58,7 @@ typedef void (*lightControl_CB_t)(uint8_t status);
 /*********************************************************************
  * @Structure lightControl_GPIOManager_t
  *
- * @brief     It defines a set of function pointer that the the library can access and control the device peripheral to manipulate the light
+ * @brief     It defines a set of function pointer that the library can access and control the device peripheral to manipulate the light
  *
  * @data      lightInit: Called when the application wants to init the light peripheral
  *            lightSetHigh: Called when the application wants to set the light peripheral to high
@@ -66,10 +71,10 @@ typedef void (*lightSetLow)(void);
 typedef void (*lightClose)(void);
 typedef struct
 {
-    lightInit lightInit;
-    lightSetHigh lightSetHigh;
-    lightSetLow lightSetLow;
-    lightClose lightClose;
+    lightInit       lightInit;
+    lightSetHigh    lightSetHigh;
+    lightSetLow     lightSetLow;
+    lightClose      lightClose;
 }lightControl_lightManager_t;
 
 /*********************************************************************
@@ -80,7 +85,7 @@ typedef void (*lightControl_ALStimerStop)(void);
 typedef struct
 {
     lightControl_ALStimerStart  timerStart;
-    lightControl_ALStimerStop  timerStop;
+    lightControl_ALStimerStop   timerStop;
 }lightControl_ALStimerManager_t;
 /*********************************************************************
  * @Structure lightControl_ALSManager_t
@@ -96,27 +101,28 @@ typedef void (*ALS_read)(uint32_t *data);
 typedef void (*ALS_close)(void);
 typedef struct
 {
-    ALS_init ALS_init;
-    ALS_read ALS_read;
-    ALS_close ALS_close;
+    ALS_init    ALS_init;
+    ALS_read    ALS_read;
+    ALS_close   ALS_close;
 }lightControl_ALSManager_t;
 
 /*********************************************************************
  * API FUNCTIONS
  */
-extern void lightControl_init();
+extern void lightControl_init( void );
 extern void lightControl_registerAppCB(lightControl_CB_t *object);  // what does this do?
 //extern void lightControl_registerLightManager(lightControl_lightManager_t *object);   // what does this do?
-extern void lightControl_registerTimer(lightControl_ALStimerManager_t *ALSTimer);
-extern void lightControl_timerInterruptHandler();
-static void light_MODE_AUTO(void);
-static void light_MODE_OFF(void);
-static void light_MODE_ON(void);
-static void lightControl_ALS_Controller(uint32_t luxValue);
-static void lightControl_changeLightMode();
-extern void lightControl_change();
-extern uint8_t getLightMode(void);
-extern uint8_t getLightStatus(void);
+extern void lightControl_registerTimer( lightControl_ALStimerManager_t *ALSTimer );
+extern void lightControl_timerInterruptHandler( void );
+static void light_MODE_AUTO( void );
+static void light_MODE_OFF( void );
+static void light_MODE_ON( void );
+static void lightControl_ALS_Controller( uint32_t luxValue );
+extern void lightControl_lightModeChange( void );
+extern void lightControl_mclightStatusChg( void );
+
+extern uint8_t lightControl_getLightMode( void );
+extern uint8_t lightControl_getLightStatus( void );
 
 /*********************************************************************
 *********************************************************************/

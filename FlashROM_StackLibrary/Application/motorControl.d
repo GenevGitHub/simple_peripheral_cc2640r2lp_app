@@ -6,8 +6,6 @@ Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/cdefs.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
-Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/icall/src/inc/icall.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdbool.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdint.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_stdint40.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/stdint.h
@@ -15,11 +13,17 @@ Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_types.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_types.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h
+Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/icall/src/inc/icall.h
+Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdbool.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/inc/hal_assert.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_common/hal_types.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_common/cc26xx/_hal_types.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/inc/hal_defs.h
+Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h
+Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h
+Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h
+Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/GPIO.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/Controller.h
@@ -34,7 +38,6 @@ Application/motorControl.obj: ../Application/util.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h
 Application/motorControl.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/std.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdarg.h
-Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/targets/arm/elf/std.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/targets/arm/elf/M3.h
 Application/motorControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/targets/std.h
@@ -180,6 +183,7 @@ Application/motorControl.obj: ../Application/ledControl.h
 Application/motorControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/motorControl.obj: ../Application/lightControl.h
 Application/motorControl.obj: ../Application/buzzerControl.h
+Application/motorControl.obj: ../Application/powerOnTime.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h
 Application/motorControl.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/peripheral.h
 
@@ -195,10 +199,6 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/cdefs.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
-C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/icall/src/inc/icall.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdbool.h:
-
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdint.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/_stdint40.h:
@@ -213,6 +213,10 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h:
 
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/icall/src/inc/icall.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdbool.h:
+
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/inc/hal_assert.h:
@@ -222,6 +226,14 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_comm
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/target/_common/cc26xx/_hal_types.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/hal/src/inc/hal_defs.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/GPIO.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL.h:
 
@@ -250,8 +262,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/C
 C:/ti/xdctools_3_51_03_28_core/packages/xdc/std.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdarg.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/stddef.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/targets/arm/elf/std.h:
 
@@ -542,6 +552,8 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 ../Application/lightControl.h:
 
 ../Application/buzzerControl.h:
+
+../Application/powerOnTime.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h:
 

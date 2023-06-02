@@ -39,7 +39,7 @@ static singleButton_timerManager_t singleButton_timer =
     UDHAL_TIM3_start,
     UDHAL_TIM3_setPeriod,
     UDHAL_TIM3_stop
-};  // rename to "button_timer"?
+};
 /*********************************************************************
  *
  * @fn      UDHAL_TIM3_init

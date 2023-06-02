@@ -15,6 +15,7 @@ Application/ledControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/stdint.h
 Application/ledControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h
 Application/ledControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h
 Application/ledControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+Application/ledControl.obj: ../Application/lightControl.h
 
 ../Application/ledControl.c:
 
@@ -45,4 +46,6 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_stdint.h:
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/sys/_stdint.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+../Application/lightControl.h:
 

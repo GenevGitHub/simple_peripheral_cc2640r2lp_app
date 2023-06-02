@@ -14,6 +14,7 @@
  *  Created on:   20 Aug 2021 by Siu Yeung Yik
  *  Last Updated: 22 Oct 2021 by Siu Yeung Yik
  */
+
 #ifndef UDHAL_I2C_UDHAL_I2C_H_
 #define UDHAL_I2C_UDHAL_I2C_H_
 
@@ -41,7 +42,10 @@ extern "C"
  */
 extern void UDHAL_I2C_init();
 extern void UDHAL_I2C_params_init();
-
+extern void UDHAL_I2C_open();
+extern void UDHAL_I2C_close();
+extern uint8_t UDHAL_I2C_transfer(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize);
+extern uint8_t UDHAL_I2C_getI2CStatus();
 /*********************************************************************
 *********************************************************************/
 

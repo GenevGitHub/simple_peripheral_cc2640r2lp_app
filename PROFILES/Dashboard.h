@@ -57,9 +57,9 @@ extern "C"
 * CONSTANTS
 */
 // Service UUID
-#define DASHBOARD_SERV_UUID                     0x1811
+#define DASHBOARD_SERV_UUID                     0x1811  // alert notification
 
-//  Characteristic defines
+//  Characteristic definition - on Client(App) side
 #define DASHBOARD_ERROR_CODE                    0
 #define DASHBOARD_ERROR_CODE_UUID               0x6800
 #define DASHBOARD_ERROR_CODE_LEN                1
@@ -78,24 +78,19 @@ extern "C"
 
 #define DASHBOARD_POWER_ON_TIME                 4
 #define DASHBOARD_POWER_ON_TIME_UUID            0x6804
-#define DASHBOARD_POWER_ON_TIME_LEN             4
-/*
-#define DASHBOARD_BLE_STATUS                    5
-#define DASHBOARD_BLE_STATUS_UUID               0x6805
-#define DASHBOARD_BLE_STATUS_LEN                5
+#define DASHBOARD_POWER_ON_TIME_LEN             2
 
-#define DASHBOARD_BATTERY_STATUS                6
-#define DASHBOARD_BATTERY_STATUS_UUID           0x6806
-#define DASHBOARD_BATTERY_STATUS_LEN            6
+#define DASHBOARD_ADCOUNTER                     5
+#define DASHBOARD_ADCOUNTER_UUID                0x6805
+#define DASHBOARD_ADCOUNTER_LEN                 4
 
-#define DASHBOARD_UNITSELECT                    7
-#define DASHBOARD_UNITSELECT_UUID               0x6807
-#define DASHBOARD_UNITSELECT_LEN                7
 
-#define DASHBOARD_DASH_SPEED                    8
-#define DASHBOARD_DASH_SPEED_UUID               0x6808
-#define DASHBOARD_DASH_SPEED_LEN                8
-*/
+// Dashboard Error Codes
+#define DASHBOARD_NORMAL                        40
+#define DASHBOARD_COMMUNICATION_ERROR           41
+#define THROTTLE_SENSOR_ABNORMAL                42
+#define BRAKE_SENSOR_ABNORMAL                   43
+
 /*********************************************************************
  * TYPEDEFS
  */
@@ -109,20 +104,16 @@ extern "C"
  */
 
 // Callback when a characteristic value has changed
-typedef void (*DashboardChange_t)( uint8 paramID );
+typedef void (*DashboardChange_t)( uint8 paramID ); //void and pointer function with param
 
 typedef struct
 {
   DashboardChange_t        pfnChangeCb;  // Called when characteristic value changes
 } DashboardCBs_t;
 
-
-
 /*********************************************************************
  * API FUNCTIONS
  */
-
-
 /*
  * Dashboard_AddService- Initializes the Dashboard service by registering
  *          GATT attributes with the GATT server.
@@ -167,6 +158,5 @@ extern bStatus_t Dashboard_GetParameter( uint8 param, void *value );
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* _DASHBOARD_H_ */

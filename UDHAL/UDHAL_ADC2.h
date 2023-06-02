@@ -1,5 +1,6 @@
 /*
- * UDHAL_ADC2.h
+ *  UDHAL_ADC2.h
+ *  ADC2 is assigned for reading throttle ADC signals
  *
  *  Created on: 14 Feb 2022
  *      Author: harrysiu

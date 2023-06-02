@@ -69,7 +69,7 @@ void buzzerControl_registerCBs(buzzerControlCBs_t *buzzerControlCBs){
  */
 void buzzerControl_Start(){
     //if avgBatteryVoltage is less than specified value, start timer 9
-    buzzerControl_timerManager->timerStart();
+    buzzerControl_timerManager -> timerStart();
 }
 /*********************************************************************
  * @fn      buzzerControl_Stop

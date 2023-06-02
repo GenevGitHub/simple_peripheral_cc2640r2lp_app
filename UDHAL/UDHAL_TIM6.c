@@ -1,6 +1,6 @@
 /******************************************************************************
 
- @file  UDHAL_TIM.c
+ @file  UDHAL_TIM6.c
 
  @brief This library is used for brakeAndThrottle.h operations
 

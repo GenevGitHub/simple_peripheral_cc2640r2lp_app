@@ -23,9 +23,10 @@ extern "C"
 /*********************************************************************
  * CONSTANTS
  */
-#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      300    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 300ms
-#define DATA_ANALYSIS_POINTS                         31     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (31 - 1) * 300 = 9000ms
-#define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      9000   // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (31 - 1) * 300 = 9000ms
+#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      400    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 400ms
+#define DATA_ANALYSIS_POINTS                         13     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (21 - 1) * 400 = 8000ms
+                                                            // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (13 - 1) * 400 = 4800ms
+#define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      60000
 #define PERIODIC_COMMUNICATION_ACTIVATE              0x01
 #define PERIODIC_COMMUNICATION_DEACTIVATE            0x00
 /*********************************************************************

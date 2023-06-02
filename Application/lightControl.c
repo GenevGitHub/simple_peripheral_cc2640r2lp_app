@@ -2,8 +2,7 @@
 
  @file  lightControl.c
 
- @brief This file contains the Simple Peripheral sample application for use
-        with the CC2650 Bluetooth Low Energy Protocol Stack.
+ @brief This file contains the Code of light control interfacing
 
  Group: WCS, BTS
  Target Device: cc2640r2
@@ -15,7 +14,17 @@
  * INCLUDES
  */
 #include "lightControl.h"
+#include "ledControl.h"
+#include <ti/drivers/GPIO.h>
 #include "stdint.h"
+#include "motorControl.h"
+#include "Dashboard.h"
+#include "lightSensorControl.h"
+#include "Board.h"
+#include <ti/drivers/GPIO.h>
+#include "UDHAL/UDHAL_I2C.h"
+
+//#include <ti/posix/ccs/unistd.h>
 /*********************************************************************
  * LOCAL POINTERS
  */
@@ -25,20 +34,22 @@ static void (*lightModeArray[3])(void) = {light_MODE_OFF, light_MODE_ON, light_M
 /*********************************************************************
  * LOCAL VARIABLES
  */
-uint32_t ALS_Sample = 0;                        // declare as static when not debugging
+uint32_t luxValue = 0;                        // declare as static when not debugging
 static uint8_t bitluxIndex = 0x00;
-static uint8_t lux_Index = 0x00;
-static uint8_t bitMask = 0x00;
-uint8_t light_mode = LIGHT_MODE_INITIAL;        // declare as static when not debugging
+//static uint8_t lux_Index = 0x00;
+//static uint8_t bitMask = 0x00;
+uint8_t light_mode;        // declare as static when not debugging
+static uint8_t light_mode_Index;
 uint8_t light_status = LIGHT_STATUS_INITIAL;    // declare as static when not debugging
 static uint8_t lightStatusNew = LIGHT_STATUS_INITIAL;
+static uint8_t I2C_Status;
 
-// for debugging only
-uint32_t ALS_Sample_Array[42] = {288, 346, 300, 280, 280, 288, 105, 180, 299, 0,
-                                 12288, 28840, 67283, 85288, 45288, 907288, 2880, 51055, 6745, 699,
-                                 0, 283, 281, 270, 283, 288, 288, 287, 287, 1287,
-                                 287, 1137, 87, 2887000, 28870, 288700, 28370, 5000, 9000, 6155,
-                                 788999, 2887000};
+// for debugging/testing only
+uint32_t ALS_Sample_Array[100] = {288, 346, 300, 280, 280, 288, 105, 180, 299, 0, 2000, 10, 2000, 10, 20, 10, 30, 2000, 10, 20,
+                                 2000, 10, 2000, 10, 20, 10, 30, 12288, 28840, 67283, 85288, 45288, 907288, 2880, 51055, 6745, 699, 2000, 10, 20,
+                                 0, 283, 281, 270, 283, 288, 288, 287, 287, 1287, 2000, 10, 2000, 10, 20, 10, 30, 2000, 10, 20,
+                                 287, 1137, 87, 2887000, 28870, 288700, 28370, 5000, 9000, 6155, 2000, 10, 2000, 10, 20, 10, 30, 2000, 10, 20,
+                                 788999, 2887000, 2000, 10, 2000, 10, 20, 10, 30, 2000, 10, 20, 2000, 10, 2000, 10, 20, 10, 30, 2000};
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -51,11 +62,11 @@ uint32_t ALS_Sample_Array[42] = {288, 346, 300, 280, 280, 288, 105, 180, 299, 0,
  *
  * @return  light_mode
  *********************************************************************/
-uint8_t getLightMode(){
+uint8_t lightControl_getLightMode(){
     return light_mode;
 }
 /*********************************************************************
- * @fn      getLightStatuse
+ * @fn      getLightStatus
  *
  * @brief   call this function to retrieve the current light status
  *
@@ -63,7 +74,7 @@ uint8_t getLightMode(){
  *
  * @return  light_status
  *********************************************************************/
-uint8_t getLightStatus(void){
+uint8_t lightControl_getLightStatus(void){
     return light_status;
 }
 /*********************************************************************
@@ -77,28 +88,38 @@ uint8_t getLightStatus(void){
  *********************************************************************/
 uint8_t ALSCount = 0;                               // for debugging only
 void light_MODE_AUTO(){
-    if (ALSCount >= 42){                            // for debugging only
+
+    if (ALSCount >= 100){                            // for debugging only
             ALSCount = 0;                           // for debugging only
     }                                               // for debugging only
-    ALS_Sample = ALS_Sample_Array[ALSCount];        // for debugging only
+    luxValue = ALS_Sample_Array[ALSCount];        // for debugging only
     ALSCount++;                                     // for debugging only
+
+    // call light sensor -> measure light level (Lux) data
+
 //************* convert ALS_Data to luxIndex and compute sumluxIndex  ***************************
-    lightControl_ALS_Controller(ALS_Sample);
+    lightControl_ALS_Controller(luxValue);
 //
-    if (bitluxIndex == 0x00) {
+/*    if (bitluxIndex == 0x00) {
         lightStatusNew = LIGHT_STATUS_OFF;
     }
     else if (bitluxIndex == 0xFF) {
         lightStatusNew = LIGHT_STATUS_ON;
     }
-    if (light_status != lightStatusNew) {//if the previous state is not the same as the command state
-        light_status = lightStatusNew;  // Sends command to change light state
-        // Action: "light status changed"
-        //GPIO_write(Board_GPIO_LED, lightCommand);
-        // Action: "command change and send new light mode and new light status to APP"
-        // Action: LED display -> light on if light_status == ON. light off if light_status == OFF
+*/
+    if (bitluxIndex == 0) {
+        lightStatusNew = LIGHT_STATUS_OFF;
+    }
+    else if (bitluxIndex == ALS_NUMSAMPLES) {
+        lightStatusNew = LIGHT_STATUS_ON;
+    }
+
+    if (light_status != lightStatusNew) {
+        light_status = lightStatusNew;
+        lightControl_mclightStatusChg();
     }
     lightControl_ALStimerManager->timerStart();
+
     //return 0;
 }
 /*********************************************************************
@@ -111,16 +132,10 @@ void light_MODE_AUTO(){
  * @return  None
  *********************************************************************/
 void light_MODE_OFF(){
-    //Obviously, if light is already OFF, there is no need to send command to dashboard to change the state of light
-    if (light_status != LIGHT_STATUS_OFF) { // only when the light state is different to the command.....
-    // if light is previously ON, send command to turn OFF light.
-        light_status = LIGHT_STATUS_OFF;//this line sends command to change light on/off
-        // Action: "light status changed"
-        //GPIO_write(Board_GPIO_LED, 0);
-        //"command change and send new light mode and new light status to APP"
-        // Action: LED display -> light off
+    if (light_status != LIGHT_STATUS_OFF) {
+        light_status = LIGHT_STATUS_OFF;
+        lightControl_mclightStatusChg();
     }
-    //return 0;
 }
 /*********************************************************************
  * @fn      light_MODE_ON
@@ -132,20 +147,49 @@ void light_MODE_OFF(){
  * @return  None
  *********************************************************************/
 void light_MODE_ON(){
-    //Obviously, if light is already ON, there is no need to send command to dashboard to change the state of light
-    if (light_status != LIGHT_STATUS_ON) {// only when the light state is different to the command.....
-    // if light is previously OFF, send command to turn ON light.
-        light_status = LIGHT_STATUS_ON;//this line sends command to change light on/off
-        // Action: "light status changed"
-        //GPIO_write(Board_GPIO_LED, 1);
-        // Action: "command change and send new light mode and new light status to APP"
-        // Action: LED display -> light on
+    if (light_status != LIGHT_STATUS_ON) {
+        light_status = LIGHT_STATUS_ON;
+        lightControl_mclightStatusChg();
     }
-    //return 0;
 }
 /*********************************************************************
  * EXTERN FUNCTIONS
  */
+/*********************************************************************
+ * @fn      lightControl_mclightStatusChg
+ *
+ * @brief   Notify light status change
+ *
+ * @param   None
+ *
+ * @return  None
+ *********************************************************************/
+void lightControl_mclightStatusChg(void){
+    // switch LED display brightness depending on light status
+    uint8_t Board_GPIO_LED_state;
+    uint8_t ledPower;
+    switch(light_status)
+    {
+    case LIGHT_STATUS_ON:
+            {
+                Board_GPIO_LED_state = Board_GPIO_LED_ON;
+                ledPower = LED_POWER_LIGHT_ON;
+                break;
+            }
+    case LIGHT_STATUS_OFF:
+            {
+                Board_GPIO_LED_state = Board_GPIO_LED_OFF;
+                ledPower = LED_POWER_LIGHT_OFF;
+                break;
+            }
+    default:
+        break;
+    }
+    GPIO_write(Board_GPIO_LED0, Board_GPIO_LED_state);
+    motorcontrol_setGatt(DASHBOARD_SERV_UUID, DASHBOARD_LIGHT_STATUS, DASHBOARD_LIGHT_STATUS_LEN, (uint8_t *) &light_status);
+    ledControl_setLEDPower(ledPower);
+    ledControl_setLightStatus(light_status);
+}
 /*********************************************************************
  * @fn      lightControl_initialization
  *
@@ -156,11 +200,26 @@ void light_MODE_ON(){
  * @return  None
  *********************************************************************/
 void lightControl_init(){
-    // At every POWER ON (SYSTEM START-UP), the light control is in auto mode (LIGHT_MODE_INITIAL), light is off (LIGHT_STATUS_INITIAL).
+
+    //** I2C must be initiated before lightControl
+    //** At every POWER ON (SYSTEM START-UP), "IF I2C communication is SUCCESSFUL", the light control is in auto mode (LIGHT_MODE_INITIAL), light is off (LIGHT_STATUS_INITIAL).
+    //** "IF I2C communication is NOT successful, we have to disable auto mode.
+    I2C_Status = UDHAL_I2C_getI2CStatus();
+
+    if (I2C_Status == 1) {
+        light_mode = LIGHT_MODE_AUTO;
+        light_mode_Index = 2;
+    }
+    else if (I2C_Status == 0) {
+        light_mode = LIGHT_MODE_OFF;
+        light_mode_Index = 1;
+    }
+
     //GPIO_setConfig(Board_GPIO_LIGHT, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);  // initiate light control
-    light_mode = LIGHT_MODE_INITIAL;
+
     light_status = LIGHT_STATUS_INITIAL;
     lightStatusNew = LIGHT_STATUS_INITIAL;
+
     if (light_mode == 2){
         lightControl_ALStimerManager->timerStart();
     }
@@ -174,36 +233,28 @@ void lightControl_init(){
  *
  * @return  None
  *********************************************************************/
-void lightControl_change(){
-    lux_Index = 0x00;
-    bitMask = 0x00;
-    light_mode++;   //Toggles to the next light modes
-    if(light_mode > 2)
-    {                 // the case of changing from AUTO mode to OFF mode
+void lightControl_lightModeChange(){
+
+    //lux_Index = 0x00;
+    //bitMask = 0x00;
+    light_mode++;
+
+    if(light_mode > light_mode_Index)
+    {
         light_mode = 0;
     }
+
     if(light_mode != 2)
-    {                 // the case of changing from AUTO mode to OFF mode
-        lightControl_ALStimerManager->timerStop();    // clock runs immediately at start-up --> stop timer 8
+    {
+        lightControl_ALStimerManager->timerStop();
     }
     if(light_mode == 2)
-    {               // whenever auto mode is re-selected --> restart timer 8
+    {
         lightControl_ALStimerManager->timerStart();
     }
-    lightControl_changeLightMode(light_mode);
-}
-/*********************************************************************
- * @fn      lightCOntrol_changeLightMode
- *
- * @brief   executes light mode change
- *
- * @param   light_mode
- *
- * @return  None
- *********************************************************************/
-void lightControl_changeLightMode(){
+    motorcontrol_setGatt(DASHBOARD_SERV_UUID, DASHBOARD_LIGHT_MODE, DASHBOARD_LIGHT_MODE_LEN, (uint8_t *) &light_mode);
+    ledControl_setLightMode(light_mode);
     (*lightModeArray[light_mode])();
-    // Change light_mode on LED display.  If light_mode to AUTO -> turn on "AUTO" light.  Else -> "AUTO" light is off.
 }
 /*********************************************************************
  * @fn      lightControl_ALS_Controller
@@ -214,17 +265,45 @@ void lightControl_changeLightMode(){
  *
  * @return  None
  *********************************************************************/
+static uint8_t  luxIndex = 0;
+static uint8_t  luxBit[ALS_NUMSAMPLES] = {0};
+
 void lightControl_ALS_Controller(uint32_t luxValue)
 {
-    //************* convert ALS_Data to luxIndex using bitwise approach  ***************************
+    // ************* convert ALS_Data to luxIndex using bitwise approach  ***************************
+    // This only works for multiples of 8 bits
+    /*
     uint8_t shiftBit = lux_Index++ & 0x07;  // cycles from 0 to 7
     uint8_t para = ~(1 << shiftBit); // complement of (1 << shiftBit) = complement bits of the bit of interest
     bitMask = ((luxValue < LUX_THRESHOLD) << shiftBit) & 0xFF; // bitMask is current luxIndex at the shiftBit location
     bitluxIndex &= para;                    // resets the bit of interest to zero before update can be made
     bitluxIndex |= bitMask;                 // replaces the bit location with the current luxIndex
+    */
+    //
+    uint8_t ii;
+    bitluxIndex = 0;        // Resets bitluxIndex to 0
+
+    // If the measured lux value is less than the LUX Threshold, luxBit = 1 (ON), else luxBit = 0 (OFF)
+    if (luxValue < LUX_THRESHOLD){
+        luxBit[luxIndex] = 1;
+    }
+    else {
+        luxBit[luxIndex] = 0;
+    }
+    // Sum 3 consecutive luxBit values (= bitluxIndex)
+    for (ii = 1; ii <= ALS_NUMSAMPLES; ii++){
+        bitluxIndex += luxBit[ii];
+    }
+
+    luxIndex++;
+    // reset LuxIndex to 0 if LuxIndex is greater than ALS_NUMSAMPLES
+    if (luxIndex > ALS_NUMSAMPLES){
+        luxIndex = 0;
+    }
+
 }
 /*********************************************************************
- * @fn      lightControl_timerInterrptHandler
+ * @fn      lightControl_timerInterruptHandler
  *
  * @brief   It is used to initialize the callback functions such that the library can notify the application when there are updates
  *
@@ -234,7 +313,7 @@ void lightControl_ALS_Controller(uint32_t luxValue)
  */
 void lightControl_timerInterruptHandler()
 {
-    light_MODE_AUTO(); //call light_MODE_AUTO function, the light intensity value will then be passed to lightControl_ALS_Controller(ALS_Sample)
+    light_MODE_AUTO(); //call light_MODE_AUTO function, the light intensity value will then be passed to lightControl_ALS_Controller(luxValue)
 }
 
 /*********************************************************************

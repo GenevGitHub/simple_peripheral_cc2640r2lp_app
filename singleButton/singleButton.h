@@ -26,8 +26,8 @@ extern "C"
  * CONSTANTS
  */
 //Constants for timing duration
-#define SINGLE_BUTTON_TIMER_OV_TIME_LONG           1500  //Time expressed in ms, time interval for long press
-#define SINGLE_BUTTON_TIMER_OV_TIME_SHORT          500   //Time expressed in ms, time interval for short press
+#define SINGLE_BUTTON_TIMER_OV_TIME_LONG           1500  //Time expressed in ms, overflow time interval for single long press
+#define SINGLE_BUTTON_TIMER_OV_TIME_SHORT          500   //Time expressed in ms, overflow time interval for short press
 
 //Button state
 #define SINGLE_BUTTON_WAITING_STATE                0x00
@@ -76,7 +76,7 @@ typedef struct
 /*********************************************************************
  * FUNCTIONS
  */
-extern void singleButton_Init();
+extern void singleButton_init();
 extern void singleButton_registerTimer(singleButton_timerManager_t *singleButtonTimer);//Register in peripherals already
 extern void singleButton_registerCBs(singleButtonCBs_t *singleButtonCBs);//Register in main function.
 extern void singleButton_processButtonEvt(uint8_t logicLevel);

@@ -40,7 +40,6 @@
  * INCLUDES
  */
 #include <string.h>
-
 #include "bcomdef.h"
 #include "OSAL.h"
 #include "linkdb.h"
@@ -49,7 +48,6 @@
 #include "gatt_uuid.h"
 #include "gattservapp.h"
 #include "gapbondmgr.h"
-
 #include "Dashboard.h"
 
 /*********************************************************************
@@ -71,7 +69,7 @@
 // Dashboard Service UUID
 CONST uint8 DashboardUUID[ATT_UUID_SIZE] =
 {
-  TI_BASE_UUID_128(DASHBOARD_ERROR_CODE_UUID)
+  TI_BASE_UUID_128(DASHBOARD_SERV_UUID)
 };
 
 // Dashboard_Error_Code UUID
@@ -98,10 +96,16 @@ CONST uint8 Dashboard_Light_ModeUUID[ATT_UUID_SIZE] =
   TI_BASE_UUID_128(DASHBOARD_LIGHT_MODE_UUID)
 };
 
-// Dashboard_Light_Mode UUID
+// Dashboard_Power_On_Time UUID
 CONST uint8 Dashboard_Power_On_TimeUUID[ATT_UUID_SIZE] =
 {
   TI_BASE_UUID_128(DASHBOARD_POWER_ON_TIME_UUID)
+};
+
+// Dashboard_ADCounter UUID
+CONST uint8 Dashboard_ADCounterUUID[ATT_UUID_SIZE] =
+{
+  TI_BASE_UUID_128(DASHBOARD_ADCOUNTER_UUID)
 };
 /*********************************************************************
  * LOCAL VARIABLES
@@ -117,7 +121,7 @@ static DashboardCBs_t *pAppCBs = NULL;
 static CONST gattAttrType_t DashboardDecl = { ATT_UUID_SIZE, DashboardUUID };
 
 
-// Characteristic "Dashboard_Error_Code" Properties (for declaration)
+// Characteristic "Dashboard_Error_Code" Properties (for declaration) - Client (App) side
 static uint8 Dashboard_Error_CodeProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 // Characteristic "Dashboard_Error_Code" Value variable
 static uint8 Dashboard_Error_CodeVal[DASHBOARD_ERROR_CODE_LEN] = {0};
@@ -128,13 +132,13 @@ static gattCharCfg_t *Dashboard_Error_CodeConfig;
 // Characteristic "Dashboard_Speed_Mode" Properties (for declaration)
 static uint8 Dashboard_Speed_ModeProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 // Characteristic "Dashboard_Speed_Mode" Value variable
-static uint8 Dashboard_Speed_ModeVal[DASHBOARD_SPEED_MODE_LEN] = {0};
+static uint8 Dashboard_Speed_ModeVal[DASHBOARD_SPEED_MODE_LEN] = {1};
 // Characteristic "Dashboard_Speed_Mode" CCCD
 static gattCharCfg_t *Dashboard_Speed_ModeConfig;
 
 
 // Characteristic "Dashboard_Light_Status" Properties (for declaration)
-static uint8 Dashboard_Light_StatusProps = GATT_PROP_READ | GATT_PROP_NOTIFY | GATT_PERMIT_WRITE;
+static uint8 Dashboard_Light_StatusProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 // Characteristic "Dashboard_Light_Status" Value variable
 static uint8 Dashboard_Light_StatusVal[DASHBOARD_LIGHT_STATUS_LEN] = {0};
 // Characteristic "Dashboard_Light_Status" CCCD
@@ -142,9 +146,9 @@ static gattCharCfg_t *Dashboard_Light_StatusConfig;
 
 
 // Characteristic "Dashboard_Light_Mode" Properties (for declaration)
-static uint8 Dashboard_Light_ModeProps = GATT_PROP_READ | GATT_PROP_NOTIFY | GATT_PERMIT_AUTHEN_WRITE;
+static uint8 Dashboard_Light_ModeProps = GATT_PROP_READ | GATT_PROP_NOTIFY | GATT_PROP_WRITE;
 // Characteristic "Dashboard_Light_Mode" Value variable
-static uint8 Dashboard_Light_ModeVal[DASHBOARD_LIGHT_MODE_LEN] = {0};
+static uint8 Dashboard_Light_ModeVal[DASHBOARD_LIGHT_MODE_LEN] = {2};
 // Characteristic "Dashboard_Light_Mode" CCCD
 static gattCharCfg_t *Dashboard_Light_ModeConfig;
 
@@ -154,8 +158,19 @@ static uint8 Dashboard_Power_On_TimeProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
 static uint8 Dashboard_Power_On_TimeVal[DASHBOARD_POWER_ON_TIME_LEN] = {0};
 // Characteristic "Dashboard_Power_On_Time" CCCD
 static gattCharCfg_t *Dashboard_Power_On_TimeConfig;
+
+// Characteristic "Dashboard_ADCounter" Properties (for declaration)
+static uint8 Dashboard_ADCounterProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
+// Characteristic "Dashboard_ADCounter" Value variable
+static uint8 Dashboard_ADCounterVal[DASHBOARD_ADCOUNTER_LEN] = {0};
+// Characteristic "Dashboard_ADCounter" CCCD
+static gattCharCfg_t *Dashboard_ADCounterConfig;
+
 /*********************************************************************
+*
+*
 * Profile Attributes - Table
+*
 */
 
 static gattAttribute_t DashboardAttrTbl[] =
@@ -167,6 +182,7 @@ static gattAttribute_t DashboardAttrTbl[] =
     0,
     (uint8 *)&DashboardDecl
   },
+    // ERROR CODE
     // Dashboard_Error_Code Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
@@ -193,8 +209,9 @@ static gattAttribute_t DashboardAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Error Code"
+        "Dashboard Error Code"
       },
+    // SPEED MODE
     // Dashboard_Speed_Mode Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
@@ -223,6 +240,7 @@ static gattAttribute_t DashboardAttrTbl[] =
         0,
         "Speed Mode"
       },
+    // LIGHT STATUS
     // Dashboard_Light_Status Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
@@ -251,6 +269,7 @@ static gattAttribute_t DashboardAttrTbl[] =
         0,
         "Light Status"
       },
+    // LIGHT MODE
     // Dashboard_Light_Mode Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
@@ -261,7 +280,7 @@ static gattAttribute_t DashboardAttrTbl[] =
       // Dashboard_Light_Mode Characteristic Value
       {
         { ATT_UUID_SIZE, Dashboard_Light_ModeUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_AUTHEN_WRITE,
+        GATT_PERMIT_READ | GATT_PERMIT_WRITE,   // Client is given the permission to write
         0,
         Dashboard_Light_ModeVal
       },
@@ -279,6 +298,7 @@ static gattAttribute_t DashboardAttrTbl[] =
         0,
         "Light Mode"
       },
+    // POWER ON TIME
     // Dashboard_Power_On_Time Characteristic Declaration
     {
       { ATT_BT_UUID_SIZE, characterUUID },
@@ -305,8 +325,37 @@ static gattAttribute_t DashboardAttrTbl[] =
         {ATT_BT_UUID_SIZE, charUserDescUUID},
         GATT_PERMIT_READ,
         0,
-        "Power On Time"
+        "Power On Time (minutes)"
       },
+    // ADCOUNTER
+    // Dashboard_ADCounter Characteristic Declaration
+      {
+        { ATT_BT_UUID_SIZE, characterUUID },
+        GATT_PERMIT_READ,
+        0,
+        &Dashboard_ADCounterProps
+      },
+      // Dashboard_ADCounter Characteristic Value
+      {
+        { ATT_UUID_SIZE, Dashboard_ADCounterUUID },
+        GATT_PERMIT_READ,
+        0,
+        Dashboard_ADCounterVal
+      },
+      // Dashboard_ADCounter CCCD
+      {
+        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
+        0,
+        (uint8 *)&Dashboard_ADCounterConfig
+      },
+      // Dashboard_ADCounter user descriptor
+      {
+        {ATT_BT_UUID_SIZE, charUserDescUUID},
+        GATT_PERMIT_READ,
+        0,
+        "Data ID"
+      }
 };
 
 /*********************************************************************
@@ -349,10 +398,8 @@ bStatus_t Dashboard_AddService( void )
   {
     return ( bleMemAllocError );
   }
-
   // Initialize Client Characteristic Configuration attributes
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_Error_CodeConfig );
-
 
   // Allocate Client Characteristic Configuration table
   Dashboard_Speed_ModeConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
@@ -360,10 +407,8 @@ bStatus_t Dashboard_AddService( void )
   {
     return ( bleMemAllocError );
   }
-
   // Initialize Client Characteristic Configuration attributes
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_Speed_ModeConfig );
-
 
   // Allocate Client Characteristic Configuration table
   Dashboard_Light_StatusConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
@@ -371,10 +416,8 @@ bStatus_t Dashboard_AddService( void )
   {
     return ( bleMemAllocError );
   }
-
   // Initialize Client Characteristic Configuration attributes
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_Light_StatusConfig );
-
 
   // Allocate Client Characteristic Configuration table
   Dashboard_Light_ModeConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
@@ -382,7 +425,6 @@ bStatus_t Dashboard_AddService( void )
   {
     return ( bleMemAllocError );
   }
-
   // Initialize Client Characteristic Configuration attributes
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_Light_ModeConfig );
 
@@ -392,10 +434,17 @@ bStatus_t Dashboard_AddService( void )
   {
     return ( bleMemAllocError );
   }
-
   // Initialize Client Characteristic Configuration attributes
   GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_Power_On_TimeConfig );
 
+  // Allocate Client Characteristic Configuration table
+  Dashboard_ADCounterConfig = (gattCharCfg_t *)ICall_malloc( sizeof(gattCharCfg_t) * linkDBNumConns );
+  if ( Dashboard_ADCounterConfig == NULL )
+  {
+    return ( bleMemAllocError );
+  }
+  // Initialize Client Characteristic Configuration attributes
+  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, Dashboard_ADCounterConfig );
 
   // Register GATT attribute list and CBs with GATT Server App
   status = GATTServApp_RegisterService( DashboardAttrTbl,
@@ -444,8 +493,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_ERROR_CODE:
         if ( len == DASHBOARD_ERROR_CODE_LEN )
         {
-        memcpy(Dashboard_Error_CodeVal, value, len);
-
+        memcpy(Dashboard_Error_CodeVal, value, len);  // I am not sure what this does?
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Dashboard_Error_CodeConfig, (uint8_t *)&Dashboard_Error_CodeVal, FALSE,
                                     DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -459,8 +507,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_SPEED_MODE:
         if ( len == DASHBOARD_SPEED_MODE_LEN )
         {
-          memcpy(Dashboard_Speed_ModeVal, value, len);
-
+          memcpy(Dashboard_Speed_ModeVal, value, len);  // I am not sure what this does?
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Speed_ModeConfig, (uint8_t *)&Dashboard_Speed_ModeVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -474,8 +521,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_LIGHT_STATUS:
         if ( len == DASHBOARD_LIGHT_STATUS_LEN )
         {
-          memcpy(Dashboard_Light_StatusVal, value, len);
-
+          memcpy(Dashboard_Light_StatusVal, value, len);  // I am not sure what this does?
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Light_StatusConfig, (uint8_t *)&Dashboard_Light_StatusVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -489,8 +535,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_LIGHT_MODE:
         if ( len == DASHBOARD_LIGHT_MODE_LEN )
         {
-          memcpy(Dashboard_Light_ModeVal, value, len);
-
+          memcpy(Dashboard_Light_ModeVal, value, len);  // I am not sure what this does?
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Light_ModeConfig, (uint8_t *)&Dashboard_Light_ModeVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -505,9 +550,22 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
             if ( len == DASHBOARD_POWER_ON_TIME_LEN )
             {
               memcpy(Dashboard_Power_On_TimeVal, value, len);
-
               // Try to send notification.
               GATTServApp_ProcessCharCfg( Dashboard_Power_On_TimeConfig, (uint8_t *)&Dashboard_Power_On_TimeVal, FALSE,
+                                          DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
+                                          INVALID_TASK_ID,  Dashboard_ReadAttrCB);
+            }
+            else
+            {
+              ret = bleInvalidRange;
+            }
+            break;
+    case DASHBOARD_ADCOUNTER:
+            if ( len == DASHBOARD_ADCOUNTER_LEN )
+            {
+              memcpy(Dashboard_ADCounterVal, value, len);
+              // Try to send notification.
+              GATTServApp_ProcessCharCfg( Dashboard_ADCounterConfig, (uint8_t *)&Dashboard_ADCounterVal, FALSE,
                                           DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
                                           INVALID_TASK_ID,  Dashboard_ReadAttrCB);
             }
@@ -522,8 +580,6 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
   }
   return ret;
 }
-
-
 /*
  * Dashboard_GetParameter - Get a Dashboard parameter.
  *
@@ -550,14 +606,15 @@ bStatus_t Dashboard_GetParameter( uint8 param, void *value )
   case DASHBOARD_POWER_ON_TIME:
           memcpy(value, Dashboard_Power_On_TimeVal, DASHBOARD_POWER_ON_TIME_LEN);
         break;
+  case DASHBOARD_ADCOUNTER:
+          memcpy(value, Dashboard_ADCounterVal, DASHBOARD_ADCOUNTER_LEN);
+        break;
     default:
       ret = INVALIDPARAMETER;
       break;
   }
   return ret;
 }
-
-
 /*********************************************************************
  * @fn          Dashboard_ReadAttrCB
  *
@@ -578,7 +635,6 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
                                        uint16 maxLen, uint8 method )
 {
   bStatus_t status = SUCCESS;
-
   // See if request is regarding the Dashboard_Error_Code Characteristic Value
   if (! memcmp(pAttr->type.uuid, Dashboard_Error_CodeUUID, pAttr->type.len) )
   {
@@ -592,7 +648,6 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-
   // See if request is regarding the Dashboard_Speed_Mode Characteristic Value
   else if (! memcmp(pAttr->type.uuid, Dashboard_Speed_ModeUUID, pAttr->type.len) )
   {
@@ -606,7 +661,6 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-
   // See if request is regarding the Dashboard_Light_Status Characteristic Value
   else if (! memcmp(pAttr->type.uuid, Dashboard_Light_StatusUUID, pAttr->type.len) )
   {
@@ -620,7 +674,6 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-
   // See if request is regarding the Dashboard_Light_Mode Characteristic Value
   else if (! memcmp(pAttr->type.uuid, Dashboard_Light_ModeUUID, pAttr->type.len) )
   {
@@ -634,7 +687,6 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
-
   // See if request is regarding the Dashboard_Power_On_Time Characteristic Value
   else if (! memcmp(pAttr->type.uuid, Dashboard_Power_On_TimeUUID, pAttr->type.len) )
   {
@@ -645,6 +697,19 @@ static bStatus_t Dashboard_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr
     else
     {
       *pLen = MIN(maxLen, DASHBOARD_POWER_ON_TIME_LEN - offset);  // Transmit as much as possible
+      memcpy(pValue, pAttr->pValue + offset, *pLen);
+    }
+  }
+  // See if request is regarding the Dashboard_ADCounter Characteristic Value
+  else if (! memcmp(pAttr->type.uuid, Dashboard_ADCounterUUID, pAttr->type.len) )
+  {
+    if ( offset > DASHBOARD_ADCOUNTER_LEN )  // Prevent malicious ATT ReadBlob offsets.
+    {
+      status = ATT_ERR_INVALID_OFFSET;
+    }
+    else
+    {
+      *pLen = MIN(maxLen, DASHBOARD_ADCOUNTER_LEN - offset);  // Transmit as much as possible
       memcpy(pValue, pAttr->pValue + offset, *pLen);
     }
   }
@@ -702,22 +767,6 @@ static bStatus_t Dashboard_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAtt
         // Only notify application if entire expected value is written
         if ( offset + len == DASHBOARD_LIGHT_MODE_LEN)
           paramID = DASHBOARD_LIGHT_MODE;
-      }
-  }
-  else if(! memcmp(pAttr->type.uuid, Dashboard_Speed_ModeUUID, pAttr->type.len))
-  {
-      if ( offset + len > DASHBOARD_SPEED_MODE_LEN )
-      {
-            status = ATT_ERR_INVALID_OFFSET;
-      }
-      else
-      {
-         // Copy pValue into the variable we point to from the attribute table.
-        memcpy(pAttr->pValue + offset, pValue, len);
-
-        // Only notify application if entire expected value is written
-        if ( offset + len == DASHBOARD_SPEED_MODE_LEN)
-          paramID = DASHBOARD_SPEED_MODE;
       }
   }
   else

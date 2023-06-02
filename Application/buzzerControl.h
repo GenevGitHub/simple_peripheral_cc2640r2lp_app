@@ -1,9 +1,13 @@
-/*
+/*********************************************************************************************
  * buzzerControl.h
  *
+ * Description:
+ *
+ *
  *  Created on: 14 Nov 2022
- *      Author: User
- */
+ *      Author: Chee
+ *
+ *********************************************************************************************/
 
 #ifndef APPLICATION_BUZZERCONTROL_H_
 #define APPLICATION_BUZZERCONTROL_H_
@@ -12,10 +16,18 @@
 extern "C"
 {
 #endif
-
+//
+/*********************************************************************
+ * INCLUDES
+ */
 #include <stdint.h>
 #include <stddef.h>
-
+/*********************************************************************
+ * CONSTANTS
+ */
+/*********************************************************************
+* CONSTANTS
+*/
 // Battery low beeps starts after the following duration (in milliseconds)
 #define BUZZER_BATTERYLOW_BEEP_DURATION                50
 
@@ -40,8 +52,8 @@ extern void buzzerControl_init();
 extern void buzzerControl_registerTimer(buzzerControl_timerManager_t *deviceTimer);
 extern void buzzerControl_registerCBs(buzzerControlCBs_t *buzzerControlCBs);
 extern void buzzerControl_processTimerOV();
-extern void buzzerControl_Start(void);
-extern void buzzerControl_Stop(void);
+extern void buzzerControl_Start( void );
+extern void buzzerControl_Stop( void );
 
 #ifdef _cplusplus
 }
