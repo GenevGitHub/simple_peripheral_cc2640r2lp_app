@@ -2,7 +2,7 @@
 
  @file  periodicCommunication.c
 
- @brief This file contains the Code of motor control interfacing
+ @brief This file contains the Code of motor control / Mobile App interfacing
 
 
  *****************************************************************************/

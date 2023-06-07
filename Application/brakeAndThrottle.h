@@ -32,7 +32,7 @@ extern "C"
 #define BRAKE_AND_THROTTLE_SPEED_MODE_LEISURE                     0x01
 #define BRAKE_AND_THROTTLE_SPEED_MODE_SPORTS                      0x02
 
-#define BRAKE_AND_THROTTLE_MAXIMUMN_SPEED                         1500
+#define BRAKE_AND_THROTTLE_MAXIMUMN_SPEED                         663       // 663 RPM = 25.4 Km/hr
 
 //Speed mode reduction ratio    <--- what is the purpose and logic of reduction ratio???? Is it output power reduction???
 #define BRAKE_AND_THROTTLE_SPEED_MODE_REDUCTION_RATIO_AMBLE       41        //64%   Pout = 216.75 W
@@ -53,6 +53,7 @@ extern "C"
 #define BRAKE_AND_THROTTLE_TORQUEIQ_AMBLE                         6500     // IQ 10125  = 9.0 Amp
 #define BRAKE_AND_THROTTLE_TORQUEIQ_LEISURE                       11450     // IQ 12600 = 11.2 Amp
 #define BRAKE_AND_THROTTLE_TORQUEIQ_SPORTS                        15750     // IQ 15750 = 14.0 Amp
+#define BRAKE_AND_THROTTLE_TORQUEIQ_MAX                           15750     // IQ 15750 = 14.0 Amp
 
 //Hard braking definition   (What is Hard Braking? why is this necessary?)
 #define HARD_BRAKING_THROTTLE_PERCENTAGE                          5
@@ -102,11 +103,12 @@ typedef struct
     brakeAndThrottle_ADC_Close      brakeAndThrottle_ADC_Close;
 }brakeAndThrottle_adcManager_t;
 
-typedef void (*brakeAndThrottle_CB_t)(uint16_t, uint16_t);
+typedef void (*brakeAndThrottle_CB_t)(uint16_t, uint16_t, uint8_t);
 typedef struct
 {
     brakeAndThrottle_CB_t       brakeAndThrottle_CB;
 }brakeAndThrottle_CBs_t;
+
 /*********************************************************************
  * FUNCTIONS
  */
@@ -121,11 +123,13 @@ extern void brakeAndThrottle_setSpeedMode(uint8_t speedMode);
 extern uint8_t brakeAndThrottle_getSpeedMode();
 extern void brakeAndThrottle_toggleSpeedMode();
 extern void brakeAndThrottle_registerCBs(brakeAndThrottle_CBs_t *obj);
+
 extern void brakeAndThrottle_registerTimer(brakeAndThrottle_timerManager_t *obj);
 extern void brakeAndThrottle_registerADC1(brakeAndThrottle_adcManager_t *obj);
 extern void brakeAndThrottle_registerADC2(brakeAndThrottle_adcManager_t *obj);
 extern void brakeAndThrottle_ADC_conversion();
-
+extern uint16_t brakeAndThrottle_getThrottlePercent();
+extern uint16_t brakeAndThrottle_getBrakePercent();
 /*********************************************************************
 *********************************************************************/
 

@@ -46,6 +46,7 @@
  * LOCAL VARIABLES
  */
 static simplePeripheral_bleCBs_t *motorcontrol_bleCBs;
+//static uint8_t CB_count = 0;
 
 /**********************************************************************
  *  Local functions
@@ -56,11 +57,15 @@ static void motorcontrol_rxMsgCb(uint8_t *rxMsg, STM32MCP_txMsgNode_t *STM32MCP_
 static void motorcontrol_exMsgCb(uint8_t exceptionCode);
 static void motorcontrol_erMsgCb(uint8_t errorCode);
 
-static void motorcontrol_brakeAndThrottleCB(uint16_t throttleRatio, uint16_t errorMsg);
+static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t throttlePercent, uint8_t errorMsg);
+
 static void motorcontrol_controllerCB(uint8_t paramID);
 static void motorcontrol_dashboardCB(uint8_t paramID);
 static void motorcontrol_singleButtonCB(uint8_t messageID);
 static void motorcontrol_getGAPROLE(void);
+
+uint16_t throttle_Percent;
+
 //extern void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload);
 /*********************************************************************
  * TYPEDEFS
@@ -115,7 +120,7 @@ void motorcontrol_init(void)
 {
     UDHAL_init();
     //Controller_RegisterAppCBs(&ControllerCBs);
-    //Dashboard_RegisterAppCBs(&DashboardCBs);
+    Dashboard_RegisterAppCBs(&DashboardCBs);
 
     STM32MCP_init();
     STM32MCP_registerCBs(&STM32MCP_CBs);
@@ -339,26 +344,49 @@ static void motorcontrol_erMsgCb(uint8_t errorCode)
 /*********************************************************************
  * @fn      motorcontrol_brakeAndThrottleCB
  *
- * @brief   When the brake and throttle completed the adc conversion, it sends message here
+ * @brief   When the brake and throttle completed the adc conversion, it sends message here to communicate with STM32
  *
- * @param   throttleRatio - how much torque in percentage the escooter should reach
+ * @param   throttlePercent - how much speed or torque in percentage the escooter should reach
  *          errorMsg - The error Msg
  *
  * @return  None.
  */
-static void motorcontrol_brakeAndThrottleCB(uint16_t throttleRatio, uint16_t errorMsg)
+uint16_t execute_rpm;
+//static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t IQValue, uint8_t errorMsg)
+static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t throttlePercent, uint8_t errorMsg)
 {
-    if((errorMsg == BRAKE_AND_THROTTLE_NORMAL) && (throttleRatio >= 20))
+    if((errorMsg == BRAKE_AND_THROTTLE_NORMAL) && (throttlePercent >= 1))
     {
-        uint16_t rpm = (uint16_t) (BRAKE_AND_THROTTLE_MAXIMUMN_SPEED*throttleRatio/100) & 0xFFFF;
-        STM32MCP_executeRampFrame(STM32MCP_MOTOR_1_ID,rpm,200);
+        //uint16_t
+        execute_rpm = (uint16_t) (allowableSpeed * throttlePercent / 100) & 0xFFFF;
+        STM32MCP_executeRampFrame(STM32MCP_MOTOR_1_ID, execute_rpm, 200);
         STM32MCP_executeCommandFrame(STM32MCP_MOTOR_1_ID, STM32MCP_START_MOTOR_COMMAND_ID);
     }
     else
     {
         STM32MCP_executeCommandFrame(STM32MCP_MOTOR_1_ID, STM32MCP_STOP_MOTOR_COMMAND_ID);
     }
+
 }
+
+/*********************************************************************
+ * @fn      motorcontrol_speedModeChgCB
+ *
+ * @brief   When there is a speed mode change, it sends message here to communicate with STM32
+ *
+ * @param   speed mode parameters
+ *
+ *
+ * @return  None.
+ */
+uint8_t motorcontrol_speedModeChgCount = 0;
+void motorcontrol_speedModeChgCB(uint16_t torqueIQ, uint16_t allowableSpeed, uint16_t rampRate)
+{
+    motorcontrol_speedModeChgCount++;
+    //STM32MCP_executeRampFrame(STM32MCP_MOTOR_1_ID, rpm, 200);
+    //STM32MCP_executeCommandFrame(STM32MCP_MOTOR_1_ID, STM32MCP_START_MOTOR_COMMAND_ID);
+}
+
 /*********************************************************************
  * @fn      motorcontrol_controllerCB
  *
@@ -387,7 +415,7 @@ static void motorcontrol_controllerCB(uint8_t paramID)
  * @brief   When the client (The mobile app) writes the Dashboard GATT server
  *          It will post the paramID of the changed characteristic, and Set the gatt due to client Callback
  *
- *          G-Linke v1 allows the following characteristics to be changed from the client (mobile app)
+ *          G-Link v1 allows the following characteristics to be changed from the client (mobile app)
  *          - light mode (paramID 3)
  *
  * @param   paramID: the paramID of the characteristics
@@ -418,8 +446,8 @@ static void motorcontrol_dashboardCB(uint8_t paramID)
  * @return  TRUE or FALSE
  */
 //uint8_t advertEnable = FALSE;
-uint8_t messageid;      // for debugging only
-uint8_t powerOn = 0;        // How does power on and power off work?
+uint8_t messageid;              // for debugging only
+uint8_t powerOn = 0;            // How does power on and power off work?
 
 static void motorcontrol_singleButtonCB(uint8_t messageID)
 {
