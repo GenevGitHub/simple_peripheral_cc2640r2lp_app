@@ -458,6 +458,7 @@ void brakeAndThrottle_ADC_conversion()
         IQValue = 0;
     }
 
+    //Send the throttle signal to STM32 Motor Controller
     brakeAndThrottle_CBs -> brakeAndThrottle_CB(allowableSpeed, throttlePercent, errorMsg);
 
     // The following is a safety critical routine/condition
@@ -467,5 +468,11 @@ void brakeAndThrottle_ADC_conversion()
         motorcontrol_speedModeChgCB(torqueIQ, allowableSpeed, rampRate);
         speedModeChgFlag = 0;
     }
+
+    //Sends brake signal to the controller for tail light toggling
+    //Do it as you like !!!
+
+    //Send brake percentage for Regen Brake....
+    //Do it as you like
 }
 
