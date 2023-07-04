@@ -247,15 +247,16 @@ Application/simple_peripheral.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/sour
 Application/simple_peripheral.obj: ../Application/simple_peripheral.h
 Application/simple_peripheral.obj: ../Application/lightControl.h
 Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h
+Application/simple_peripheral.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h
+Application/simple_peripheral.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task.h
 Application/simple_peripheral.obj: ../Application/motorControl.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+Application/simple_peripheral.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h
+Application/simple_peripheral.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h
 Application/simple_peripheral.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL.h
+Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/simple_peripheral.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h
 Application/simple_peripheral.obj: ../Application/periodicCommunication.h
-Application/simple_peripheral.obj: ../Application/dataAnalysis.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
-Application/simple_peripheral.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 
 ../Application/simple_peripheral.c:
 
@@ -751,21 +752,23 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/inc/hw_gpio.
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h:
 
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task.h:
+
 ../Application/motorControl.h:
 
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h:
+
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h:
 
 ../Application/periodicCommunication.h:
-
-../Application/dataAnalysis.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 

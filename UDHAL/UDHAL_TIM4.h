@@ -15,6 +15,11 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <xdc/runtime/Error.h>
 
 /*********************************************************************
 *  EXTERNAL VARIABLES

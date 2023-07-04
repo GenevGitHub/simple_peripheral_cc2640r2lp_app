@@ -121,6 +121,7 @@ UDHAL/UDHAL_TIM3.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/pac
 UDHAL/UDHAL_TIM3.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h
 UDHAL/UDHAL_TIM3.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM3.h
 UDHAL/UDHAL_TIM3.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h
+UDHAL/UDHAL_TIM3.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 
 ../UDHAL/UDHAL_TIM3.c:
 
@@ -363,4 +364,6 @@ C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h:
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM3.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/singleButton/singleButton.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 

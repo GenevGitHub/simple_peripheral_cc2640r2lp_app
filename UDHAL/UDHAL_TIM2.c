@@ -1,6 +1,6 @@
 /******************************************************************************
 
- @file  UDHAL_TIM.c
+ @file  UDHAL_TIM2.c
 
  @brief This library is used for STM32MCP/STM32MCP.h to counter the heartbeat duration
 
@@ -14,8 +14,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <ti/sysbios/knl/Clock.h>
+#include <UDHAL/UDHAL_TIM2.h>
 #include <xdc/runtime/Error.h>
-#include "UDHAL/UDHAL_TIM7.h"
 #include "STM32MCP/STM32MCP.h"
 /*********************************************************************
  * LOCAL VARIABLES
@@ -27,21 +27,21 @@ static Error_Block eb;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static void UDHAL_TIM7_start();
-static void UDHAL_TIM7_stop();
-static void UDHAL_TIM7_OVClockFxn();
+static void UDHAL_TIM2_start();
+static void UDHAL_TIM2_stop();
+static void UDHAL_TIM2_OVClockFxn();
 /*********************************************************************
  * Marco
  */
 static STM32MCP_timerManager_t timer =
 {
-    UDHAL_TIM7_start,
+    UDHAL_TIM2_start,
     NULL,
-    UDHAL_TIM7_stop
+    UDHAL_TIM2_stop
 };
 /*********************************************************************
  *
- * @fn      UDHAL_TIM7_init
+ * @fn      UDHAL_TIM2_init
  *
  * @brief   To initialize the timer and uart tx function
  *
@@ -49,16 +49,16 @@ static STM32MCP_timerManager_t timer =
  *
  * @return  None.
  */
-void UDHAL_TIM7_init()
+void UDHAL_TIM2_init()
 {
     Error_init(&eb);
     clockTicks = STM32MCP_HEARTBEAT_PERIOD * (1000 / Clock_tickPeriod) - 1; // -1 to ensure overflow occurs at STM32MCP_HEARTBEAT_PERIOD - not at 1 tick after STM32MCP_HEARTBEAT_PERIOD
-    ClockHandle = Clock_create (UDHAL_TIM7_OVClockFxn, clockTicks, &clkParams, &eb);
+    ClockHandle = Clock_create (UDHAL_TIM2_OVClockFxn, clockTicks, &clkParams, &eb);
     STM32MCP_registerHeartbeat(&timer);
 }
 /*********************************************************************
  *
- * @fn      UDHAL_TIM7_params_init
+ * @fn      UDHAL_TIM2_params_init
  *
  * @brief   To initialize the timer and uart tx function
  *
@@ -66,7 +66,7 @@ void UDHAL_TIM7_init()
  *
  * @return  None.
  */
-void UDHAL_TIM7_params_init()
+void UDHAL_TIM2_params_init()
 {
     Clock_Params_init(&clkParams);
     clkParams.period = clockTicks;
@@ -76,7 +76,7 @@ void UDHAL_TIM7_params_init()
     Clock_setPeriod(ClockHandle, clockTicks);
 }
 /*********************************************************************
- * @fn      UDHAL_TIM7_start
+ * @fn      UDHAL_TIM2_start
  *
  * @brief   To start the timer for timeout.
  *          This function will be used by STM32MCP flow retransmission.
@@ -86,13 +86,13 @@ void UDHAL_TIM7_params_init()
  *
  * @return  None.
  */
-static void UDHAL_TIM7_start()
+static void UDHAL_TIM2_start()
 {
    // Set the initial timeout
     Clock_start(ClockHandle);
 }
 /*********************************************************************
- * @fn      UDHAL_TIM7_stop
+ * @fn      UDHAL_TIM2_stop
  *
  * @brief   To stop the timer for flow control timeout.
  *          This function will be used by STM32MCP flow retransmission.
@@ -102,12 +102,12 @@ static void UDHAL_TIM7_start()
  *
  * @return  None.
  */
-static void UDHAL_TIM7_stop()
+static void UDHAL_TIM2_stop()
 {
     Clock_stop(ClockHandle);
 }
 /*********************************************************************
- * @fn      UDHAL_TIM7_OVClockFxn
+ * @fn      UDHAL_TIM2_OVClockFxn
  *
  * @brief   After timeout, retransmission will be sent
  *          You must add STM32MCP_retransmission to this function
@@ -116,7 +116,7 @@ static void UDHAL_TIM7_stop()
  *
  * @return  none
  */
-static void UDHAL_TIM7_OVClockFxn()
+static void UDHAL_TIM2_OVClockFxn()
 {
     //STM32MCP_setSystemControlConfigFrame(STM32MCP_HEARTBEAT);
 }

@@ -37,7 +37,12 @@
 #include "Battery.h"
 #include "motorControl.h"
 #include "periodicCommunication.h"
-
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Task.h>
+#include <math.h>
 /*********************************************************************
 * LOCAL VARIABLES
 */
@@ -57,10 +62,11 @@ static int8_t heatSinkTemperature_C[DATA_ANALYSIS_POINTS] = {0};        // tempe
 static int8_t MotorTemperature_C[DATA_ANALYSIS_POINTS] = {0};           // temperature can be negative
 
 static uint8_t (*ptrc)[DATA_ANALYSIS_POINTS] = &coefficient_array;
-static uint16_t (*ptrrpm)[DATA_ANALYSIS_POINTS] = &rpm;
-static uint16_t (*ptrSp)[DATA_ANALYSIS_POINTS] = &speed_cmph;
-static uint16_t (*ptrvb)[DATA_ANALYSIS_POINTS] = &batteryVoltage_mV;
-static uint16_t (*ptrcb)[DATA_ANALYSIS_POINTS] = &batteryCurrent_mA;
+
+static uint16_t (*ptrRpm)[DATA_ANALYSIS_POINTS] = &rpm;
+static uint16_t (*ptrSpeed)[DATA_ANALYSIS_POINTS] = &speed_cmph;
+static uint16_t (*ptrBatteryVoltage)[DATA_ANALYSIS_POINTS] = &batteryVoltage_mV;
+static uint16_t (*ptrBatteryCurrent)[DATA_ANALYSIS_POINTS] = &batteryCurrent_mA;
 static int8_t (*ptrhst)[DATA_ANALYSIS_POINTS] = &heatSinkTemperature_C;
 static int8_t (*ptrmt)[DATA_ANALYSIS_POINTS] = &MotorTemperature_C;
 //
@@ -88,6 +94,9 @@ static uint32_t totalMileage0_dm;                   // unit in decimeters.  This
 static uint32_t totalPowerConsumed0_mWh;            // unit in milli-W-hr.  This is the oldest data on total power consumed stored in storage array
 
 static uint32_t UDBuffer[NVS_BUFFER_SIZE];          //
+//
+static dataAnalysis_NVS_Manager_t *dataAnalysis_NVSManager;
+
 /******************************************************************************************************
 *
 * LOCAL FUNCTIONS
@@ -101,6 +110,8 @@ static uint32_t UDBuffer[NVS_BUFFER_SIZE];          //
  *
  * @return  Nil
 ******************************************************************************************************/
+
+
 extern uint8_t coefficient_array_init(){ //change number of data points if necessary
     for(uint8_t x = 0; x < DATA_ANALYSIS_POINTS; x++){
         if(x==0 || x == DATA_ANALYSIS_POINTS-1){
@@ -130,6 +141,35 @@ extern void dataAnalysis_timerInterruptHandler()
 {
         // motorControl.c pass data from MCU at every DATA_ANALYSIS_SAMPLING_TIME interval to dataSim(uint32_t jj)
 }
+
+/******************************************************************************************************
+ * @fun     dataAnalysis_taskFxn
+ *
+ * @brief   task
+ *
+ * @param   Nil
+ *
+ * @return  Nil
+******************************************************************************************************/
+
+Char dataAnalysis_TaskStack[DATAANALYSIS_TASK_STACK_SIZE];
+Task_Struct dataAnalysis_Task;
+
+static void dataAnalysis_taskFxn(UArg a0, UArg a1)
+{
+    for (; ;)   // infinite for loop, starting at 1 and without exit condition,
+    {
+        xCount = periodicCommunication_getxhf();
+        if (xCount >= DATA_ANALYSIS_POINTS)
+        {
+
+        }
+        // Task Sleep
+        Task_sleep( DATA_ANALYSIS_SAMPLING_TIME * 1000 / Clock_tickPeriod );
+    }
+}
+
+
 /******************************************************************************************************
  * @fun      dataAnalysis_Init
  *
@@ -153,11 +193,18 @@ extern void dataAnalysis_init(){
     batteryCurrentStartUp_mA = 3000;     //or STM32MCP_getRegisterFrame(STM32MCP_MOTOR_1_ID,STM32MCP_BUS_CURRENT_REG_ID);
     avgBatteryVoltage_mV = batteryVoltageStartUp_mV;
 
+
+    /***************************************************
+     *      Read data stored in NVS Internal
+     ***************************************************/
     dummyUDArray();     // read UDArray data that are stored in memory (from nvsinternal)
+    //dataAnalysis_NVS_read( void );
 
     get_UDArrayData();
-
-    // defining ADArray variables at initialization allow connectivity with Mobile App instantly.
+    /*********************************************************************************************
+     * Initializing data
+     * defining ADArray variables at initialization allow connectivity with Mobile App instantly.
+     *********************************************************************************************/
     ADArray.accumPowerConsumption_mWh = totalPowerConsumedPrev_mWh;
     ADArray.accumMileage_dm = totalMileagePrev_dm;
     ADArray.avgSpeed_kph = 0;
@@ -172,26 +219,68 @@ extern void dataAnalysis_init(){
     ptrADArray->co2Saved_g = computeCO2Saved();
     ADArray.motorTemperature_C = 15;
 
-    dataAnalysis_changeUnitSelectDash(UnitSelectDash);
+    dataAnalysis_changeUnitSelectDash(UnitSelectDash);      // Send Unit Select to LED display
 
-    *((*ptrrpm)) = 0;         // unit in rpm = get rpm
-    *((*ptrSp)) = round((*((*ptrrpm))) * 2 * (float) M_PI / 60 * WHEELRADIUS);              // Unit in cm / sec
-    *((*ptrcb)) = batteryCurrentStartUp_mA;                                                 // unit in mA = get battery current in mA
-    *((*ptrvb)) = batteryVoltageStartUp_mV;                                                 // unit in mV = get battery voltage in mV
+    *((*ptrRpm)) = 0;         // unit in rpm = get rpm
+    *((*ptrSpeed)) = round((*((*ptrRpm))) * 2 * (float) M_PI / 60 * WHEELRADIUS);              // Unit in cm / sec
+    *((*ptrBatteryCurrent)) = batteryCurrentStartUp_mA;                                                 // unit in mA = get battery current in mA
+    *((*ptrBatteryVoltage)) = batteryVoltageStartUp_mV;                                                 // unit in mV = get battery voltage in mV
 
     ledControl_setBatteryStatus(ADArray.batteryStatus);     // Send battery status to LED display
-    ledControl_setUnitSelectDash(UnitSelectDash);       // Send Unit Select to LED display
 
     if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
         batteryLow = 1;
-        buzzerControl_Start();
+        //buzzerControl_Start();
     }
     if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
         batteryLow = 0;
-        buzzerControl_Stop();
+        //buzzerControl_Stop();
     }
-    //dataAnalysis_motorcontrol_setGatt();  // <--- BLE is not started at power on, therefore, there is no need to setGatt for initialization data
+
+    void periodicCommunication_ptr( ptrRpm, ptrBatteryVoltage, ptrBatteryCurrent, ptrhst, ptrmt);
+/*
+    // Construct Task for scheduling data analysis
+    Task_Params dataAnalysis_taskParams;
+    // Configure task
+    Task_Params_init(&dataAnalysis_taskParams);
+    dataAnalysis_taskParams.stack = dataAnalysis_TaskStack;
+    dataAnalysis_taskParams.stackSize = DATAANALYSIS_TASK_STACK_SIZE;
+    dataAnalysis_taskParams.priority = DATAANALYSIS_TASK_PRIORITY;
+
+    Task_construct(&dataAnalysis_Task, dataAnalysis_taskFxn, &dataAnalysis_taskParams, NULL);
+*/
 }
+
+/***********************************************************************************************************
+ * @fn      dataAnalysis_NVS_read
+ *
+ * @brief   Read data from NVS memory at start-up
+ *
+ * @param   Nil
+ *
+ * @return  Nil
+******************************************************************************************************/
+
+void dataAnalysis_NVSRead( void )
+{
+
+}
+
+/***********************************************************************************************************
+ * @fn      dataAnalysis_NVS_write
+ *
+ * @brief   Write data to NVS memory at power-off
+ *
+ * @param   Nil
+ *
+ * @return  Nil
+******************************************************************************************************/
+
+void dataAnalysis_NVSWrite( void )
+{
+
+}
+
 /***********************************************************************************************************
  * @fn      get_UDArrayData
  *
@@ -201,8 +290,8 @@ extern void dataAnalysis_init(){
  *
  * @return  Nil
 ******************************************************************************************************/
-extern void get_UDArrayData(){
-
+extern void get_UDArrayData()
+{
     UDDataCounter = UDBuffer[1];
 
     UDIndexPrev = UDDataCounter % UDARRAYSIZE;      // UDIndexPrev is the remainder of UDDataCounter / UDARRAYSIZE
@@ -300,7 +389,7 @@ void data2UDArray(){
     UDBuffer[2 + 3*UDIndex + 1] = ADArray.accumMileage_dm;
     UDBuffer[2 + 3*UDIndex + 2] = ADArray.accumPowerConsumption_mWh;
 /*
- * UDBuffer is erased-write to nvsinternal when device shuts down
+ *  UDBuffer is erased-write to nvsinternal when device shuts down
  */
 
 /******************************************************************************************************
@@ -324,7 +413,7 @@ void data2UDArray(){
 /******************************************************************************************************
  * @fn      dataSim
  *
- * @brief   Data analysis and simulates MCU data coming to the dashboard
+ * @brief   Simulates data obtaining from MCU
  *
  * @param   jj
  *
@@ -334,66 +423,38 @@ uint16_t x_rpm;                             // for debugging only
 uint16_t x_speed;                           // for debugging only
 uint16_t x_avgbatteryvoltage;               // for debugging only
 uint8_t x_batterylevel;                     // for debugging only
-uint16_t x_tt;                              // for debugging only
+//uint16_t x_tt;                              // for debugging only
 int8_t x_hst;                               // for debugging only
 int8_t x_avgBatteryTemperature;             // for debugging only
 
-extern void dataSim(){
+extern void dataSim()
+{
+    xCount = periodicCommunication_getxhf();
+    if (xCount == DATA_ANALYSIS_POINTS)
+    {
+
+    }
     //uint32_t deltaPowerConsumption, deltaMileage;
     // Simulates and fills the input data arrays with dummy MCU data
-    *((*ptrrpm)+ xCount) = 350 * sin(M_PI * x_tt / 60) + 380;                               //rand()%701; // unit in rpm = get rpm  188 rpm = 200 cm/sec = 7 km/hr
-    *((*ptrSp)+ xCount) = round(rpm[xCount] * 2 * (float) M_PI / 60 * WHEELRADIUS);         // Unit in cm / sec
-    *((*ptrcb)+ xCount) = 3000; //rand()%13 * 1000;                                         // unit in mA = get battery current in mA
-    *((*ptrvb)+ xCount) = 6000 *sin(M_PI * x_tt /180) + 36000;                              // unit in mV = get battery voltage in mV
-    *((*ptrhst)+ xCount) = 20 *sin(M_PI * x_tt /180) + 15;                                  // heat sink temperature in degrees Celsius
-    *((*ptrmt)+ xCount) = 30 *sin(M_PI * x_tt /180) + 25;                                   //  motot temperature in degrees Celsius
-
+    // Sim RPM
+//    *((*ptrRpm)+ xCount) = 350 * sin(M_PI * x_tt / 60) + 380;                                   // get RPM from MCU:  unit in rpm,  188 rpm @ r = 0.1016m => 200 cm/sec = 7 km/hr
+    // Cal Speed from RPM
+    *((*ptrSpeed)+ xCount) = round(rpm[xCount] * 2 * (float) M_PI / 60 * WHEELRADIUS);          // Unit in cm / sec
+    // Sim Battery Current
+//    *((*ptrBatteryCurrent)+ xCount) = 3000; //rand()%13 * 1000;                                 // get battery current from MCU:  unit in mA
+    // Sim Battery Voltage
+//    *((*ptrBatteryVoltage)+ xCount) = 6000 *sin(M_PI * x_tt /180) + 36000;                      // get battery voltage from MCU:  unit in mV
+    // Sim Heatsink Temp
+//    *((*ptrhst)+ xCount) = 20 *sin(M_PI * x_tt /180) + 15;                                      // get heat sink temperature from MCU: unit in degrees Celsius
+    // Sim Motor Temp
+//    *((*ptrmt)+ xCount) = 30 *sin(M_PI * x_tt /180) + 25;                                       // get motor temperature from MCU: unit in degrees Celsius
 
     x_rpm = rpm[xCount];                                        // for debugging only
     x_speed = speed_cmph[xCount];                               // for debugging only
     x_hst = heatSinkTemperature_C[xCount];                      // for debugging only
-    x_tt++;                                                     // for debugging only
-
+    //x_tt++;                                                     // for debugging only
     LEDSpeed(xCount);       // covert speed to the selected dashboard unit (dashSpeed) then sent to led display
-    xCount++;
-
-    // ************  Data evaluation is performed periodically to compute, e.g. distance traveled, power consumed, economy etc....
-    // ************  Each time the speed, voltage and current arrays are full, dataAnalyt() is called.  dataAnalyt() is also called at device SHUT DOWN - where the speed, voltage and current array may not be full.
-
-    if (xCount >= DATA_ANALYSIS_POINTS){ // and also when Power OFF // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
-
-        // dataAnalyt() carries out all the data analytics
-        dataAnalyt();
-
-        ledControl_setBatteryStatus(ADArray.batteryStatus);                     // Send battery status and errorCode to led display
-        ledControl_setErrorCodeWarning(ADArray.errorCode);
-
-        x_avgbatteryvoltage = ADArray.avgBatteryVoltage_mV;                     // for debugging only
-        x_batterylevel = ADArray.batteryPercentage;                             // for debugging only
-        x_avgBatteryTemperature = ADArray.avgHeatSinkTemperature_C;             // for debugging only
-
-        // send analytics data to App
-        dataAnalysis_motorcontrol_setGatt();
-
-        //batteryPercentage
-        if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
-            batteryLow = 1;
-            //if (timer9 is not "started") { buzzerControl_Start();}    // there are several conditions that may demand the buzzer timer to start and repeat
-            //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
-        }
-        if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
-            batteryLow = 0;
-            //if (no other conditions that demand timer9 start) { buzzerControl_Stop();}
-            //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
-        }
-    }
-
-    // The UDArray is used to store the history of total Power Consumed and total distance travelled data in memory.
-    // To minimize the SRAM occupied by UDArray, it is stored only once every (DATA_ANALYSIS_SAMPLING_TIME x (DATA_ANALYSIS_POINTS -1) x UDTRIGGER / 1000) seconds.
-    // e.g. ( 300 ms x (31 -1) x 40 / 1000) = 360 seconds = 6 minutes
-    if (UDTriggerCounter >= UDTRIGGER){     // and also when Power_OFF  // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
-        data2UDArray(); // data2UDBuffer
-    }
+    //xCount++;
 
 }
 /***************************************************************************************************
@@ -407,7 +468,9 @@ extern void dataSim(){
 ******************************************************************************************************/
 static uint8_t heatSinkOVTempState = 0;
 static uint8_t motorOVTempState = 0;
-void dataAnalysis_motorcontrol_setGatt(){
+
+void dataAnalysis_motorcontrol_setGatt()
+{
     // Dashboard services
     motorcontrol_setGatt(DASHBOARD_SERV_UUID, DASHBOARD_ADCOUNTER, DASHBOARD_ADCOUNTER_LEN, (uint8_t *) &ADArray.ADCounter);
 
@@ -451,7 +514,8 @@ void dataAnalysis_motorcontrol_setGatt(){
  *
  * @return  energy consumption value (unit milli W-hr) in type: uint32_t
 ******************************************************************************************************/
-uint32_t computePowerConsumption(){
+uint32_t computePowerConsumption()
+{
     uint32_t deltaPowerConsumption_mWh = 0;
     for(uint8_t ii=0; ii < DATA_ANALYSIS_POINTS; ii++){
         uint32_t tempholder = (batteryVoltage_mV[ii] * batteryCurrent_mA[ii]) * 0.0001;         // required to avoid possible byte size limitation issue
@@ -716,18 +780,18 @@ uint32_t computeCO2Saved(){
 ******************************************************************************************************/
 extern void re_Initialize(){
     //  Re-initialize arrays after completing each computation loop
-    for(uint8_t kk=0; kk<DATA_ANALYSIS_POINTS; kk++){           // carry over the last data set to the 1st position [0] of the new dataset and reset all other to zero
+    for(uint8_t kk = 0; kk<DATA_ANALYSIS_POINTS; kk++){           // carry over the last data set to the 1st position [0] of the new dataset and reset all other to zero
         if(kk == 0){
-            *(*(ptrrpm)) = *(*(ptrrpm)+DATA_ANALYSIS_POINTS-1);
-            *(*(ptrSp)) = *(*(ptrSp)+DATA_ANALYSIS_POINTS-1);
-            *(*(ptrcb)) = *(*(ptrcb)+DATA_ANALYSIS_POINTS-1);
-            *(*(ptrvb)) = *(*(ptrvb)+DATA_ANALYSIS_POINTS-1);
+            *(*(ptrRpm)) = *(*(ptrRpm) + DATA_ANALYSIS_POINTS - 1);
+            *(*(ptrSpeed)) = *(*(ptrSpeed) + DATA_ANALYSIS_POINTS - 1);
+            *(*(ptrBatteryCurrent)) = *(*(ptrBatteryCurrent) + DATA_ANALYSIS_POINTS - 1);
+            *(*(ptrBatteryVoltage)) = *(*(ptrBatteryVoltage) + DATA_ANALYSIS_POINTS - 1);
         }
         else {
-            *(*(ptrrpm)+kk) = 0;
-            *(*(ptrSp)+kk) = 0;
-            *(*(ptrcb)+kk) = 0;
-            *(*(ptrvb)+kk) = 0;
+            *(*(ptrRpm) + kk) = 0;
+            *(*(ptrSpeed) + kk) = 0;
+            *(*(ptrBatteryCurrent) + kk) = 0;
+            *(*(ptrBatteryVoltage) + kk) = 0;
         }
     }
     xCount = 1;
@@ -747,7 +811,7 @@ extern uint8_t dataAnalysis_getUnitSelectDash(){
 /*********************************************************************
  * @fn      dataAnalysis_changeUnitSelectDash
  *
- * @brief   call this function to change/toggle the current active Unit
+ * @brief   call this function to change/toggle Unit and set led display
  *
  * @param   None
  *
@@ -781,9 +845,50 @@ extern void dataAnalysis_changeUnitSelectDash(uint8_t unit){
  *
  * @return  None
  ******************************************************************************************************/
-extern void dataAnalysis_Main(){
-        //  Simulate MCU data and Data Analysis
-        dataSim();
+extern void dataAnalysis_Main()
+{
+    //  Simulate MCU data and Data Analysis
+    dataSim();
+
+    // ************  Data evaluation is performed periodically to compute, e.g. distance traveled, power consumed, economy etc....
+    // ************  Each time the speed, voltage and current arrays are full, dataAnalyt() is called.
+    //               dataAnalyt() is also called at device SHUT DOWN - where the speed, voltage and current array may not be full.
+    if (xCount >= DATA_ANALYSIS_POINTS) // and also when Power OFF // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
+    {
+        // dataAnalyt() carries out all the data analytics
+        dataAnalyt();
+
+        ledControl_setBatteryStatus(ADArray.batteryStatus);                     // Send battery status and errorCode to led display
+        ledControl_setErrorCodeWarning(ADArray.errorCode);
+
+        x_avgbatteryvoltage = ADArray.avgBatteryVoltage_mV;                     // for debugging only
+        x_batterylevel = ADArray.batteryPercentage;                             // for debugging only
+        x_avgBatteryTemperature = ADArray.avgHeatSinkTemperature_C;             // for debugging only
+
+        // send analytics data to App
+        dataAnalysis_motorcontrol_setGatt();
+
+        //batteryPercentage
+        if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
+            batteryLow = 1;
+            //if (timer9 is not "started") { buzzerControl_Start();}    // there are several conditions that may demand the buzzer timer to start and repeat
+            //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
+        }
+        if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
+            batteryLow = 0;
+            //if (no other conditions that demand timer9 start) { buzzerControl_Stop();}
+            //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
+        }
+
+    }
+    // The UDArray is used to store the history of total Power Consumed and total distance travelled data in memory.
+    // To minimize the SRAM occupied by UDArray, it is stored only once every (DATA_ANALYSIS_SAMPLING_TIME x (DATA_ANALYSIS_POINTS -1) x UDTRIGGER / 1000) seconds.
+    // e.g. ( 300 ms x (31 -1) x 40 / 1000) = 360 seconds = 6 minutes
+    if (UDTriggerCounter >= UDTRIGGER)       // and also when Power_OFF  // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
+    {
+        data2UDArray(); // data2UDBuffer
+    }
+
 }
 
 // ********************************************************************************************************
@@ -796,7 +901,8 @@ extern void dataAnalysis_Main(){
 // Should UDArray be store in the HEAP or STATIC/GLOBAL ????
 // rename to nvsControl_getNVSData();
 
-void dummyUDArray(){
+void dummyUDArray()
+{
 // ************* dummy data for testing assigning data to array storage **************
 // **** NOTE:  NSV_read at every power on -> at first time initialization, the nvs should be zeros.
 // Action: read nvs
@@ -905,4 +1011,18 @@ void dummyUDArray(){
         UDBuffer[60] = 57592;
         UDBuffer[61] = 80931;
 
+}
+
+/*********************************************************************
+ * @fn      dataAnalysis_registerNVSINT
+ *
+ * @brief   It is used to register the NVS internal function
+ *
+ * @param   None
+ *
+ * @return  None
+ *********************************************************************/
+void dataAnalysis_registerNVSINT( dataAnalysis_NVS_Manager_t *nvsManager )
+{
+    dataAnalysis_NVSManager = nvsManager;
 }

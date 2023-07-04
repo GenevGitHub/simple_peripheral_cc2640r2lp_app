@@ -118,8 +118,9 @@ UDHAL/UDHAL_TIM2.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Types.
 UDHAL/UDHAL_TIM2.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/IInstance.h
 UDHAL/UDHAL_TIM2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITimer.h
 UDHAL/UDHAL_TIM2.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Clock_TimerProxy.h
+UDHAL/UDHAL_TIM2.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM2.h
 UDHAL/UDHAL_TIM2.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h
-UDHAL/UDHAL_TIM2.obj: C:/Users/harrysiu/workspace_v10/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM2.h
+UDHAL/UDHAL_TIM2.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h
 
 ../UDHAL/UDHAL_TIM2.c:
 
@@ -357,7 +358,9 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/inter
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Clock_TimerProxy.h:
 
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM2.h:
+
 C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h:
 
-C:/Users/harrysiu/workspace_v10/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM2.h:
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/STM32MCP/STM32MCP.h:
 

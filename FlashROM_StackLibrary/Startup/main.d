@@ -150,6 +150,11 @@ Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/ha
 Startup/main.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/PROFILES/peripheral.h
 Startup/main.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/simple_peripheral.h
 Startup/main.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/motorControl.h
+Startup/main.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/string.h
+Startup/main.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
+Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h
+Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h
+Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/GPIO.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/inc/hw_memmap.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/vims.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/inc/hw_types.h
@@ -166,7 +171,6 @@ Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/dpl
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/DeviceFamily.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_common_cmd.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_mailbox.h
-Startup/main.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/string.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_prop_cmd.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_ble_cmd.h
 Startup/main.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/blestack/icall/inc/ble_dispatch.h
@@ -492,6 +496,16 @@ C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Applicat
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/motorControl.h:
 
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/string.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/I2C.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/NVS.h:
+
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/drivers/GPIO.h:
+
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/inc/hw_memmap.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/vims.h:
@@ -523,8 +537,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/DeviceFamily.h:
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_common_cmd.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_mailbox.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/string.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/source/ti/devices/cc26x0r2/driverlib/rf_prop_cmd.h:
 

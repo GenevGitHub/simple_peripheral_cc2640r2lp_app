@@ -1,11 +1,11 @@
 /*
- * UDHAL_TIM7.h
+ * UDHAL_TIM2.h
  *  This library is used for singleButton.h to counter the button press duration
  *  Created on:   26 Jan 2021 by Siu Yeung Yik
  *  Last Updated: 26 Jan 2021 by Siu Yeung Yik
  */
-#ifndef UDHAL_TIM7_UDHAL_TIM7_H_
-#define UDHAL_TIM7_UDHAL_TIM7_H_
+#ifndef UDHAL_TIM2_UDHAL_TIM2_H_
+#define UDHAL_TIM2_UDHAL_TIM2_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -29,8 +29,8 @@ extern "C"
 /*********************************************************************
  * FUNCTIONS
  */
-extern void UDHAL_TIM7_init();
-extern void UDHAL_TIM7_params_init();
+extern void UDHAL_TIM2_init();
+extern void UDHAL_TIM2_params_init();
 
 /*********************************************************************
 *********************************************************************/
@@ -39,4 +39,4 @@ extern void UDHAL_TIM7_params_init();
 }
 #endif
 
-#endif /* UDHAL_TIM7_UDHAL_TIM7_H_ */
+#endif /* UDHAL_TIM2_UDHAL_TIM2_H_ */

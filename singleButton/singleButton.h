@@ -18,6 +18,7 @@ extern "C"
  */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */

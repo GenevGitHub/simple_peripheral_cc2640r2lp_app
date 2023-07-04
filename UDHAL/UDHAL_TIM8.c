@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+//#include <Hwi.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <xdc/runtime/Error.h>
 #include "UDHAL/UDHAL_TIM8.h"           //folder/header_file.h
@@ -21,6 +22,9 @@ static Clock_Handle ClockHandle;
 static Clock_Params clkParams;
 static uint32_t clockTicks;
 static Error_Block eb;
+
+//Hwi_Params hwi_params;
+
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -66,8 +70,8 @@ void UDHAL_TIM8_init()
 void UDHAL_TIM8_params_init()
 {
     Clock_Params_init(&clkParams);
-    clkParams.period =  0; //ALS_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1;  // subsequent call at this number of ticks // -1 to ensure overflow occurs at ALS_SAMPLING_TIME - not at 1 tick after ALS_SAMPLING_TIME
-    // setting period to "ALS_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1" does not work!!!  Why doesn't it work?
+    clkParams.period =  0;  //ALS_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1;  // subsequent call at this number of ticks // -1 to ensure overflow occurs at ALS_SAMPLING_TIME - not at 1 tick after ALS_SAMPLING_TIME
+                            // setting period to "ALS_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1" does not work!!!  Why doesn't it work?
     clkParams.startFlag = FALSE;
     clkParams.arg = (UArg)0x0000;
 }
@@ -84,7 +88,6 @@ void UDHAL_TIM8_params_init()
  */
 static void UDHAL_TIM8_start()
 {
-    // Set the initial timeout
     Clock_start(ClockHandle);
 }
 /*********************************************************************

@@ -7,33 +7,50 @@
 /*********************************************************************
  * INCLUDES
  */
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-/* Driver Header files */
-//#include <ti/drivers/GPIO.h>
-#include <ti/drivers/I2C.h>
 #include "UDHAL/UDHAL_I2C.h"
-#include "Application/lightControl.h"
 #include "Board.h"
+#include "Application/lightControl.h"
+#include "TSL2561/TSL2561.h"
+#include "Application/ledControl.h"
+
 /*********************************************************************
  * LOCAL VARIABLES
  */
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static I2C_Handle       i2cHandle;
-static I2C_Params       i2cParams;
-static I2C_Transaction  i2cTransaction = {0};
+I2C_Handle       i2cHandle;
+I2C_Params       i2cParams;
+I2C_Transaction  i2cTransaction = {0};
 
-static uint8_t          i2cOpenStatus = 1;                   // i2cOpenStatus = 1 indicates i2c opened successfully. i2cOpenStatus = 0 indicates i2c did not open successfully
-static uint8_t          i2cTransferStatus = 0;
-static int8_t           i2cTransferError = 0;
+uint8_t          i2cOpenStatus = 0;                   // i2cOpenStatus must be set to 0 at declaration.  i2cOpenStatus = 1 indicates i2c is opened. i2cOpenStatus = 0 indicates i2c is not opened
+
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-//static uint8_t UDHAL_I2C_getI2CStatus();
+static void UDHAL_I2C_open();
+static void UDHAL_I2C_close();
+static uint8_t UDHAL_I2C_transfer(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize);
 
+/*********************************************************************
+ * Marco
+ */
+static TSL2561_ALSManager_t ALS_I2C =
+{
+    UDHAL_I2C_open,
+    UDHAL_I2C_transfer,
+    UDHAL_I2C_close
+};
+
+/*********************************************************************
+ * Marco
+ */
+static ledControl_ledDisplayManager_t ledDisplay_I2C =
+{
+    UDHAL_I2C_open,
+    UDHAL_I2C_transfer,
+    UDHAL_I2C_close
+};
 /* ********************************************************************
  * @fn:     UDHAL_I2C_init
  *
@@ -43,24 +60,29 @@ static int8_t           i2cTransferError = 0;
  *
  * Return:      None
  ******************************************************************** */
-void UDHAL_I2C_init()
+extern void UDHAL_I2C_init()
 {
     I2C_init();
+    TSL2561_registerALS(&ALS_I2C);
+    lightControl_registerLedDisplay(&ledDisplay_I2C);
 }
 /*********************************************************************
  * @fn      UDHAL_I2C_params_init
  *
- * @brief   It is used to initialize the I2C paramaters
+ * @brief   It is used to initialize the I2C parameters
  *
  * @param   None
  *
  * @return  None
  */
-void UDHAL_I2C_params_init()
+extern void UDHAL_I2C_params_init()
 {
     I2C_Params_init(&i2cParams);
     i2cParams.bitRate = I2C_400kHz;
-    UDHAL_I2C_open();
+    if (i2cOpenStatus == 0) // if i2c is not opened, open i2c. i2c can only be opened once.
+    {
+        UDHAL_I2C_open();
+    }
 }
 
 /*********************************************************************
@@ -72,18 +94,18 @@ void UDHAL_I2C_params_init()
  *
  * Return:      None
 *********************************************************************/
-void UDHAL_I2C_open(){
-
+static void UDHAL_I2C_open()
+{
     i2cHandle = I2C_open(Board_I2C0, &i2cParams);
-    if (!i2cHandle) {
-        // I2C opened error
-        i2cOpenStatus = 0;
+
+    if (!i2cHandle) //if (i2cHandle == NULL)
+    {
+        i2cOpenStatus = 0;      // i2c not opened
         //  add error protocol here
         //  Action:  when i2c open fails, need to disable LED display and Light auto mode function
     }
     else {
-        // I2C successfully opened
-        i2cOpenStatus = 1;
+        i2cOpenStatus = 1;      //i2c opened
     }
 }
 /*********************************************************************
@@ -95,9 +117,9 @@ void UDHAL_I2C_open(){
  *
  * Return:      None
 *********************************************************************/
-uint8_t UDHAL_I2C_getI2CStatus(){
+extern uint8_t UDHAL_I2C_getOpenStatus(void)
+{
     return (i2cOpenStatus);
-    //return (0);
 }
 /*********************************************************************
  * @fn:     UDHAL_I2C_close
@@ -108,8 +130,10 @@ uint8_t UDHAL_I2C_getI2CStatus(){
  *
  * Return:      None
 *********************************************************************/
-void UDHAL_I2C_close(){
+static void UDHAL_I2C_close()
+{
     I2C_close(i2cHandle);
+    i2cOpenStatus = 0;      // i2c closed = not opened
 }
 /*********************************************************************
  * @fn:     UDHAL_I2C_transfer()
@@ -124,24 +148,26 @@ void UDHAL_I2C_close(){
  *
  * Return:      None
 *********************************************************************/
-uint8_t UDHAL_I2C_transfer(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize)
+uint8_t          i2cTransferStatus;         // for debugging
+static uint8_t UDHAL_I2C_transfer(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize)
 {
+    //uint8_t          i2cTransferStatus;
     if (i2cOpenStatus == 1)
     {
-//        /*
         i2cTransaction.slaveAddress = slave_address;
         i2cTransaction.writeBuf   = writeBuffer;
         i2cTransaction.writeCount = writeSize;
         i2cTransaction.readBuf    = readBuffer;
         i2cTransaction.readCount  = readSize;
-//*/
+
         i2cTransferStatus = I2C_transfer(i2cHandle, &i2cTransaction);
-        if (!i2cTransferStatus){
-            i2cTransferError = 1;
-            //error handle for i2c transfer error
+        // I2C_transfer returns true (1) or false (0)
+        // when i2cTransferStatus = 1, transfer was successful
+        // when i2cTransferStatus = 0, transfer was not successful
+        if (!i2cTransferStatus)
+        {
+            // error handling if necessary
         }
-
     }
-    return i2cTransferError;
-
+    return i2cTransferStatus;
 }

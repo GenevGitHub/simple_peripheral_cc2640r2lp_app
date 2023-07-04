@@ -11,6 +11,7 @@
 * INCLUDES
 */
 #include <stdlib.h>
+
 #include "dataAnalysis.h"
 #include "buzzerControl.h"
 /*********************************************************************
@@ -31,7 +32,8 @@ static buzzerControlCBs_t *buzzer_CBs;
  *
  * @return  none
  */
-void buzzerControl_init(){
+void buzzerControl_init()
+{
     //GPIO_setConfig(Board_GPIO_BUZZER, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
 }
 /*********************************************************************
@@ -43,7 +45,8 @@ void buzzerControl_init(){
  *
  * @return  none
  */
-void buzzerControl_registerTimer(buzzerControl_timerManager_t *buzzerControlTimer){
+void buzzerControl_registerTimer(buzzerControl_timerManager_t *buzzerControlTimer)
+{
     buzzerControl_timerManager = buzzerControlTimer;
 }
 /*********************************************************************
@@ -55,7 +58,8 @@ void buzzerControl_registerTimer(buzzerControl_timerManager_t *buzzerControlTime
  *
  * @return  none
  */
-void buzzerControl_registerCBs(buzzerControlCBs_t *buzzerControlCBs){
+void buzzerControl_registerCBs(buzzerControlCBs_t *buzzerControlCBs)
+{
     buzzer_CBs = buzzerControlCBs;
 }
 /*********************************************************************
@@ -67,7 +71,8 @@ void buzzerControl_registerCBs(buzzerControlCBs_t *buzzerControlCBs){
  *
  * @return  none
  */
-void buzzerControl_Start(){
+void buzzerControl_Start()
+{
     //if avgBatteryVoltage is less than specified value, start timer 9
     buzzerControl_timerManager -> timerStart();
 }
@@ -80,7 +85,8 @@ void buzzerControl_Start(){
  *
  * @return  none
  */
-void buzzerControl_Stop(){
+void buzzerControl_Stop()
+{
     //if avgBatteryVoltage is greater than specified value, stop timer 9
     buzzerControl_timerManager -> timerStop();
 }
@@ -93,7 +99,8 @@ void buzzerControl_Stop(){
  *
  * @return  none
  */
-void buzzerControl_processTimerOV(){
+void buzzerControl_processTimerOV()
+{
     // When timer9  overflows, this func is called to instruct buzzerControl to make a short beep
     // Insert code to instruct buzzerControl to make a short beep here
     buzzerControl_Start();  // then, repeat timer until timerStop is activated

@@ -15,14 +15,25 @@
 * INCLUDES
 */
 #include "ledControl.h"
-#include "lightControl.h"
+
 /*********************************************************************
 * LOCAL VARIABLES
 */
+uint8_t ledSpeed;
+uint8_t ledBatteryStatus;
+uint8_t ledSpeedMode;
+uint8_t ledUnitSelectDash;
+uint8_t ledBLEStatus;
+uint8_t ledErrorCode;
+uint8_t ledLight_mode;
+uint8_t ledLight_status;
+
 /*********************************************************************
 *
 * LOCAL FUNCTIONS
 */
+static ledControl_ledDisplayManager_t *ledControl_ledDisplayManager;
+
 /*********************************************************************
  * @fn      ledcontrol_setLEDPower
  *
@@ -35,6 +46,35 @@
 void ledControl_setLEDPower(uint8_t ledPower){
     // I2C command to set LED Power
 }
+
+/*********************************************************************
+* @fn      ledControl_taskFxn
+*
+* @brief   Task creation function for the led display.
+*
+* @param   None.
+*
+* @return  None.
+**********************************************************************/
+Char ledControl_TaskStack[LEDCONTROL_TASK_STACK_SIZE];
+Task_Struct ledControl_Task;
+
+uint8_t ledTaskCount = 0;
+uint16_t ledControl_time;
+/*
+static void ledControl_taskFxn(UArg a0, UArg a1)
+{
+    for (; ;)   // infinite for loop, starting at 1 and without exit condition,
+    {
+            ledControl_time = LEDCONTROL_REFRESH_TIME;
+            // Task Sleep
+            Task_sleep( ledControl_time * 1000 / Clock_tickPeriod );
+
+            // I2C refresh LED
+            ledTaskCount++;
+    }
+}
+*/
 /*********************************************************************
  * @fn      ledControl_Init
  *
@@ -49,7 +89,35 @@ void ledControl_init()
     // At Start-Up/initiation, lit all LED on Dashboard. Then, turn off ones that are not required to be on.
     // initialize ledPower
     // set all led lights on at Power On ->
+/*
+    // Construct Task for led Control
+    Task_Params ledControl_taskParams;
+    // Configure task
+    Task_Params_init(&ledControl_taskParams);
+    ledControl_taskParams.stack = ledControl_TaskStack;
+    ledControl_taskParams.stackSize = LEDCONTROL_TASK_STACK_SIZE;
+    ledControl_taskParams.priority = LEDCONTROL_TASK_PRIORITY;
+
+    Task_construct(&ledControl_Task, ledControl_taskFxn, &ledControl_taskParams, NULL);
+*/
 }
+
+/*******************      Basic Operation       **********************
+ *
+ *
+ *********************************************************************/
+uint8_t ledControl_i2cTransferStatus;
+void ledControl_i2c2Display( uint8_t Param, uint8_t *ParamValue )
+{
+    uint8_t ledControl_readBuffer = NULL;                       // local variables are not stored in memory. This is equivalent to reset each time this function is called.
+    uint8_t ledControl_writeBuffer[2] = {0, 0};
+    size_t  readBufferSize  = 0;
+    size_t  writeBufferSize = 2;
+
+    ledControl_i2cTransferStatus = ledControl_ledDisplayManager -> ledControl_transfer(LEDDISPLAYSLAVEADDRESS, &ledControl_writeBuffer, writeBufferSize, &ledControl_readBuffer, readBufferSize);
+
+}
+
 /*********************************************************************
  * @fn      ledControl_setAllOn
  *
@@ -61,6 +129,7 @@ void ledControl_init()
  */
 void ledControl_setAllOn(){
     // I2C to command lit all LED on Dashboard
+    ledControl_i2c2Display( 0, NULL );
 }
 /*********************************************************************
  * @fn      ledControl_setAllOff
@@ -83,8 +152,10 @@ void ledControl_setAllOff(){
  *
  * @return  none
  */
+
 void ledControl_setDashSpeed(uint8_t dashSpeed){
     // I2C command to set Speed Indicator
+    ledSpeed = dashSpeed;
 }
 /*********************************************************************
  * @fn      ledControl_setBatteryStatus
@@ -97,6 +168,7 @@ void ledControl_setDashSpeed(uint8_t dashSpeed){
  */
 void ledControl_setBatteryStatus(uint8_t batteryStatus){
     // I2C command to set Battery Status
+    ledBatteryStatus = batteryStatus;
 }
 /*********************************************************************
  * @fn      ledControl_setSpeedMode
@@ -107,8 +179,10 @@ void ledControl_setBatteryStatus(uint8_t batteryStatus){
  *
  * @return  none
  */
-void ledControl_setSpeedMode(uint8_t speedMode){
+void ledControl_setSpeedMode(uint8_t speedMode)
+{
     // I2C command to set Speed Mode Status
+    ledSpeedMode = speedMode;
 }
 /*********************************************************************
  * @fn      ledControl_setUnitSelectDash
@@ -119,8 +193,10 @@ void ledControl_setSpeedMode(uint8_t speedMode){
  *
  * @return  none
  */
-void ledControl_setUnitSelectDash(uint8_t UnitSelectDash){
+void ledControl_setUnitSelectDash(uint8_t UnitSelectDash)
+{
     // I2C command to set Unit Light
+    ledUnitSelectDash = UnitSelectDash;
 }
 /*********************************************************************
  * @fn      ledControl_setBLEStatus
@@ -133,6 +209,7 @@ void ledControl_setUnitSelectDash(uint8_t UnitSelectDash){
  */
 extern void ledControl_setBLEStatus(uint8_t BLEStatus){
     // I2C command to set BLE Light Status
+    ledBLEStatus = BLEStatus;
 }
 /*********************************************************************
  * @fn      ledControl_setWarningMode
@@ -143,8 +220,10 @@ extern void ledControl_setBLEStatus(uint8_t BLEStatus){
  *
  * @return  none
  */
-void ledControl_setErrorCodeWarning(uint8_t errorCode){
+void ledControl_setErrorCodeWarning(uint8_t errorCode)
+{
     // I2C command to set Warning Light Status
+    ledErrorCode = errorCode;
 }
 /*********************************************************************
  * @fn      ledControl_setLightMode
@@ -155,8 +234,10 @@ void ledControl_setErrorCodeWarning(uint8_t errorCode){
  *
  * @return  None
  *********************************************************************/
-void ledControl_setLightMode(uint8_t light_mode){
+void ledControl_setLightMode(uint8_t light_mode)
+{
     // I2C command to set Light Mode
+    ledLight_mode = light_mode;
 }
 /*********************************************************************
  * @fn      ledcontrol_setLightStatus
@@ -167,8 +248,14 @@ void ledControl_setLightMode(uint8_t light_mode){
  *
  * @return  None
  *********************************************************************/
-void ledControl_setLightStatus(uint8_t light_status){
+void ledControl_setLightStatus(uint8_t light_status)
+{
     // I2C command to set Light Status
+    ledLight_status = light_status;
 }
 
 
+void lightControl_registerLedDisplay( ledControl_ledDisplayManager_t *ledDisplayI2C )
+{
+    ledControl_ledDisplayManager = ledDisplayI2C;
+}

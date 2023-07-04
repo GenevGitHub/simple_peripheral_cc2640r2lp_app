@@ -1,9 +1,9 @@
 /******************************************************************************
 
- @file  UDHAL_TIM.c
+ @file  UDHAL_TIM5.c
 
  @brief This library is used for low frequency communication
- (Timer 3 is not required and will be replaced and removed after amendment is completed)
+ (Timer 5 is not required and will be replaced and removed after amendment is completed)
 
 
  *****************************************************************************/
@@ -36,7 +36,7 @@ static void UDHAL_TIM5_OVClockFxn();
 /*********************************************************************
  * Marco
  */
-static motorcontrol_timerManager_t timer =
+static motorcontrol_timerManager_t timer5 =
 {
     UDHAL_TIM5_start,
     UDHAL_TIM5_setPeriod,
@@ -54,11 +54,13 @@ static motorcontrol_timerManager_t timer =
  */
 void UDHAL_TIM5_init()
 {
+    uint16_t periodicCommunicationLFSamplingTime;
     Error_init(&eb);
-    //PERIODIC_COMMUNICATION_LF_SAMPLING_TIME = PERIODIC_COMMUNICATION_HF_SAMPLING_TIME * (DATA_ANALYSIS_POINTS - 1);
-    clockTicks = PERIODIC_COMMUNICATION_LF_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1; // -1 to ensure overflow occurs at PERIODIC_COMMUNICATION_LF_SAMPLING_TIME - not at 1 tick after PERIODIC_COMMUNICATION_LF_SAMPLING_TIME
-    ClockHandle = Clock_create (UDHAL_TIM5_OVClockFxn, clockTicks, &clkParams, &eb);
-    periodicCommunication_register_lfTimer(&timer);
+    periodicCommunicationLFSamplingTime = PERIODIC_COMMUNICATION_HF_SAMPLING_TIME * (DATA_ANALYSIS_POINTS - 1);
+    clockTicks = periodicCommunicationLFSamplingTime * (1000 / Clock_tickPeriod) - 1; // -1 to ensure overflow occurs at PERIODIC_COMMUNICATION_LF_SAMPLING_TIME - not at 1 tick after PERIODIC_COMMUNICATION_LF_SAMPLING_TIME
+   ClockHandle = Clock_create(UDHAL_TIM5_OVClockFxn, clockTicks, &clkParams, &eb);
+    periodicCommunication_register_lfTimer(&timer5);
+
 }
 /*********************************************************************
  *
@@ -72,12 +74,14 @@ void UDHAL_TIM5_init()
  */
 void UDHAL_TIM5_params_init()
 {
+
     Clock_Params_init(&clkParams);
     clkParams.period = clockTicks;
     clkParams.startFlag = FALSE;
     clkParams.arg = (UArg)0x0000;
     Clock_setTimeout(ClockHandle, clockTicks);
     Clock_setPeriod(ClockHandle, clockTicks);
+
 }
 /*********************************************************************
  * @fn      UDHAL_TIM5_start

@@ -11,6 +11,14 @@ extern "C"
  */
 #include "simple_peripheral.h"
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+#include <icall.h>
+#include <ti/drivers/I2C.h>
+#include <ti/drivers/NVS.h>
+#include <ti/drivers/GPIO.h>
+#include <ti/drivers/I2C.h>
+
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */

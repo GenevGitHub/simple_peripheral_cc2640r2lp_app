@@ -20,39 +20,27 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
-#include<stdio.h>
-#include<stdint.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Task.h>
 /*********************************************************************
  * CONSTANTS
  */
 /*********************************************************************
 * CONSTANTS
 */
-#define MINUTE_IN_HOUR                       60  // 60 minutes in an hour
-
-
-typedef void (*powerOnTime_timerStart)(void);
-typedef void (*powerOnTime_timerStop)(void);
-typedef struct{
-    powerOnTime_timerStart timerStart;    // this is a function pointer
-    powerOnTime_timerStop timerStop;      // this is a function pointer
-}powerOnTime_timerManager_t;
-
-
-typedef void (*powerOnTimeCB_t)(uint8_t messageID);
-typedef struct{
-    powerOnTimeCB_t powerOnTimeCB_t;    // this is a function pointer
-}powerOnTimeCBs_t;
+#define MINUTE_IN_HOUR                                  60  // 60 minutes in an hour
+#define POWERONTIME_TASK_STACK_SIZE                     512
+#define POWERONTIME_TASK_PRIORITY                       1
+#define POWERONTIME_MINUTE_TIME                         60000
 
 /*********************************************************************
  * API FUNCTIONS
  */
 extern void powerOnTime_init( void );
-extern void powerOnTime_registerAppCB(powerOnTimeCBs_t *object);  // what does this do?
-extern void powerOnTime_registerTimer( powerOnTime_timerManager_t *timer );
-extern void powerOnTime_processTimerOV( void );
-extern void powerOnTime_Start( void );
-extern void powerOnTime_Stop( void );
+static void powerOnTime_taskFxn(UArg a0, UArg a1);
 extern uint16_t powerOnTime_getPowerOnTime( void );
 
 /*********************************************************************

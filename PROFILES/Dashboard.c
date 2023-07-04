@@ -493,7 +493,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_ERROR_CODE:
         if ( len == DASHBOARD_ERROR_CODE_LEN )
         {
-        memcpy(Dashboard_Error_CodeVal, value, len);  // I am not sure what this does?
+        memcpy(Dashboard_Error_CodeVal, value, len);
         // Try to send notification.
         GATTServApp_ProcessCharCfg( Dashboard_Error_CodeConfig, (uint8_t *)&Dashboard_Error_CodeVal, FALSE,
                                     DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -507,7 +507,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_SPEED_MODE:
         if ( len == DASHBOARD_SPEED_MODE_LEN )
         {
-          memcpy(Dashboard_Speed_ModeVal, value, len);  // I am not sure what this does?
+          memcpy(Dashboard_Speed_ModeVal, value, len);
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Speed_ModeConfig, (uint8_t *)&Dashboard_Speed_ModeVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -521,7 +521,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_LIGHT_STATUS:
         if ( len == DASHBOARD_LIGHT_STATUS_LEN )
         {
-          memcpy(Dashboard_Light_StatusVal, value, len);  // I am not sure what this does?
+          memcpy(Dashboard_Light_StatusVal, value, len);
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Light_StatusConfig, (uint8_t *)&Dashboard_Light_StatusVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),
@@ -535,7 +535,7 @@ bStatus_t Dashboard_SetParameter( uint8 param, uint8 len, void *value )
     case DASHBOARD_LIGHT_MODE:
         if ( len == DASHBOARD_LIGHT_MODE_LEN )
         {
-          memcpy(Dashboard_Light_ModeVal, value, len);  // I am not sure what this does?
+          memcpy(Dashboard_Light_ModeVal, value, len);
           // Try to send notification.
           GATTServApp_ProcessCharCfg( Dashboard_Light_ModeConfig, (uint8_t *)&Dashboard_Light_ModeVal, FALSE,
                                       DashboardAttrTbl, GATT_NUM_ATTRS( DashboardAttrTbl ),

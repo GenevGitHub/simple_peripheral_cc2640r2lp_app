@@ -16,7 +16,6 @@ ORDERED_OBJS += \
 "./Application/dataAnalysis.obj" \
 "./Application/ledControl.obj" \
 "./Application/lightControl.obj" \
-"./Application/lightSensorControl.obj" \
 "./Application/motorControl.obj" \
 "./Application/periodicCommunication.obj" \
 "./Application/powerOnTime.obj" \
@@ -50,13 +49,11 @@ ORDERED_OBJS += \
 "./UDHAL/UDHAL_I2C.obj" \
 "./UDHAL/UDHAL_NVSINT.obj" \
 "./UDHAL/UDHAL_TIM1.obj" \
-"./UDHAL/UDHAL_TIM10.obj" \
+"./UDHAL/UDHAL_TIM2.obj" \
 "./UDHAL/UDHAL_TIM3.obj" \
 "./UDHAL/UDHAL_TIM4.obj" \
 "./UDHAL/UDHAL_TIM5.obj" \
 "./UDHAL/UDHAL_TIM6.obj" \
-"./UDHAL/UDHAL_TIM7.obj" \
-"./UDHAL/UDHAL_TIM8.obj" \
 "./UDHAL/UDHAL_TIM9.obj" \
 "./UDHAL/UDHAL_UART.obj" \
 "./singleButton/singleButton.obj" \
@@ -240,10 +237,10 @@ simple_peripheral_cc2640r2lp_app.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Application\att_rsp.obj" "Application\brakeAndThrottle.obj" "Application\buzzerControl.obj" "Application\dataAnalysis.obj" "Application\ledControl.obj" "Application\lightControl.obj" "Application\lightSensorControl.obj" "Application\motorControl.obj" "Application\periodicCommunication.obj" "Application\powerOnTime.obj" "Application\simple_peripheral.obj" "Application\util.obj" "Drivers\ECC\ECCROMCC26XX.obj" "Drivers\RF\RFCC26XX_singleMode.obj" "Drivers\TRNG\TRNGCC26XX.obj" "ICall\icall.obj" "ICall\icall_cc2650.obj" "ICall\icall_user_config.obj" "ICallBLE\ble_user_config.obj" "ICallBLE\icall_api_lite.obj" "PROFILES\Battery.obj" "PROFILES\Controller.obj" "PROFILES\Dashboard.obj" "PROFILES\devinfoservice.obj" "PROFILES\gatt_uuid.obj" "PROFILES\gattservapp_util.obj" "PROFILES\peripheral.obj" "STM32MCP\STM32MCP.obj" "STM32MCP\STM32MCP_util.obj" "Startup\board.obj" "Startup\ccfg_app_ble.obj" "Startup\main.obj" "TSL2561\TSL2561.obj" "UDHAL\UDHAL.obj" "UDHAL\UDHAL_ADC1.obj" "UDHAL\UDHAL_ADC2.obj" 
-	-$(RM) "UDHAL\UDHAL_GPIO.obj" "UDHAL\UDHAL_I2C.obj" "UDHAL\UDHAL_NVSINT.obj" "UDHAL\UDHAL_TIM1.obj" "UDHAL\UDHAL_TIM10.obj" "UDHAL\UDHAL_TIM3.obj" "UDHAL\UDHAL_TIM4.obj" "UDHAL\UDHAL_TIM5.obj" "UDHAL\UDHAL_TIM6.obj" "UDHAL\UDHAL_TIM7.obj" "UDHAL\UDHAL_TIM8.obj" "UDHAL\UDHAL_TIM9.obj" "UDHAL\UDHAL_UART.obj" "singleButton\singleButton.obj" 
-	-$(RM) "Application\att_rsp.d" "Application\brakeAndThrottle.d" "Application\buzzerControl.d" "Application\dataAnalysis.d" "Application\ledControl.d" "Application\lightControl.d" "Application\lightSensorControl.d" "Application\motorControl.d" "Application\periodicCommunication.d" "Application\powerOnTime.d" "Application\simple_peripheral.d" "Application\util.d" "Drivers\ECC\ECCROMCC26XX.d" "Drivers\RF\RFCC26XX_singleMode.d" "Drivers\TRNG\TRNGCC26XX.d" "ICall\icall.d" "ICall\icall_cc2650.d" "ICall\icall_user_config.d" "ICallBLE\ble_user_config.d" "ICallBLE\icall_api_lite.d" "PROFILES\Battery.d" "PROFILES\Controller.d" "PROFILES\Dashboard.d" "PROFILES\devinfoservice.d" "PROFILES\gatt_uuid.d" "PROFILES\gattservapp_util.d" "PROFILES\peripheral.d" "STM32MCP\STM32MCP.d" "STM32MCP\STM32MCP_util.d" "Startup\board.d" "Startup\ccfg_app_ble.d" "Startup\main.d" "TSL2561\TSL2561.d" "UDHAL\UDHAL.d" "UDHAL\UDHAL_ADC1.d" "UDHAL\UDHAL_ADC2.d" "UDHAL\UDHAL_GPIO.d" "UDHAL\UDHAL_I2C.d" "UDHAL\UDHAL_NVSINT.d" "UDHAL\UDHAL_TIM1.d" 
-	-$(RM) "UDHAL\UDHAL_TIM10.d" "UDHAL\UDHAL_TIM3.d" "UDHAL\UDHAL_TIM4.d" "UDHAL\UDHAL_TIM5.d" "UDHAL\UDHAL_TIM6.d" "UDHAL\UDHAL_TIM7.d" "UDHAL\UDHAL_TIM8.d" "UDHAL\UDHAL_TIM9.d" "UDHAL\UDHAL_UART.d" "singleButton\singleButton.d" 
+	-$(RM) "Application\att_rsp.obj" "Application\brakeAndThrottle.obj" "Application\buzzerControl.obj" "Application\dataAnalysis.obj" "Application\ledControl.obj" "Application\lightControl.obj" "Application\motorControl.obj" "Application\periodicCommunication.obj" "Application\powerOnTime.obj" "Application\simple_peripheral.obj" "Application\util.obj" "Drivers\ECC\ECCROMCC26XX.obj" "Drivers\RF\RFCC26XX_singleMode.obj" "Drivers\TRNG\TRNGCC26XX.obj" "ICall\icall.obj" "ICall\icall_cc2650.obj" "ICall\icall_user_config.obj" "ICallBLE\ble_user_config.obj" "ICallBLE\icall_api_lite.obj" "PROFILES\Battery.obj" "PROFILES\Controller.obj" "PROFILES\Dashboard.obj" "PROFILES\devinfoservice.obj" "PROFILES\gatt_uuid.obj" "PROFILES\gattservapp_util.obj" "PROFILES\peripheral.obj" "STM32MCP\STM32MCP.obj" "STM32MCP\STM32MCP_util.obj" "Startup\board.obj" "Startup\ccfg_app_ble.obj" "Startup\main.obj" "TSL2561\TSL2561.obj" "UDHAL\UDHAL.obj" "UDHAL\UDHAL_ADC1.obj" "UDHAL\UDHAL_ADC2.obj" "UDHAL\UDHAL_GPIO.obj" "UDHAL\UDHAL_I2C.obj" 
+	-$(RM) "UDHAL\UDHAL_NVSINT.obj" "UDHAL\UDHAL_TIM1.obj" "UDHAL\UDHAL_TIM2.obj" "UDHAL\UDHAL_TIM3.obj" "UDHAL\UDHAL_TIM4.obj" "UDHAL\UDHAL_TIM5.obj" "UDHAL\UDHAL_TIM6.obj" "UDHAL\UDHAL_TIM9.obj" "UDHAL\UDHAL_UART.obj" "singleButton\singleButton.obj" 
+	-$(RM) "Application\att_rsp.d" "Application\brakeAndThrottle.d" "Application\buzzerControl.d" "Application\dataAnalysis.d" "Application\ledControl.d" "Application\lightControl.d" "Application\motorControl.d" "Application\periodicCommunication.d" "Application\powerOnTime.d" "Application\simple_peripheral.d" "Application\util.d" "Drivers\ECC\ECCROMCC26XX.d" "Drivers\RF\RFCC26XX_singleMode.d" "Drivers\TRNG\TRNGCC26XX.d" "ICall\icall.d" "ICall\icall_cc2650.d" "ICall\icall_user_config.d" "ICallBLE\ble_user_config.d" "ICallBLE\icall_api_lite.d" "PROFILES\Battery.d" "PROFILES\Controller.d" "PROFILES\Dashboard.d" "PROFILES\devinfoservice.d" "PROFILES\gatt_uuid.d" "PROFILES\gattservapp_util.d" "PROFILES\peripheral.d" "STM32MCP\STM32MCP.d" "STM32MCP\STM32MCP_util.d" "Startup\board.d" "Startup\ccfg_app_ble.d" "Startup\main.d" "TSL2561\TSL2561.d" "UDHAL\UDHAL.d" "UDHAL\UDHAL_ADC1.d" "UDHAL\UDHAL_ADC2.d" "UDHAL\UDHAL_GPIO.d" "UDHAL\UDHAL_I2C.d" "UDHAL\UDHAL_NVSINT.d" "UDHAL\UDHAL_TIM1.d" "UDHAL\UDHAL_TIM2.d" 
+	-$(RM) "UDHAL\UDHAL_TIM3.d" "UDHAL\UDHAL_TIM4.d" "UDHAL\UDHAL_TIM5.d" "UDHAL\UDHAL_TIM6.d" "UDHAL\UDHAL_TIM9.d" "UDHAL\UDHAL_UART.d" "singleButton\singleButton.d" 
 	-$(RMDIR) $(GEN_MISC_DIRS__QUOTED)
 	-@echo 'Finished clean'
 	-@echo ' '

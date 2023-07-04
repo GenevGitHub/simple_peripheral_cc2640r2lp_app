@@ -55,6 +55,7 @@ void UDHAL_TIM3_init()
     Error_init(&eb);
     clockTicks = SINGLE_BUTTON_TIMER_OV_TIME_LONG * (1000 / Clock_tickPeriod) - 1;  // -1 ensures Overflow occurs at SINGLE_BUTTON_TIMER_OV_TIME_LONG - not 1 tick after SINGLE_BUTTON_TIMER_OV_TIME_LONG
     ClockHandle = Clock_create (UDHAL_TIM3_OVClockFxn, clockTicks, &clkParams, &eb);
+
     singleButton_registerTimer(&singleButton_timer); // renamed from "timer" to "singleButton_timer"
 }
 /*********************************************************************

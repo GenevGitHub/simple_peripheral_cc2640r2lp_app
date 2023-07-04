@@ -10,15 +10,6 @@
 /*********************************************************************
  * INCLUDES
  */
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <icall.h>
-#include <ti/drivers/I2C.h>
-#include <ti/drivers/NVS.h>
-#include <ti/drivers/GPIO.h>
-#include <ti/drivers/I2C.h>
-
 #include "UDHAL/UDHAL.h"
 #include "STM32MCP/STM32MCP.h"
 #include "Controller.h"
@@ -36,6 +27,8 @@
 #include "dataAnalysis.h"
 #include "singleButton/singleButton.h"
 #include "peripheral.h"
+#include "TSL2561/TSL2561.h"
+
 /*********************************************************************
  * CONSTANTS
  */
@@ -45,8 +38,8 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
+static uint8_t motorcontrol_i2cOpenStatus = 0;
 static simplePeripheral_bleCBs_t *motorcontrol_bleCBs;
-//static uint8_t CB_count = 0;
 
 /**********************************************************************
  *  Local functions
@@ -61,7 +54,9 @@ static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t th
 
 static void motorcontrol_controllerCB(uint8_t paramID);
 static void motorcontrol_dashboardCB(uint8_t paramID);
+
 static void motorcontrol_singleButtonCB(uint8_t messageID);
+
 static void motorcontrol_getGAPROLE(void);
 
 uint16_t throttle_Percent;
@@ -116,41 +111,57 @@ static brakeAndThrottle_CBs_t brakeAndThrottle_CBs =
  *
  * @return  none
  */
+uint8_t mccheck = 0;
 void motorcontrol_init(void)
 {
     UDHAL_init();
-    //Controller_RegisterAppCBs(&ControllerCBs);
+    mccheck = 1;
+    motorcontrol_i2cOpenStatus = UDHAL_getI2CStatus();
+    // if i2c open successfully, motorcontrol_i2cOpenStatus = 1,
+    // if i2c opens unsuccessfully, motorcontrol_i2cOpenStatus = 0 -> do not activate TSL2561 light sensor and Led Display
+
+    // Activate NVS_internal to Recall the last set of saved data in memory
+    // NVSI_init();
+
+    Controller_RegisterAppCBs(&ControllerCBs);
+    mccheck = 2;
     Dashboard_RegisterAppCBs(&DashboardCBs);
+    mccheck = 3;
 
     STM32MCP_init();
     STM32MCP_registerCBs(&STM32MCP_CBs);
-    //STM32MCP_startCommunication();
-
-    //
+//    STM32MCP_startCommunication();    // Not activated
+    mccheck = 4;
 
     periodicCommunication_start();
+    mccheck = 5;
+
+    dataAnalysis_init();                // Initiate data analytics
+    mccheck = 8;
 
     brakeAndThrottle_init();
     brakeAndThrottle_registerCBs(&brakeAndThrottle_CBs);
-    //brakeAndThrottle_start();
+    brakeAndThrottle_start();
+    mccheck = 6;
 
     singleButton_init();
     singleButton_registerCBs(&singleButtonCBs);
+    mccheck = 7;
 
-    dataAnalysis_init();
-    //dataAnalysis_registerCBs(&dataAnalysisCBs);   // No Call back necessary
+    buzzerControl_init();               // Initiate buzzer on dashboard
+    mccheck = 9;
 
-
-    lightControl_init();                            // UDHAL_I2C must be initiated before ightControl_init();
-    //lightControl_registerCBs(&lightControlCBs);   // No Call back necessary
-
-    //buzzerControl_init();
-    //buzzerControl_registerCBs(&buzzerControlCBs);   // No Call back necessary
-
-    //ledControl_init();
-
+    if (motorcontrol_i2cOpenStatus == 1) // TSL2561 and ledDisplay require I2C.  If I2C did not open successfully, TSL2561 and ledDisplay will not be initialised
+    {
+        TSL2561_init();
+        //ledControl_init();
+    }
+    mccheck = 10;
+    lightControl_init( motorcontrol_i2cOpenStatus );                            // UDHAL_I2C must be initiated before ightControl_init();
+    mccheck = 11;
     powerOnTime_init();
-    //powerOnTime_registerAppCB(&powerOnTimeCBs);   // No Call back necessary
+    mccheck = 12;
+
 }
 /*********************************************************************
  * @fn      motorcontrol_registerCB
@@ -379,10 +390,12 @@ static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t th
  *
  * @return  None.
  */
-uint8_t motorcontrol_speedModeChgCount = 0;
+uint8_t motorcontrol_speedModeChgCount = 0;     // for debugging only
 void motorcontrol_speedModeChgCB(uint16_t torqueIQ, uint16_t allowableSpeed, uint16_t rampRate)
 {
-    motorcontrol_speedModeChgCount++;
+    motorcontrol_speedModeChgCount++;           // for debugging only
+    // send speed mode change parameters to motor control
+
     //STM32MCP_executeRampFrame(STM32MCP_MOTOR_1_ID, rpm, 200);
     //STM32MCP_executeCommandFrame(STM32MCP_MOTOR_1_ID, STM32MCP_START_MOTOR_COMMAND_ID);
 }
@@ -440,7 +453,7 @@ static void motorcontrol_dashboardCB(uint8_t paramID)
  * @brief   Set the gatt due to singleButton Callback
  *
  * @param   serviceUUID - the service UUID
- *          charteristics - the charteristics (Not UUID, just the index)
+ *          characteristics - the characteristics (Not UUID, just the index)
  *          payload - just the payload
  *
  * @return  TRUE or FALSE
@@ -460,22 +473,24 @@ static void motorcontrol_singleButtonCB(uint8_t messageID)
             // if Powering On -> switch to Power Off
             if(powerOn == 1){
                 powerOn = 0;
+                //  turn off ADC
+                //  turn off I2C
+                //  turn off TSL2561
+                //  turn off all tasks
+                // At very last:
                 //  call nvs write to write into NVS memory only when power off - will take a few milliseconds to complete
                 //  nvsControl_nvsWrite();
-                //  turn off ADC
-                //  turn off I2C?
-                //  turn off TSL2561?
-
             }
             // if Powering Off -> switch to Power On
             else if(powerOn == 0){
                 powerOn = 1;
                 //  call nvs read to read NVS memory - will take a few milliseconds to complete
                 //  nvsControl_nvsRead();
+                //  close NVS
                 //  initialize ADC and turn On ADC
                 //  initialize I2C
                 //  initialize TSL2561
-
+                //  turn ON tasks
             }
         // ICallPlatform_pwrNotify(unsigned int eventType, uintptr_t eventArg, uintptr_t clientArg)
             break;
@@ -524,13 +539,13 @@ static void motorcontrol_singleButtonCB(uint8_t messageID)
  * @brief   Set the gatt
  *
  * @param   serviceUUID - the service UUID
- *          charteristics - the charteristics (Not UUID, just the index)
+ *          characteristics - the characteristics (Not UUID, just the index)
  *          payloadLength - the length of the payload
  *          payload - just the payload
  *
  * @return  TRUE or FALSE <--- Nil (void)???
  */
-//static void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload)
+//static void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t characteristics, uint8_t payloadLength, uint8_t* payload)
 void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload)
 {
     uint8_t *theMessage = ICall_malloc(sizeof(uint8_t)*(payloadLength + 4));

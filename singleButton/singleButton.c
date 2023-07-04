@@ -10,7 +10,7 @@
 /*********************************************************************
 * INCLUDES
 */
-#include <stdlib.h>
+
 #include "singleButton.h"
 #include "lightControl.h"
 /*********************************************************************
@@ -130,52 +130,45 @@ void singleButton_processButtonEvt(uint8_t logicLevel)
  * @return  none
  */
 uint8_t buttonEvent = 0x00;
-void singleButton_processTimerOv(){
-    singleButton_timerManager -> timerStop();    // not necessary but makes 100% sure that timer is stopped
-    timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_LONG;     // resets to "SINGLE_BUTTON_TIMER_OV_TIME_LONG" after each overflow
 
+void singleButton_processTimerOv()
+{
     // TOGGLE POWER ON/OFF
-    if (risingEdgeCount == 0 && fallingEdgeCount == 1){
-        risingEdgeCount = 0;    // reset to 0
-        fallingEdgeCount = 0;   // reset to 0
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
+    if (risingEdgeCount == 0 && fallingEdgeCount == 1)
+    {
         buttonEvent = 0x01;
     }
     // Change Light Mode
-    else if (risingEdgeCount == 1 && fallingEdgeCount == 1){
-        risingEdgeCount = 0;
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
-        buttonEvent = 0x02; //callback -> lightControl_change();
+    else if (risingEdgeCount == 1 && fallingEdgeCount == 1)
+    {
+        buttonEvent = 0x02;                             //callback -> lightControl_change();
     }
     // TOGGLE BLE Advertising
-    else if (risingEdgeCount == 1 && fallingEdgeCount == 2){
-        risingEdgeCount = 0;
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
+    else if (risingEdgeCount == 1 && fallingEdgeCount == 2)
+    {
         buttonEvent = 0x03;
     }
     // CHANGE SPEED MODE
-    else if (risingEdgeCount == 2 && fallingEdgeCount == 2){
-        risingEdgeCount = 0;
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
+    else if (risingEdgeCount == 2 && fallingEdgeCount == 2)
+    {
         buttonEvent = 0x04;
     }
     // TOGGLE UNITS METRIC/IMPERIAL
-    else if (risingEdgeCount == 3 && fallingEdgeCount == 3){
-        risingEdgeCount = 0;
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
+    else if (risingEdgeCount == 3 && fallingEdgeCount == 3)
+    {
         buttonEvent = 0x05;
     }
     // DO NOTHING
-    else{   // This set up allow more button functions to be easily added if required
-        risingEdgeCount = 0;
-        fallingEdgeCount = 0;
-        buttonState = SINGLE_BUTTON_WAITING_STATE;
+    else
+    {
         buttonEvent = 0x00;
     }
 
-    singleButtonCBs->singleButtonCB_t(buttonEvent); //(pointer_name)->(function pointer)(parameter)
+    timerPeriod = SINGLE_BUTTON_TIMER_OV_TIME_LONG;     // resets to "SINGLE_BUTTON_TIMER_OV_TIME_LONG" after each overflow
+    risingEdgeCount = 0;                                // reset to 0
+    fallingEdgeCount = 0;                               // reset to 0
+    buttonState = SINGLE_BUTTON_WAITING_STATE;          // reset to 0
+
+    singleButtonCBs -> singleButtonCB_t(buttonEvent);
+
 }

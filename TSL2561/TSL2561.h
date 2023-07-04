@@ -17,9 +17,10 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
-#include<stdio.h>
-#include<stdint.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <ti/drivers/I2C.h>
 
 /*********************************************************************
  * CONSTANTS
@@ -180,14 +181,41 @@ extern "C"
 #define M8C         0x0000 // 0.000 * 2^LUX_SCALE
 
 /*********************************************************************
+ * @Structure TSL2561_ALSManager_t
+ *
+ * @brief     It defines a set of function pointer that the the library can access and control the device peripheral to manipulate the ALS
+ *
+ * @data      ALS_open: Called when the application wants to open the ALS
+ *            ALS_close: Called when the application wants to close the ALS
+ *            ALS_transfer: Called when the application wants to transfer data to the ALS
+ */
+
+typedef void (*ALS_open)(void);
+typedef uint8_t (*ALS_transfer)(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize);
+typedef void (*ALS_close)(void);
+
+typedef struct
+{
+    ALS_open            ALS_open;
+    ALS_transfer        ALS_transfer;
+    ALS_close           ALS_close;
+}TSL2561_ALSManager_t;
+
+/*********************************************************************
+ * API FUNCTIONS
+ */
+extern void TSL2561_registerALS( TSL2561_ALSManager_t *ALSI2C );
+
+/*********************************************************************
  *  Global Function declaration
  *
 **********************************************************************/
-extern void l2dConverter_init();
-extern void l2dConverter_initTimingReg();
-extern uint32_t l2dConverter_calculateLux();
-extern uint32_t l2dConverter_lux();
-extern uint32_t l2dConverter_readChannel(uint8_t readChannel);
+extern void TSL2561_init( void );
+extern void TSL2561_powerOn( void );
+extern void TSL2561_initTimingReg( void );
+extern void TSL2561_setTimingRegister( void );
+extern void TSL2561_readChannel(uint8_t readChannel);
+extern uint32_t TSL2561_lux( void );
 
 #ifdef _cplusplus
 }

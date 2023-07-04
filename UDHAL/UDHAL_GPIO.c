@@ -35,7 +35,7 @@ static void UDHAL_GPIO_InterruptFxn(uint_least8_t index);  //GPIO interrupt call
  *
  * @return  None
  */
-void UDHAL_GPIO_init()
+extern void UDHAL_GPIO_init()
 {
     GPIO_init();
 }

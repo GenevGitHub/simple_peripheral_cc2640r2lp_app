@@ -26,7 +26,8 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
-
+#include <stdint.h>
+#include <ti/drivers/I2C.h>
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
@@ -40,12 +41,10 @@ extern "C"
 /*********************************************************************
  * FUNCTIONS
  */
-extern void UDHAL_I2C_init();
-extern void UDHAL_I2C_params_init();
-extern void UDHAL_I2C_open();
-extern void UDHAL_I2C_close();
-extern uint8_t UDHAL_I2C_transfer(uint_least8_t slave_address, void *writeBuffer, size_t writeSize, void *readBuffer, size_t readSize);
-extern uint8_t UDHAL_I2C_getI2CStatus();
+extern void UDHAL_I2C_init(void);
+extern void UDHAL_I2C_params_init(void);
+extern uint8_t UDHAL_I2C_getOpenStatus(void);
+
 /*********************************************************************
 *********************************************************************/
 

@@ -10,13 +10,13 @@
 /*********************************************************************
  * INCLUDES
  */
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <ti/sysbios/knl/Clock.h>
-#include <xdc/runtime/Error.h>
 #include "UDHAL/UDHAL_TIM4.h"
 #include "periodicCommunication.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <xdc/runtime/Error.h>
 /*********************************************************************
  * LOCAL VARIABLES
  */
@@ -34,7 +34,7 @@ static void UDHAL_TIM4_OVClockFxn();
 /*********************************************************************
  * Marco
  */
-static motorcontrol_timerManager_t timer =
+static motorcontrol_timerManager_t timer4 =
 {
     UDHAL_TIM4_start,
     UDHAL_TIM4_setPeriod,
@@ -54,8 +54,9 @@ void UDHAL_TIM4_init()
 {
     Error_init(&eb);
     clockTicks = PERIODIC_COMMUNICATION_HF_SAMPLING_TIME * (1000 / Clock_tickPeriod) - 1; // -1 to ensure overflow occurs at PERIODIC_COMMUNICATION_HF_SAMPLING_TIME - not at 1 tick after PERIODIC_COMMUNICATION_HF_SAMPLING_TIME
-    ClockHandle = Clock_create (UDHAL_TIM4_OVClockFxn, clockTicks, &clkParams, &eb);
-    periodicCommunication_register_hfTimer(&timer);
+    ClockHandle = Clock_create(UDHAL_TIM4_OVClockFxn, clockTicks, &clkParams, &eb);
+    periodicCommunication_register_hfTimer(&timer4);
+
 }
 /*********************************************************************
  *
@@ -69,12 +70,14 @@ void UDHAL_TIM4_init()
  */
 void UDHAL_TIM4_params_init()
 {
+
     Clock_Params_init(&clkParams);
     clkParams.period = clockTicks;
     clkParams.startFlag = FALSE;
     clkParams.arg = (UArg)0x0000;
     Clock_setTimeout(ClockHandle, clockTicks);
     Clock_setPeriod(ClockHandle, clockTicks);
+
 }
 /*********************************************************************
  * @fn      UDHAL_TIM4_start

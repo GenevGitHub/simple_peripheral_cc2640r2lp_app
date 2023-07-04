@@ -16,7 +16,9 @@ extern "C"
  * INCLUDES
  */
 #include "simple_peripheral.h"
-#include "dataAnalysis.h"
+//#include <icall.h>
+//#include <string.h>
+//#include <stdlib.h>
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
@@ -57,6 +59,9 @@ extern void periodicCommunication_register_lfTimer(motorcontrol_timerManager_t *
 extern void periodicCommunication_registerBLE_Gatt(simplePeripheral_bleCBs_t *obj);
 extern void periodicCommunication_hf_communication();
 extern void periodicCommunication_lf_communication();
+extern uint8_t periodicCommunication_getxlf();
+extern uint8_t periodicCommunication_getxhf();
+
 /*********************************************************************
 *********************************************************************/
 

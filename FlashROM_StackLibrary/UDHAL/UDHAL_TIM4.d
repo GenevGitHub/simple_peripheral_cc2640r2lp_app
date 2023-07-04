@@ -1,6 +1,7 @@
 # FIXED
 
 UDHAL/UDHAL_TIM4.obj: ../UDHAL/UDHAL_TIM4.c
+UDHAL/UDHAL_TIM4.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM4.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_ti_config.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/linkage.h
@@ -119,17 +120,15 @@ UDHAL/UDHAL_TIM4.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/IInsta
 UDHAL/UDHAL_TIM4.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITimer.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Clock_TimerProxy.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h
-UDHAL/UDHAL_TIM4.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM4.h
 UDHAL/UDHAL_TIM4.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/periodicCommunication.h
 UDHAL/UDHAL_TIM4.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/simple_peripheral.h
-UDHAL/UDHAL_TIM4.obj: C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/dataAnalysis.h
-UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h
 UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
-UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
-UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
-UDHAL/UDHAL_TIM4.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
+UDHAL/UDHAL_TIM4.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h
+UDHAL/UDHAL_TIM4.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h
 
 ../UDHAL/UDHAL_TIM4.c:
+
+C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM4.h:
 
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
@@ -367,21 +366,13 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/p
 
 C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h:
 
-C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/UDHAL/UDHAL_TIM4.h:
-
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/periodicCommunication.h:
 
 C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/simple_peripheral.h:
 
-C:/Users/Public/Documents/TI-workspace/simple_peripheral_cc2640r2lp_app/Application/dataAnalysis.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdio.h:
-
 C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h:
 
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
+C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Error.h:
 

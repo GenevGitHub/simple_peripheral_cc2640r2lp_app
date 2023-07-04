@@ -61,20 +61,20 @@ extern "C"
 #define BRAKEPERCENTTHRESHOLD                                     5
 #define THROTTLEPERCENTREDUCTION                                  0.7
 //Throttle calibration values = value range the throttle ADC is conditioned to be within
-#define THROTTLE_ADC_CALIBRATE_H                                  2400
-#define THROTTLE_ADC_CALIBRATE_L                                  900
+#define THROTTLE_ADC_CALIBRATE_H                                  2350
+#define THROTTLE_ADC_CALIBRATE_L                                  850
 
 //Throttle error thresholds = values that should not be possible under nominal operation
 #define THROTTLE_ADC_THRESHOLD_H                                  2500
-#define THROTTLE_ADC_THRESHOLD_L                                  700
+#define THROTTLE_ADC_THRESHOLD_L                                  750
 
 //Brake calibration values = value range the Brake ADC is conditioned to be within
-#define BRAKE_ADC_CALIBRATE_H                                     2400
-#define BRAKE_ADC_CALIBRATE_L                                     900
+#define BRAKE_ADC_CALIBRATE_H                                     2350
+#define BRAKE_ADC_CALIBRATE_L                                     850
 
 //Brake error thresholds = values that should not be possible under nominal operation
 #define BRAKE_ADC_THRESHOLD_H                                     2500
-#define BRAKE_ADC_THRESHOLD_L                                     700
+#define BRAKE_ADC_THRESHOLD_L                                     750
 
 //Error message
 #define BRAKE_AND_THROTTLE_NORMAL                                 0x00
