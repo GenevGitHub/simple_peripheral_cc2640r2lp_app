@@ -12,6 +12,7 @@
  * INCLUDES
  */
 #include "powerOnTime.h"
+//#include "lightControl.h"
 #include "Dashboard.h"
 #include "motorControl.h"
 
@@ -78,7 +79,6 @@ static void powerOnTime_taskFxn(UArg a0, UArg a1)
  *
  * @return  None
  *********************************************************************/
-
 void powerOnTime_init()
 {
     // At every POWER ON (SYSTEM START-UP), the power on time is reset to zero
@@ -89,10 +89,10 @@ void powerOnTime_init()
     Task_Params powerOnTime_taskParams;
     // Configure task
     Task_Params_init(&powerOnTime_taskParams);
-    powerOnTime_taskParams.stack = powerOnTime_TaskStack;
-    powerOnTime_taskParams.stackSize = POWERONTIME_TASK_STACK_SIZE;
-    powerOnTime_taskParams.priority = POWERONTIME_TASK_PRIORITY;
+//    powerOnTime_taskParams.stack = powerOnTime_TaskStack;
+//    powerOnTime_taskParams.stackSize = POWERONTIME_TASK_STACK_SIZE;
+//    powerOnTime_taskParams.priority = POWERONTIME_TASK_PRIORITY;
 
-    Task_construct(&powerOnTime_Task, powerOnTime_taskFxn, &powerOnTime_taskParams, NULL);
+//    Task_construct(&powerOnTime_Task, powerOnTime_taskFxn, &powerOnTime_taskParams, NULL);
 
 }

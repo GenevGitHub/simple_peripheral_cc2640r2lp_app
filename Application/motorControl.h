@@ -17,7 +17,6 @@ extern "C"
 #include <ti/drivers/I2C.h>
 #include <ti/drivers/NVS.h>
 #include <ti/drivers/GPIO.h>
-#include <ti/drivers/I2C.h>
 
 /*********************************************************************
 *  EXTERNAL VARIABLES

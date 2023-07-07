@@ -17,8 +17,8 @@ static uint16_t         calibrationFactorx1000;
 
 static uint8_t          TSL2561_i2cTransferStatus;      // initially set to 1
 
-uint16_t         raw_channel0;
-uint16_t         raw_channel1;
+uint16_t                raw_channel0;
+uint16_t                raw_channel1;
 
 static uint32_t         TSL2561_calculateLux();
 

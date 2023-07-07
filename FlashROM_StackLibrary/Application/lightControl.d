@@ -141,6 +141,7 @@ Application/lightControl.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtim
 Application/lightControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITaskSupport.h
 Application/lightControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h
 Application/lightControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h
+Application/lightControl.obj: ../Application/powerOnTime.h
 Application/lightControl.obj: ../Application/ledControl.h
 Application/lightControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/lightControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h
@@ -472,6 +473,8 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/inter
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h:
+
+../Application/powerOnTime.h:
 
 ../Application/ledControl.h:
 

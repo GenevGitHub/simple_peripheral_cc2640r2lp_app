@@ -140,9 +140,6 @@ Application/dataAnalysis.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtim
 Application/dataAnalysis.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITaskSupport.h
 Application/dataAnalysis.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h
 Application/dataAnalysis.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
-Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 Application/dataAnalysis.obj: ../Application/buzzerControl.h
 Application/dataAnalysis.obj: ../Application/ledControl.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
@@ -172,6 +169,9 @@ Application/dataAnalysis.obj: ../Application/periodicCommunication.h
 Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h
 Application/dataAnalysis.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h
 Application/dataAnalysis.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task.h
+Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
+Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
+Application/dataAnalysis.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 
 ../Application/dataAnalysis.c:
 
@@ -453,12 +453,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/T
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h:
 
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
-
 ../Application/buzzerControl.h:
 
 ../Application/ledControl.h:
@@ -516,4 +510,10 @@ C:/ti/ti-cgt-arm_18.12.5.LTS/include/stdlib.h:
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Clock.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
+
+C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 

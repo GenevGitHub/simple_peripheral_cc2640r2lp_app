@@ -179,9 +179,6 @@ PROFILES/Controller.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runtime/Typ
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITaskSupport.h
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h
 PROFILES/Controller.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h
-PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
-PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
-PROFILES/Controller.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 PROFILES/Controller.obj: ../PROFILES/Controller.h
 
 ../PROFILES/Controller.c:
@@ -541,12 +538,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/inter
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 
 ../PROFILES/Controller.h:
 

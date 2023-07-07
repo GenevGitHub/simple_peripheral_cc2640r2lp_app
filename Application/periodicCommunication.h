@@ -25,7 +25,9 @@ extern "C"
 /*********************************************************************
  * CONSTANTS
  */
+//  PERIODIC_COMMUNICATION_HF_SAMPLING_TIME = 400 ms is the optimum time based on tests
 #define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      400    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 400ms
+// DATA_ANALYSIS_POINTS must be an odd number (due to numerical integration using Simpson's 1/3 rule)
 #define DATA_ANALYSIS_POINTS                         13     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (21 - 1) * 400 = 8000ms
                                                             // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (13 - 1) * 400 = 4800ms
 #define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      60000
@@ -61,6 +63,7 @@ extern void periodicCommunication_hf_communication();
 extern void periodicCommunication_lf_communication();
 extern uint8_t periodicCommunication_getxlf();
 extern uint8_t periodicCommunication_getxhf();
+//extern void periodicCommunication_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload)
 
 /*********************************************************************
 *********************************************************************/

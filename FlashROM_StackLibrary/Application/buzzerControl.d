@@ -141,9 +141,6 @@ Application/buzzerControl.obj: C:/ti/xdctools_3_51_03_28_core/packages/xdc/runti
 Application/buzzerControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/interfaces/ITaskSupport.h
 Application/buzzerControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h
 Application/buzzerControl.obj: C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h
-Application/buzzerControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h
-Application/buzzerControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h
-Application/buzzerControl.obj: C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h
 Application/buzzerControl.obj: ../Application/buzzerControl.h
 
 ../Application/buzzerControl.c:
@@ -427,12 +424,6 @@ C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/inter
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/Task__epilogue.h:
 
 C:/ti/simplelink_cc2640r2_sdk_5_10_00_02/kernel/tirtos/packages/ti/sysbios/knl/package/Task_SupportProxy.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/math.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/_defs.h:
-
-C:/ti/ti-cgt-arm_18.12.5.LTS/include/machine/_limits.h:
 
 ../Application/buzzerControl.h:
 

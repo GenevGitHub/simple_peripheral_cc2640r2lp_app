@@ -31,8 +31,8 @@ extern "C"
 */
 #define LUX_THRESHOLD                                   500  // light shall be ON when light intensity is consistently below this lux value
 #define ALS_NUMSAMPLES                                  2    // The number of samples used for light intensity evaluation --> must be 8
-#define ALS_SAMPLING_TIME                               750  // in milliseconds, is the time between ALS samples, i.e. sampling time.
-#define ALS_NON_SAMPLING_TIME                           2000
+#define ALS_SAMPLING_TIME                               600  // in milliseconds, is the time between ALS samples, i.e. sampling time.
+#define ALS_NONSAMPLING_TIME                            2000  // in milliseconds, is the time between ALS samples, i.e. sampling time.
 // there is actually no need to sample light level too frequently.
 // Perhaps frequency of 1 second is sufficient.
 // lightControl timer is timer 8
@@ -48,8 +48,11 @@ extern "C"
 #define LIGHT_STATUS_ON                                 0x01
 #define LIGHT_STATUS_INITIAL                            LIGHT_STATUS_OFF
 
-#define LIGHTCONTROL_TASK_STACK_SIZE                    512
-#define LIGHTCONTROL_TASK_PRIORITY                      2
+#define LIGHTCONTROL_TASK_PRIORITY                      4
+
+#ifndef LIGHTCONTROL_TASK_STACK_SIZE
+#define LIGHTCONTROL_TASK_STACK_SIZE                    360
+#endif
 
 //ALS is an abbreviation for Ambient Light Sensor
 /* ********************************************************************

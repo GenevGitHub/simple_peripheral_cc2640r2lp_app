@@ -17,20 +17,21 @@ extern "C"
 #include <stdlib.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/sysbios/knl/Task.h>
-#include <math.h>
-//Constants
 
-#define DATAANALYSIS_TASK_STACK_SIZE    2048
-#define DATAANALYSIS_TASK_PRIORITY      7
+//Constants
+#define DATAANALYSIS_TASK_PRIORITY      6
 /*********************************************************************************************
  *  NVS Data Information
  *********************************************************************************************/
-#define NVS_BUFFER_SIZE                 64
-#define UDARRAYSIZE                     20              // Number of Usage Data Set stored in flash memory
-#define UDTRIGGER                       75
-// Note: Data Analysis Time Interval = (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME
+#define NVS_BUFFER_SIZE                 32              // multiple of 8
+#define UDARRAYSIZE                     10              // Number of Usage Dataset stored in flash memory
+#define UDTRIGGER                       10              // Number of integrations between retaining data
+// Note:    Data Analysis Interval = (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME
+//          Averge_economy refresh interval =  Data Analysis Interval x UDTRIGGER
+//          Total time interval stored in memory = Averge_economy refresh interval x UDARRAYSIZE
 // Option 1:  (21-1) x 400ms = 8000ms.  8000ms x 45 = 360000ms = 6 minutes. 6 minutes x 20 = 120 minutes = 2 hours
-// Option 2:  (13-1) x 400ms = 4800ms.  4800ms x 75 = 360000ms = 6 minutes. 6 minutes x 20 = 120 minutes = 2 hours
+// Option 2:  (13-1) x 400ms = 4800ms.  4800ms x 75 = 360000ms = 6 minutes. 6 minutes x 10 = 60 minutes
+// Option 3:  (13-1) x 400ms = 4800ms.  4800ms x 125 = 600000ms = 10 minutes. 10 minutes x 6 = 60 minutes = 1 hour
 /*********************************************************************************************
  *  Vehicle Information
  *********************************************************************************************/
@@ -103,10 +104,10 @@ typedef struct appData{                                 // is appData needed her
         uint16_t avgBatteryVoltage_mV;                  // length = 2 . to Cloud - require device parameters
         uint16_t errorCode;                             // length = 2 . to Cloud, Both LED display and App Display (May have to separate error code into their respective services)
         uint8_t avgSpeed_kph;                           // length = 1 . to Cloud - require device parameters
-        int8_t  avgHeatSinkTemperature_C;                // temperature can be sub-zero
+        int8_t avgHeatSinkTemperature_C;                // temperature can be sub-zero
         uint8_t batteryPercentage;                      // length = 1 (0-100%). App display input - require device parameters
         uint8_t batteryStatus;                          // length = 1 . Both LED display and App display input - require device parameters
-        int8_t  motorTemperature_C;                      // temperature can be sub-zero
+        int8_t motorTemperature_C;                      // temperature can be sub-zero
 }AD;        // 4-4-4-4-4-2-2-2-2-1-1-1-1-1 decreasing byte size minimizes the amount of struct padding
 
 /*********************************************************************
@@ -132,7 +133,7 @@ typedef struct
  */
 extern void dataAnalysis_registerNVSINT( dataAnalysis_NVS_Manager_t *nvsManager );
 
-//static void dataAnalysis_taskFxn(UArg a0, UArg a1);
+static void dataAnalysis_taskFxn(UArg a0, UArg a1);
 
 //Battery status related Function declaration
 extern uint8_t computeBatteryPercentage( void );
@@ -146,8 +147,8 @@ extern void dataAnalysis_changeUnitSelectDash( uint8_t unit );
 //Global Functions declaration
 extern void dataAnalysis_init( void );
 extern uint8_t coefficient_array_init( void );
-extern void LEDSpeed(uint16_t xCounter);
-extern void dataSim();
+extern void dataAnalysis_LEDSpeed(uint16_t xCounter);
+//extern void dataSim();
 extern void dataAnalyt( void );
 extern void data2UDArray( void );
 extern void re_Initialize( void );
@@ -173,6 +174,10 @@ extern uint16_t computeEconomy( void );  // unit in W-hr / km x 100
 extern uint32_t computeRange( void ); // output in metres
 extern uint32_t computeCO2Saved( void ); // in g
 extern int8_t computeMotorTemperature( void ); // in degrees Celsius
+
+extern void dataAnalysis_sampling(uint8_t x_hf, uint16_t STM32MCP_batteryVoltage, uint16_t STM32MCP_batteryCurrent,
+                                  uint16_t STM32MCP_rpm, int8_t STM32MCP_heatsinkTemp, int8_t STM32MCP_motorTemp);
+
 //
 #ifdef __cplusplus
 }

@@ -10,6 +10,10 @@
 /*********************************************************************
  * INCLUDES
  */
+#include <ti/drivers/I2C.h>
+#include <ti/drivers/NVS.h>
+#include <ti/drivers/GPIO.h>
+
 #include "UDHAL/UDHAL.h"
 #include "STM32MCP/STM32MCP.h"
 #include "Controller.h"
@@ -40,7 +44,7 @@
  */
 static uint8_t motorcontrol_i2cOpenStatus = 0;
 static simplePeripheral_bleCBs_t *motorcontrol_bleCBs;
-
+static uint8_t motorControl_getGAPRole_taskCreate_flag = 0;
 /**********************************************************************
  *  Local functions
  */
@@ -121,10 +125,11 @@ void motorcontrol_init(void)
     // if i2c opens unsuccessfully, motorcontrol_i2cOpenStatus = 0 -> do not activate TSL2561 light sensor and Led Display
 
     // Activate NVS_internal to Recall the last set of saved data in memory
-    // NVSI_init();
+    //NVSI_init();
 
     Controller_RegisterAppCBs(&ControllerCBs);
     mccheck = 2;
+
     Dashboard_RegisterAppCBs(&DashboardCBs);
     mccheck = 3;
 
@@ -137,16 +142,16 @@ void motorcontrol_init(void)
     mccheck = 5;
 
     dataAnalysis_init();                // Initiate data analytics
-    mccheck = 8;
+    mccheck = 6;
 
     brakeAndThrottle_init();
     brakeAndThrottle_registerCBs(&brakeAndThrottle_CBs);
     brakeAndThrottle_start();
-    mccheck = 6;
+    mccheck = 7;
 
     singleButton_init();
     singleButton_registerCBs(&singleButtonCBs);
-    mccheck = 7;
+    mccheck = 8;
 
     buzzerControl_init();               // Initiate buzzer on dashboard
     mccheck = 9;
@@ -157,11 +162,14 @@ void motorcontrol_init(void)
         //ledControl_init();
     }
     mccheck = 10;
+
     lightControl_init( motorcontrol_i2cOpenStatus );                            // UDHAL_I2C must be initiated before ightControl_init();
     mccheck = 11;
-    powerOnTime_init();
-    mccheck = 12;
 
+    //powerOnTime_init();           // merged with lightControl 20230705
+    mccheck = 12;
+    motorControl_getGAPRole_taskCreate_flag = gapRole_getGAPRole_taskCreate_flag();
+    mccheck = 13;
 }
 /*********************************************************************
  * @fn      motorcontrol_registerCB
@@ -213,7 +221,7 @@ static void motorcontrol_processGetRegisterFrameMsg(uint8_t *txPayload, uint8_t 
         //}
     case STM32MCP_HEATSINK_TEMPERATURE_REG_ID:
         {
-            int8_t heatSinkTemperature_C = (int8_t) (*((uint8_t*) rxPayload) & 0xFF);     // temperature can be a negative value, unless it is in Kelvin
+            int8_t heatSinkTemperature_Celcius = (int8_t) (*((uint8_t*) rxPayload) & 0xFF);     // temperature can be a negative value, unless it is in Kelvin
             //send heatSinkTemperature to dataAnalysis
             //dataAnalysis_mcData(heatSinkTemperatureID, &heatSinkTemperature);
             break;
@@ -448,6 +456,7 @@ static void motorcontrol_dashboardCB(uint8_t paramID)
         break;
     }
 }
+
 /*********************************************************************
  * @fn      motorcontrol_singleButtonCB
  * @brief   Set the gatt due to singleButton Callback
@@ -502,15 +511,16 @@ static void motorcontrol_singleButtonCB(uint8_t messageID)
         }
     case SINGLE_BUTTON_SINGLE_SHORT_LONG_PRESS_MSG: // case = 0x03 - ADVERT_ENABLE if BLE in waiting state or waiting after timeout state
         {
-            gaprole_States_t get_gaproleState;
-            GAPRole_GetParameter(GAPROLE_STATE, &get_gaproleState);
-            if((get_gaproleState == GAPROLE_WAITING) ||
-                    (get_gaproleState == GAPROLE_WAITING_AFTER_TIMEOUT) ||
-                    (get_gaproleState == GAPROLE_STARTED) )
+            if (motorControl_getGAPRole_taskCreate_flag == 1)
+            {
+                gaprole_States_t get_gaproleState;
+                GAPRole_GetParameter(GAPROLE_STATE, &get_gaproleState);
+                if((get_gaproleState == GAPROLE_WAITING) || (get_gaproleState == GAPROLE_WAITING_AFTER_TIMEOUT) || (get_gaproleState == GAPROLE_STARTED))
                     {
                         uint8_t advertising = true;
                         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising);
                     }
+            }
             break;
         }
     case SINGLE_BUTTON_DOUBLE_SHORT_PRESS_MSG:      // case = 0x04 - toggle speed modes

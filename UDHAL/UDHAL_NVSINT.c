@@ -69,7 +69,7 @@ void UDHAL_NVSINT_init()
  */
 void UDHAL_NVSINT_params_init()
 {
-    //NVS_Params_init(&nvsParams);
+   // NVS_Params_init(&nvsParams);
    // UDHAL_NVSINT_open();
 }
 

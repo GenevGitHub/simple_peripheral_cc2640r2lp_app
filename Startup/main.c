@@ -212,7 +212,7 @@ int main()
   ICall_createRemoteTasks();
 
   /* Kick off profile - Priority 3 */
-  GAPRole_createTask();
+  //GAPRole_createTask();
 
   SimplePeripheral_createTask();
 

@@ -112,7 +112,7 @@
 #ifndef GAPROLE_TASK_STACK_SIZE
 
 #if defined __TI_COMPILER_VERSION__
-#define GAPROLE_TASK_STACK_SIZE       480 // multiples of 8 only
+#define GAPROLE_TASK_STACK_SIZE       440 // multiples of 8 only (480)
 #else  // IAR Compiler Used
 #define GAPROLE_TASK_STACK_SIZE       440 // multiples of 8 only
 #endif // defined __TI_COMPILER_VERSION__
@@ -817,6 +817,7 @@ bStatus_t GAPRole_TerminateConnection(void)
  *
  * @return  none
  */
+uint8_t GAPRole_createTask_flag = 0;
 void GAPRole_createTask(void)
 {
   Task_Params taskParams;
@@ -828,6 +829,8 @@ void GAPRole_createTask(void)
   taskParams.priority = GAPROLE_TASK_PRIORITY;
 
   Task_construct(&gapRoleTask, gapRole_taskFxn, &taskParams, NULL);
+
+  GAPRole_createTask_flag = 1;
 }
 
 /*********************************************************************
@@ -1630,5 +1633,10 @@ void gapRole_clockHandler(UArg a0)
   gapRole_setEvent(a0);
 }
 
+
+uint8_t gapRole_getGAPRole_taskCreate_flag()
+{
+    return GAPRole_createTask_flag;
+}
 /*********************************************************************
 *********************************************************************/

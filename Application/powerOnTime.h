@@ -20,11 +20,11 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <ti/sysbios/knl/Clock.h>
-#include <ti/sysbios/knl/Task.h>
+//#include <stdio.h>
+//#include <stdint.h>
+//#include <string.h>
+//#include <ti/sysbios/knl/Clock.h>
+//#include <ti/sysbios/knl/Task.h>
 /*********************************************************************
  * CONSTANTS
  */
@@ -32,16 +32,17 @@ extern "C"
 * CONSTANTS
 */
 #define MINUTE_IN_HOUR                                  60  // 60 minutes in an hour
-#define POWERONTIME_TASK_STACK_SIZE                     512
-#define POWERONTIME_TASK_PRIORITY                       1
+//#define POWERONTIME_TASK_STACK_SIZE                     128
+
+//#define POWERONTIME_TASK_PRIORITY                       1
 #define POWERONTIME_MINUTE_TIME                         60000
 
 /*********************************************************************
  * API FUNCTIONS
  */
-extern void powerOnTime_init( void );
-static void powerOnTime_taskFxn(UArg a0, UArg a1);
-extern uint16_t powerOnTime_getPowerOnTime( void );
+//extern void powerOnTime_init( void );
+//static void powerOnTime_taskFxn(UArg a0, UArg a1);
+//extern uint16_t powerOnTime_getPowerOnTime( void );
 
 /*********************************************************************
 *********************************************************************/

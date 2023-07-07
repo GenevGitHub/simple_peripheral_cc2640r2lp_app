@@ -27,9 +27,15 @@ extern "C"
 #define LEDDISPLAYSLAVEADDRESS                          0x29
 #define LED_POWER_LIGHT_ON                              60
 #define LED_POWER_LIGHT_OFF                             100
-#define LEDCONTROL_TASK_STACK_SIZE                      1024
+
 #define LEDCONTROL_TASK_PRIORITY                        5
+
+#ifndef LEDCONTROL_TASK_STACK_SIZE
+#define LEDCONTROL_TASK_STACK_SIZE                      360
+#endif
+
 #define LEDCONTROL_INIT_TIME                            1500
+
 #define LEDCONTROL_REFRESH_TIME                         120
 
 /*********************************************************************

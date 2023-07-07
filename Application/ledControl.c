@@ -56,25 +56,24 @@ void ledControl_setLEDPower(uint8_t ledPower){
 *
 * @return  None.
 **********************************************************************/
-Char ledControl_TaskStack[LEDCONTROL_TASK_STACK_SIZE];
-Task_Struct ledControl_Task;
+Char ledControl_taskStack[LEDCONTROL_TASK_STACK_SIZE];
+Task_Struct ledControl_task;
 
 uint8_t ledTaskCount = 0;
-uint16_t ledControl_time;
-/*
+uint16_t ledControl_time = LEDCONTROL_REFRESH_TIME;
+
 static void ledControl_taskFxn(UArg a0, UArg a1)
 {
     for (; ;)   // infinite for loop, starting at 1 and without exit condition,
     {
-            ledControl_time = LEDCONTROL_REFRESH_TIME;
+
             // Task Sleep
             Task_sleep( ledControl_time * 1000 / Clock_tickPeriod );
-
             // I2C refresh LED
             ledTaskCount++;
     }
 }
-*/
+
 /*********************************************************************
  * @fn      ledControl_Init
  *
@@ -89,17 +88,16 @@ void ledControl_init()
     // At Start-Up/initiation, lit all LED on Dashboard. Then, turn off ones that are not required to be on.
     // initialize ledPower
     // set all led lights on at Power On ->
-/*
+
     // Construct Task for led Control
     Task_Params ledControl_taskParams;
     // Configure task
     Task_Params_init(&ledControl_taskParams);
-    ledControl_taskParams.stack = ledControl_TaskStack;
+    ledControl_taskParams.stack = ledControl_taskStack;
     ledControl_taskParams.stackSize = LEDCONTROL_TASK_STACK_SIZE;
     ledControl_taskParams.priority = LEDCONTROL_TASK_PRIORITY;
+    Task_construct(&ledControl_task, ledControl_taskFxn, &ledControl_taskParams, NULL);
 
-    Task_construct(&ledControl_Task, ledControl_taskFxn, &ledControl_taskParams, NULL);
-*/
 }
 
 /*******************      Basic Operation       **********************

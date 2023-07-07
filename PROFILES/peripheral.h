@@ -604,6 +604,7 @@ extern void GAPRole_RegisterAppCBs(gapRolesParamUpdateCB_t *pParamUpdateCB);
  *
  */
 extern void GAPRole_createTask(void);
+extern uint8_t gapRole_getGAPRole_taskCreate_flag( void );
 
 /// @endcond // NODOC
 
