@@ -55,13 +55,18 @@
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/display/Display.h>
-
+#include <ti/drivers/NVS.h>
 #include <icall.h>
 #include "hal_assert.h"
 #include "bcomdef.h"
 #include "peripheral.h"
 #include "simple_peripheral.h"
 #include "motorControl.h"
+#include "UDHAL/UDHAL_NVSINT.h"
+#include "lightControl.h"
+#include "ledControl.h"
+#include "generalPurposeTimer.h"
+
 /* Header files required to enable instruction fetch cache */
 #include <inc/hw_memmap.h>
 #include <driverlib/vims.h>
@@ -205,6 +210,8 @@ int main()
   user0Cfg.appServiceInfo->timerTickPeriod = Clock_tickPeriod;
   user0Cfg.appServiceInfo->timerMaxMillisecond  = ICall_getMaxMSecs();
 #endif  /* ICALL_JT */
+
+
   /* Initialize ICall module */
   ICall_init();
 
@@ -212,9 +219,11 @@ int main()
   ICall_createRemoteTasks();
 
   /* Kick off profile - Priority 3 */
-  //GAPRole_createTask();
-
+  GAPRole_createTask();
+  /* Priority 2 */
   SimplePeripheral_createTask();
+  /* Priority 4 */
+  GPtimer_createTask();
 
   /* enable interrupts and start SYS/BIOS */
   BIOS_start();

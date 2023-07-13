@@ -26,10 +26,11 @@ extern "C"
  * CONSTANTS
  */
 //  PERIODIC_COMMUNICATION_HF_SAMPLING_TIME = 400 ms is the optimum time based on tests
-#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      400    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 400ms
+#define PERIODIC_COMMUNICATION_HF_SAMPLING_TIME      300    //400    // This must be the same as DATA_ANALYSIS_SAMPLING_TIME = 400ms
 // DATA_ANALYSIS_POINTS must be an odd number (due to numerical integration using Simpson's 1/3 rule)
-#define DATA_ANALYSIS_POINTS                         13     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (21 - 1) * 400 = 8000ms
-                                                            // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (13 - 1) * 400 = 4800ms
+#define DATA_ANALYSIS_POINTS                         17     //13     // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (21 - 1) * 400 ms = 8000 ms
+                                                            // Must satisfy the equation:  (DATA_ANALYSIS_POINTS - 1) x DATA_ANALYSIS_SAMPLING_TIME = (13 - 1) * 400 ms = 4800 ms
+                                                            // (17 - 1) * 300 ms = 4800 ms
 #define PERIODIC_COMMUNICATION_LF_SAMPLING_TIME      60000
 #define PERIODIC_COMMUNICATION_ACTIVATE              0x01
 #define PERIODIC_COMMUNICATION_DEACTIVATE            0x00

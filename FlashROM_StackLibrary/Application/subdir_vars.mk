@@ -10,10 +10,12 @@ C_SRCS += \
 ../Application/brakeAndThrottle.c \
 ../Application/buzzerControl.c \
 ../Application/dataAnalysis.c \
+../Application/generalPurposeTimer.c \
 ../Application/ledControl.c \
 ../Application/lightControl.c \
 ../Application/motorControl.c \
 ../Application/periodicCommunication.c \
+../Application/powerOnTime.c \
 ../Application/simple_peripheral.c \
 ../Application/util.c 
 
@@ -22,10 +24,12 @@ C_DEPS += \
 ./Application/brakeAndThrottle.d \
 ./Application/buzzerControl.d \
 ./Application/dataAnalysis.d \
+./Application/generalPurposeTimer.d \
 ./Application/ledControl.d \
 ./Application/lightControl.d \
 ./Application/motorControl.d \
 ./Application/periodicCommunication.d \
+./Application/powerOnTime.d \
 ./Application/simple_peripheral.d \
 ./Application/util.d 
 
@@ -34,10 +38,12 @@ OBJS += \
 ./Application/brakeAndThrottle.obj \
 ./Application/buzzerControl.obj \
 ./Application/dataAnalysis.obj \
+./Application/generalPurposeTimer.obj \
 ./Application/ledControl.obj \
 ./Application/lightControl.obj \
 ./Application/motorControl.obj \
 ./Application/periodicCommunication.obj \
+./Application/powerOnTime.obj \
 ./Application/simple_peripheral.obj \
 ./Application/util.obj 
 
@@ -46,10 +52,12 @@ OBJS__QUOTED += \
 "Application\brakeAndThrottle.obj" \
 "Application\buzzerControl.obj" \
 "Application\dataAnalysis.obj" \
+"Application\generalPurposeTimer.obj" \
 "Application\ledControl.obj" \
 "Application\lightControl.obj" \
 "Application\motorControl.obj" \
 "Application\periodicCommunication.obj" \
+"Application\powerOnTime.obj" \
 "Application\simple_peripheral.obj" \
 "Application\util.obj" 
 
@@ -58,10 +66,12 @@ C_DEPS__QUOTED += \
 "Application\brakeAndThrottle.d" \
 "Application\buzzerControl.d" \
 "Application\dataAnalysis.d" \
+"Application\generalPurposeTimer.d" \
 "Application\ledControl.d" \
 "Application\lightControl.d" \
 "Application\motorControl.d" \
 "Application\periodicCommunication.d" \
+"Application\powerOnTime.d" \
 "Application\simple_peripheral.d" \
 "Application\util.d" 
 
@@ -70,10 +80,12 @@ C_SRCS__QUOTED += \
 "../Application/brakeAndThrottle.c" \
 "../Application/buzzerControl.c" \
 "../Application/dataAnalysis.c" \
+"../Application/generalPurposeTimer.c" \
 "../Application/ledControl.c" \
 "../Application/lightControl.c" \
 "../Application/motorControl.c" \
 "../Application/periodicCommunication.c" \
+"../Application/powerOnTime.c" \
 "../Application/simple_peripheral.c" \
 "../Application/util.c" 
 

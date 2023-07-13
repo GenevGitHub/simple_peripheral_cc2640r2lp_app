@@ -52,10 +52,10 @@
 static uint16_t DATA_ANALYSIS_SAMPLING_TIME = PERIODIC_COMMUNICATION_HF_SAMPLING_TIME;
 // Simpson's 1/3 rule coefficients
 static uint8_t coefficient_array[DATA_ANALYSIS_POINTS] = {0};           // same size as DATA_ANALYSIS_POINTS
-uint8_t batteryStatus;
+static uint8_t batteryStatus;
 //Default Unit Settings
-uint8_t UnitSelectDash = SI_UNIT;                   // Keep the last units selected by user in memory, the same units is used on restart
-uint8_t UnitSelectApp = SI_UNIT;                    // Mobile app allow user to select the desired display unit - the App units and Dash units are NOT linked
+static uint8_t UnitSelectDash = SI_UNIT;                   // Keep the last units selected by user in memory, the same units is used on restart
+static uint8_t UnitSelectApp = SI_UNIT;                    // Mobile app allow user to select the desired display unit - the App units and Dash units are NOT linked
 //
 static uint16_t rpm[DATA_ANALYSIS_POINTS] = {0};                        //revolutions per minute data collected every time interval
 static uint16_t speed_cmph[DATA_ANALYSIS_POINTS] = {0};                 //rpm is converted to cm per second (cm/s)
@@ -73,7 +73,7 @@ static uint16_t (*ptrBatteryCurrent)[DATA_ANALYSIS_POINTS] = &batteryCurrent_mA;
 static int8_t (*ptrhst)[DATA_ANALYSIS_POINTS] = &heatSinkTemperature_C;
 static int8_t (*ptrmt)[DATA_ANALYSIS_POINTS] = &motorTemperature_C;
 //
-static uint16_t xCount = 1;
+static uint16_t dA_Count = 1;
 static uint32_t UDDataCounter = 0;                  // At new, UDDataCounter = 0
 static uint16_t UDIndex;                            // the last UDIndex saved
 static uint16_t UDIndexPrev;
@@ -81,12 +81,12 @@ static uint16_t UDIndexPrev;
 static AD ADArray = {0};                            //Since this data set is temporary, array struct is not necesary.  ADArray data that are displayed on the mobile app.
 static AD (*ptrADArray) = &ADArray;                 // Provides a pointer option
 
-static uint32_t ADCounter_last;
 static float lenConvFactorDash;
 
 static uint32_t avgBatteryVoltage_mV = 0;
-uint8_t batteryPercentage = BATTERY_PERCENTAGE_INITIAL;
-uint8_t batteryLow = 0;
+static uint8_t batteryPercentage = BATTERY_PERCENTAGE_INITIAL;
+static uint8_t batteryLow = 0;
+
 static uint8_t UDTriggerCounter = 0;
 static uint32_t ADDataCounter = 0;
 static uint32_t sumDeltaMileage_dm;                 // unit in decimeters.  This is the previous data on the total distance travelled
@@ -173,7 +173,6 @@ extern void dataAnalysis_init()
      ***************************************************/
     dummyUDArray();     // read UDArray data that are stored in memory (from nvsinternal)
     //dataAnalysis_NVS_read( void );
-
     get_UDArrayData();
     /*********************************************************************************************
      * Initializing data
@@ -258,7 +257,7 @@ extern void get_UDArrayData()
     UDDataCounter = UDBuffer[1];
 
     UDIndexPrev = UDDataCounter % UDARRAYSIZE;      // UDIndexPrev is the remainder of UDDataCounter / UDARRAYSIZE
-    if (UDIndexPrev == (UDARRAYSIZE - 1)) {
+    if (UDIndexPrev >= (UDARRAYSIZE - 1)) {
             UDIndex = 0;
             }
     else {
@@ -278,7 +277,7 @@ extern void get_UDArrayData()
  *
  * @brief   calculate speeds, send RPM & speed to client (App) and set speed display on dashboard
  *
- * @param   xCount
+ * @param   dA_Count
  *
  * @return  Nil
 ******************************************************************************************************/
@@ -287,7 +286,7 @@ extern void dataAnalysis_LEDSpeed(uint16_t xCounter){
     uint16_t rawSpeed_100kph = ((float) speed_cmph[xCounter] * 3.6 );           // 100*km/hr
     dashSpeed = ((float) speed_cmph[xCounter] * 0.036 * lenConvFactorDash);     // km/hr or mph
     // Send rpm and speed to client (App)
-    motorcontrol_setGatt(CONTROLLER_SERV_UUID, CONTROLLER_MOTOR_RPM, CONTROLLER_MOTOR_RPM_LEN, (uint8_t *) &rpm[xCount]);
+    motorcontrol_setGatt(CONTROLLER_SERV_UUID, CONTROLLER_MOTOR_RPM, CONTROLLER_MOTOR_RPM_LEN, (uint8_t *) &rpm[dA_Count]);
     motorcontrol_setGatt(CONTROLLER_SERV_UUID, CONTROLLER_MOTOR_SPEED, CONTROLLER_MOTOR_SPEED_LEN, (uint8_t *) &rawSpeed_100kph);
     // Send dashSpeed to LED display
     ledControl_setDashSpeed(dashSpeed);
@@ -385,28 +384,24 @@ void data2UDArray()
  *
  * @return  Nil
 ******************************************************************************************************/
-uint16_t x_avgbatteryvoltage;               // for debugging only
-uint8_t x_batterylevel;                     // for debugging only
-int8_t x_avgBatteryTemperature;             // for debugging only
-
 extern void dataAnalysis_sampling(uint8_t x_hf, uint16_t STM32MCP_batteryVoltage, uint16_t STM32MCP_batteryCurrent,
                                   uint16_t STM32MCP_rpm, int8_t STM32MCP_heatsinkTemp, int8_t STM32MCP_motorTemp)
 {
-    xCount = x_hf;
+    dA_Count = x_hf;
     // Sim RPM
-    *((*ptrRpm)+ xCount) = STM32MCP_rpm;                                                    // get RPM from MCU:  unit in rpm,  188 rpm @ r = 0.1016m => 200 cm/sec = 7 km/hr
+    *((*ptrRpm)+ dA_Count) = STM32MCP_rpm;                                                    // get RPM from MCU:  unit in rpm,  188 rpm @ r = 0.1016m => 200 cm/sec = 7 km/hr
     // Cal Speed from RPM
-    *((*ptrSpeed)+ xCount) = round(rpm[xCount] * 2 * (float) M_PI / 60 * WHEELRADIUS);      // Unit in cm / sec
+    *((*ptrSpeed)+ dA_Count) = round(rpm[dA_Count] * 2 * (float) M_PI / 60 * WHEELRADIUS);      // Unit in cm / sec
     // Sim Battery Current
-    *((*ptrBatteryCurrent)+ xCount) = STM32MCP_batteryCurrent;                              // get battery current from MCU:  unit in mA
+    *((*ptrBatteryCurrent)+ dA_Count) = STM32MCP_batteryCurrent;                              // get battery current from MCU:  unit in mA
     // Sim Battery Voltage
-    *((*ptrBatteryVoltage)+ xCount) = STM32MCP_batteryVoltage;                              // get battery voltage from MCU:  unit in mV
+    *((*ptrBatteryVoltage)+ dA_Count) = STM32MCP_batteryVoltage;                              // get battery voltage from MCU:  unit in mV
     // Sim Heatsink Temp
-    *((*ptrhst)+ xCount) = STM32MCP_heatsinkTemp;                                           // get heat sink temperature from MCU: unit in degrees Celsius
+    *((*ptrhst)+ dA_Count) = STM32MCP_heatsinkTemp;                                           // get heat sink temperature from MCU: unit in degrees Celsius
     // Sim Motor Temp
-    *((*ptrmt)+ xCount) = STM32MCP_motorTemp;
+    *((*ptrmt)+ dA_Count) = STM32MCP_motorTemp;
 
-    dataAnalysis_LEDSpeed(xCount);       // covert speed to the selected dashboard unit (dashSpeed) then sent to led display
+    dataAnalysis_LEDSpeed(dA_Count);       // covert speed to the selected dashboard unit (dashSpeed) then sent to led display
 
     dataAnalysis_Main();
 }
@@ -423,24 +418,26 @@ extern void dataAnalysis_sampling(uint8_t x_hf, uint16_t STM32MCP_batteryVoltage
 extern void dataAnalysis_Main()
 {
 
-    if (xCount == (DATA_ANALYSIS_POINTS - 1)) // and also when Power OFF // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
+    if (dA_Count == (DATA_ANALYSIS_POINTS - 1)) // and also when Power OFF // Caution of the case where dA_Count >= DATA_ANALYSIS_POINTS & POWER OFF
     {
         // dataAnalyt() carries out all the data analytics
         dataAnalyt();
         ledControl_setBatteryStatus(ADArray.batteryStatus);                     // Send battery status and errorCode to led display
         ledControl_setErrorCodeWarning(ADArray.errorCode);
-        x_avgbatteryvoltage = ADArray.avgBatteryVoltage_mV;                     // for debugging only
-        x_batterylevel = ADArray.batteryPercentage;                             // for debugging only
-        x_avgBatteryTemperature = ADArray.avgHeatSinkTemperature_C;             // for debugging only
+        avgBatteryVoltage_mV = ADArray.avgBatteryVoltage_mV;                     // for debugging only
+        batteryPercentage = ADArray.batteryPercentage;                             // for debugging only
+
         // send analytics data to App
         dataAnalysis_motorcontrol_setGatt();
         //batteryPercentage
-        if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL)){
+        if ((batteryLow == 0) && (batteryPercentage < BATTERY_PERCENTAGE_LL))
+        {
             batteryLow = 1;
             //if (timer9 is not "started") { buzzerControl_Start();}    // there are several conditions that may demand the buzzer timer to start and repeat
             //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
         }
-        if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH)){
+        if ((batteryLow == 1) && (batteryPercentage > BATTERY_PERCENTAGE_LH))
+        {
             batteryLow = 0;
             //if (no other conditions that demand timer9 start) { buzzerControl_Stop();}
             //Conditions include: (1) battery level low, (2) Power On/OFF, (3) Present of any error code
@@ -449,7 +446,7 @@ extern void dataAnalysis_Main()
     // The UDArray is used to store the history of total Power Consumed and total distance travelled data in memory.
     // To minimize the SRAM occupied by UDArray, it is stored only once every (DATA_ANALYSIS_SAMPLING_TIME x (DATA_ANALYSIS_POINTS -1) x UDTRIGGER / 1000) seconds.
     // e.g. ( 300 ms x (31 -1) x 40 / 1000) = 360 seconds = 6 minutes
-    if (UDTriggerCounter >= UDTRIGGER)       // and also when Power_OFF  // Caution of the case where xCount >= DATA_ANALYSIS_POINTS & POWER OFF
+    if (UDTriggerCounter >= UDTRIGGER)       // and also when Power_OFF  // Caution of the case where dA_Count >= DATA_ANALYSIS_POINTS & POWER OFF
     {
         data2UDArray(); // data2UDBuffer, reset UDTriggerCounter
     }
@@ -504,7 +501,7 @@ void dataAnalysis_motorcontrol_setGatt()
     motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_VOLTAGE, BATTERY_BATTERY_VOLTAGE_LEN, (uint8_t *) &ADArray.avgBatteryVoltage_mV);
     motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_LEVEL, BATTERY_BATTERY_LEVEL_LEN, (uint8_t *) &ADArray.batteryPercentage);
     motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_STATUS, BATTERY_BATTERY_STATUS_LEN, (uint8_t *) &ADArray.batteryStatus);
-    //motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_TEMPERATURE, BATTERY_BATTERY_TEMPERATURE_LEN, (uint8_t *) &x_avgBatteryTemperature); // currently not available
+    //motorcontrol_setGatt(BATTERY_SERV_UUID, BATTERY_BATTERY_TEMPERATURE, BATTERY_BATTERY_TEMPERATURE_LEN, (uint8_t *) &ADArray.avgHeatSinkTemperature_C); // currently not available
 
 }
 
@@ -561,11 +558,11 @@ uint32_t computeDistanceTravelled()
 uint8_t computeAvgSpeed(uint32_t deltaMileage_dm)
 {
     static uint8_t avgSpeed_kph = 0;                    // output in km/hr
-    if (xCount < 1) {                                   // should be impossible to get here
+    if (dA_Count < 1) {                                   // should be impossible to get here
         avgSpeed_kph = 0;
         return avgSpeed_kph;
     }                                                   // Safeguard from stack overflow due to division by 0
-    avgSpeed_kph = round((float)(deltaMileage_dm)/ (DATA_ANALYSIS_SAMPLING_TIME * (xCount - 1)) * 360); // output in km/hr
+    avgSpeed_kph = round((float)(deltaMileage_dm)/ (DATA_ANALYSIS_SAMPLING_TIME * (dA_Count - 1)) * 360); // output in km/hr
     return avgSpeed_kph;                                // output rounded off to nearest km/hr
 }
 
@@ -582,19 +579,19 @@ int8_t computeAvgHeatSinkTemperature()
 {
     int16_t sumHeatSinkTemperatuer_C = 0; // output in degree celsius
     int8_t avgHeatSinkTemperature_C = 0;
-    for(uint8_t ii = 0; ii < xCount; ii++)
+    for(uint8_t ii = 0; ii < dA_Count; ii++)
     {
         sumHeatSinkTemperatuer_C += heatSinkTemperature_C[ii];                             // sum all measurements
     }
 
-    if (xCount < 1)
+    if (dA_Count < 1)
     {   // Safeguard from stack overflow due to division by 0
         avgHeatSinkTemperature_C = 0;
         // errorCode = Temperature Error;
         return avgHeatSinkTemperature_C; // output in degree celsius
     }
 
-    avgHeatSinkTemperature_C = round((sumHeatSinkTemperatuer_C)/ xCount);
+    avgHeatSinkTemperature_C = round((sumHeatSinkTemperatuer_C)/ dA_Count);
     if (avgHeatSinkTemperature_C > CRIT_HEATSINKTEMPERATURE_C)
     {
         heatSinkOVTempState = HEATSINK_TEMPERATURE_ABNORMAL;  // errorCode = HeatSink_OVTEMP_WARNING_CODE;
@@ -621,15 +618,15 @@ int8_t computeMotorTemperature()
 {
     int16_t sumMotorTemperature_C = 0; // output in degree celsius
     int8_t avgMotorTemperature_C = 0;
-    for(uint8_t ii = 0; ii  < xCount; ii++){
+    for(uint8_t ii = 0; ii  < dA_Count; ii++){
                 sumMotorTemperature_C += motorTemperature_C[ii];                             // sum all measurements
             }
-    if (xCount < 1) {   // Safeguard from stack overflow due to division by 0
+    if (dA_Count < 1) {   // Safeguard from stack overflow due to division by 0
         avgMotorTemperature_C = 0;
         // errorCode = MOTOR_TEMP_ERROR_CODE;
         return avgMotorTemperature_C; // output in degree celsius
     }
-    avgMotorTemperature_C = round((sumMotorTemperature_C) / xCount);
+    avgMotorTemperature_C = round((sumMotorTemperature_C) / dA_Count);
     if (avgMotorTemperature_C > CRIT_MOTORTEMPERATURE_C){
         motorOVTempState = MOTOR_TEMPERATURE_ABNORMAL;
         // Action: Restrict speed mode to AMBLE mode
@@ -650,15 +647,15 @@ int8_t computeMotorTemperature()
 uint32_t computeAvgBatteryVoltage()
 {
         avgBatteryVoltage_mV = 0;
-        for(uint8_t ii = 0; ii < xCount; ii++){
+        for(uint8_t ii = 0; ii < dA_Count; ii++){
             avgBatteryVoltage_mV += batteryVoltage_mV[ii];                               // Average is in mV
             }
-        if (xCount < 1){    // should be impossible to get here.  Safeguard from stack overflow due to division by 0, but xCount is always greater than or equal 1
+        if (dA_Count < 1){    // should be impossible to get here.  Safeguard from stack overflow due to division by 0, but dA_Count is always greater than or equal 1
             avgBatteryVoltage_mV = 0;
             //errorCode = batteryError;
             return avgBatteryVoltage_mV;   // Unit in mV
             }
-        avgBatteryVoltage_mV = round((float) avgBatteryVoltage_mV / xCount);            // output in mV
+        avgBatteryVoltage_mV = round((float) avgBatteryVoltage_mV / dA_Count);            // output in mV
         if (avgBatteryVoltage_mV < BATTERY_CRITICALLY_LOW){
             // battery level critically low -> power shut down
         }
@@ -679,10 +676,12 @@ uint32_t computeAvgBatteryVoltage()
 uint8_t computeBatteryPercentage(){
     uint8_t batteryPercentage_mV = 0;
 
-    if(avgBatteryVoltage_mV > BATTERY_MAX_VOLTAGE){
+    if(avgBatteryVoltage_mV > BATTERY_MAX_VOLTAGE)
+    {
         avgBatteryVoltage_mV = BATTERY_MAX_VOLTAGE;
     }      // ensure battery % cannot exceed 100%
-    else if(avgBatteryVoltage_mV < BATTERY_MIN_VOLTAGE){
+    else if(avgBatteryVoltage_mV < BATTERY_MIN_VOLTAGE)
+    {
         avgBatteryVoltage_mV = BATTERY_MIN_VOLTAGE;
     } // ensure battery % cannot be less than 0%
 
@@ -897,7 +896,7 @@ void dummyUDArray()
     // Test case 01
 
         UDBuffer[0] = 320;  // How is this number determined?
-        UDBuffer[1] = 9;
+        UDBuffer[1] = 8;
         UDBuffer[2] = 0;
         UDBuffer[3] = 0;
         UDBuffer[4] = 0;
@@ -925,9 +924,9 @@ void dummyUDArray()
         UDBuffer[26] = 8;
         UDBuffer[27] = 800;
         UDBuffer[28] = 850;
-        UDBuffer[26] = 9;
-        UDBuffer[27] = 900;
-        UDBuffer[28] = 950;
+//        UDBuffer[26] = 9;
+//        UDBuffer[27] = 900;
+//        UDBuffer[28] = 950;
 
  // Test case 02
         /*UDBuffer[0] = 1439;     // ADDataCounter = number of integration completed (each integration contains N = data_analysis_points)

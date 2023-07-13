@@ -55,15 +55,13 @@ static void motorcontrol_exMsgCb(uint8_t exceptionCode);
 static void motorcontrol_erMsgCb(uint8_t errorCode);
 
 static void motorcontrol_brakeAndThrottleCB(uint16_t allowableSpeed, uint16_t throttlePercent, uint8_t errorMsg);
-
 static void motorcontrol_controllerCB(uint8_t paramID);
 static void motorcontrol_dashboardCB(uint8_t paramID);
-
 static void motorcontrol_singleButtonCB(uint8_t messageID);
 
 static void motorcontrol_getGAPROLE(void);
 
-uint16_t throttle_Percent;
+//uint16_t throttle_Percent;
 
 //extern void motorcontrol_setGatt(uint16_t serviceUUID, uint8_t charteristics, uint8_t payloadLength, uint8_t* payload);
 /*********************************************************************
@@ -93,7 +91,7 @@ static singleButtonCBs_t singleButtonCBs =
 
 static brakeAndThrottle_CBs_t brakeAndThrottle_CBs =
 {
-     motorcontrol_brakeAndThrottleCB
+     motorcontrol_brakeAndThrottleCB                    // brake and throttle callback -> what happens when brake & throttle interrupts
 };
 
 //static lightControl_CBs_t lightControl_CBs =
@@ -118,14 +116,11 @@ static brakeAndThrottle_CBs_t brakeAndThrottle_CBs =
 uint8_t mccheck = 0;
 void motorcontrol_init(void)
 {
+// Activate NVS_internal to Recall the last set of saved data in memory
+//    NVS_init();
+
     UDHAL_init();
     mccheck = 1;
-    motorcontrol_i2cOpenStatus = UDHAL_getI2CStatus();
-    // if i2c open successfully, motorcontrol_i2cOpenStatus = 1,
-    // if i2c opens unsuccessfully, motorcontrol_i2cOpenStatus = 0 -> do not activate TSL2561 light sensor and Led Display
-
-    // Activate NVS_internal to Recall the last set of saved data in memory
-    //NVSI_init();
 
     Controller_RegisterAppCBs(&ControllerCBs);
     mccheck = 2;
@@ -156,7 +151,10 @@ void motorcontrol_init(void)
     buzzerControl_init();               // Initiate buzzer on dashboard
     mccheck = 9;
 
-    if (motorcontrol_i2cOpenStatus == 1) // TSL2561 and ledDisplay require I2C.  If I2C did not open successfully, TSL2561 and ledDisplay will not be initialised
+    motorcontrol_i2cOpenStatus = UDHAL_getI2CStatus();
+// if i2c open successfully, motorcontrol_i2cOpenStatus = 1,
+// if i2c opens unsuccessfully, motorcontrol_i2cOpenStatus = 0 -> do not activate TSL2561 light sensor and Led Display
+    if (motorcontrol_i2cOpenStatus == 1) // TSL2561 and ledDisplay require I2C.  If I2C did not open successfully, TSL2561 and ledDisplay will not be initialized
     {
         TSL2561_init();
         //ledControl_init();
@@ -166,11 +164,16 @@ void motorcontrol_init(void)
     lightControl_init( motorcontrol_i2cOpenStatus );                            // UDHAL_I2C must be initiated before ightControl_init();
     mccheck = 11;
 
-    //powerOnTime_init();           // merged with lightControl 20230705
+    powerOnTime_init();           // merged with lightControl 20230705
     mccheck = 12;
+
+// If GAPRole_createTask initiated and called successfully, gapRole_getGAPRole_taskCreate_flag() returns 1
+// motorControl_getGAPRole_taskCreate_flag
     motorControl_getGAPRole_taskCreate_flag = gapRole_getGAPRole_taskCreate_flag();
     mccheck = 13;
+
 }
+
 /*********************************************************************
  * @fn      motorcontrol_registerCB
  *
@@ -184,6 +187,7 @@ void motorcontrol_registerCB(simplePeripheral_bleCBs_t *obj)
 {
     motorcontrol_bleCBs = obj;
 }
+
 /*********************************************************************
  * @fn      motorcontrol_processGetRegisterFrameMsg
  *
@@ -255,7 +259,9 @@ static void motorcontrol_processGetRegisterFrameMsg(uint8_t *txPayload, uint8_t 
     default:
             break;
     }
+
 }
+
 /*********************************************************************
  * @fn      motorcontrol_rxMsgCb
  *
@@ -304,6 +310,7 @@ static void motorcontrol_rxMsgCb(uint8_t *rxMsg, STM32MCP_txMsgNode_t *STM32MCP_
     free(rxPayload);
     free(txPayload);
 }
+
 /*********************************************************************
  * @fn      motorcontrol_exMsgCb
  *
@@ -325,6 +332,7 @@ static void motorcontrol_exMsgCb(uint8_t exceptionCode)
             break;
         }
 }
+
 /*********************************************************************
  * @fn      motorcontrol_erMsgCb
  *
@@ -360,6 +368,7 @@ static void motorcontrol_erMsgCb(uint8_t errorCode)
         break;
     }
 }
+
 /*********************************************************************
  * @fn      motorcontrol_brakeAndThrottleCB
  *

@@ -15,6 +15,7 @@
 * INCLUDES
 */
 #include "ledControl.h"
+#include "IS31FL3236A/IS31FL3236A.h"
 
 /*********************************************************************
 * LOCAL VARIABLES
@@ -47,32 +48,6 @@ void ledControl_setLEDPower(uint8_t ledPower){
     // I2C command to set LED Power
 }
 
-/*********************************************************************
-* @fn      ledControl_taskFxn
-*
-* @brief   Task creation function for the led display.
-*
-* @param   None.
-*
-* @return  None.
-**********************************************************************/
-Char ledControl_taskStack[LEDCONTROL_TASK_STACK_SIZE];
-Task_Struct ledControl_task;
-
-uint8_t ledTaskCount = 0;
-uint16_t ledControl_time = LEDCONTROL_REFRESH_TIME;
-
-static void ledControl_taskFxn(UArg a0, UArg a1)
-{
-    for (; ;)   // infinite for loop, starting at 1 and without exit condition,
-    {
-
-            // Task Sleep
-            Task_sleep( ledControl_time * 1000 / Clock_tickPeriod );
-            // I2C refresh LED
-            ledTaskCount++;
-    }
-}
 
 /*********************************************************************
  * @fn      ledControl_Init
@@ -89,15 +64,6 @@ void ledControl_init()
     // initialize ledPower
     // set all led lights on at Power On ->
 
-    // Construct Task for led Control
-    Task_Params ledControl_taskParams;
-    // Configure task
-    Task_Params_init(&ledControl_taskParams);
-    ledControl_taskParams.stack = ledControl_taskStack;
-    ledControl_taskParams.stackSize = LEDCONTROL_TASK_STACK_SIZE;
-    ledControl_taskParams.priority = LEDCONTROL_TASK_PRIORITY;
-    Task_construct(&ledControl_task, ledControl_taskFxn, &ledControl_taskParams, NULL);
-
 }
 
 /*******************      Basic Operation       **********************
@@ -112,7 +78,7 @@ void ledControl_i2c2Display( uint8_t Param, uint8_t *ParamValue )
     size_t  readBufferSize  = 0;
     size_t  writeBufferSize = 2;
 
-    ledControl_i2cTransferStatus = ledControl_ledDisplayManager -> ledControl_transfer(LEDDISPLAYSLAVEADDRESS, &ledControl_writeBuffer, writeBufferSize, &ledControl_readBuffer, readBufferSize);
+    ledControl_i2cTransferStatus = ledControl_ledDisplayManager -> ledControl_transfer(IS31FL3236A_ADDR, &ledControl_writeBuffer, writeBufferSize, &ledControl_readBuffer, readBufferSize);
 
 }
 
@@ -253,7 +219,9 @@ void ledControl_setLightStatus(uint8_t light_status)
 }
 
 
-void lightControl_registerLedDisplay( ledControl_ledDisplayManager_t *ledDisplayI2C )
+void ledControl_registerLedDisplay( ledControl_ledDisplayManager_t *ledDisplayI2C )
 {
     ledControl_ledDisplayManager = ledDisplayI2C;
 }
+
+

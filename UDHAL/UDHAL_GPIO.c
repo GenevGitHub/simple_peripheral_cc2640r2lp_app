@@ -50,8 +50,8 @@ extern void UDHAL_GPIO_init()
  */
 void UDHAL_GPIO_params_init()
 {
-    GPIO_setConfig(Board_GPIO_BUTTON0, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
-    GPIO_setCallback(Board_GPIO_BUTTON0, UDHAL_GPIO_InterruptFxn);
+    GPIO_setConfig(Board_GPIO_BUTTON0, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);    //
+    GPIO_setCallback(Board_GPIO_BUTTON0, UDHAL_GPIO_InterruptFxn);                      // GPIO Callback -> pin -> interrupt function
     GPIO_enableInt(Board_GPIO_BUTTON0);
 }
 /*********************************************************************

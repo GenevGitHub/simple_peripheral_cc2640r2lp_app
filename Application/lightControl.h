@@ -31,8 +31,8 @@ extern "C"
 */
 #define LUX_THRESHOLD                                   500  // light shall be ON when light intensity is consistently below this lux value
 #define ALS_NUMSAMPLES                                  2    // The number of samples used for light intensity evaluation --> must be 8
-#define ALS_SAMPLING_TIME                               600  // in milliseconds, is the time between ALS samples, i.e. sampling time.
-#define ALS_NONSAMPLING_TIME                            2000  // in milliseconds, is the time between ALS samples, i.e. sampling time.
+#define NUM_PERIODIC_COMMUNICATION_HF_2_ALS             2    // in milliseconds, the time between ALS sampling = PERIODIC_COMMUNICATION_HF_SAMPLING_TIME x N_ALS, i.e. ALS_SAMPLING_TIME
+
 // there is actually no need to sample light level too frequently.
 // Perhaps frequency of 1 second is sufficient.
 // lightControl timer is timer 8
@@ -68,14 +68,19 @@ extern "C"
  * API FUNCTIONS
  */
 extern void lightControl_init( uint8_t i2cOpenStatus );
-static void lightControl_taskFxn(UArg a0, UArg a1);
-static void lightControl_measureLux( void );
-static void light_MODE_AUTO( void );
+extern uint16_t lightControl_taskFxn();
+//static void lightControl_taskFxn(UArg a0, UArg a1);
+/* Task creation function for the Simple Peripheral.
+*/
+//extern void GPtimer_createTask(void);
+
+extern void lightControl_measureLux( void );
+extern void light_MODE_AUTO( void );
 static void light_MODE_OFF( void );
 static void light_MODE_ON( void );
-static void lightControl_ALS_Controller( void );
+extern void lightControl_ALS_Controller( void );
 extern void lightControl_lightModeChange( void );
-extern void lightControl_mclightStatusChg( void );
+extern void lightControl_motorControl_lightStatusChg( void );
 extern uint8_t lightControl_getLightMode( void );
 extern uint8_t lightControl_getLightStatus( void );
 

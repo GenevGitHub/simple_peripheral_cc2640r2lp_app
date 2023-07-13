@@ -129,6 +129,7 @@ Drivers/RF \
 Drivers/TRNG \
 ICall \
 ICallBLE \
+IS31FL3236A \
 PROFILES \
 STM32MCP \
 Startup \

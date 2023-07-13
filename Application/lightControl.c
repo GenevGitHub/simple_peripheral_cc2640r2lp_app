@@ -13,17 +13,16 @@
 /*********************************************************************
  * INCLUDES
  */
+#include <Board.h>
+#include <stdint.h>
+
 #include "lightControl.h"
 #include "powerOnTime.h"
 #include "ledControl.h"
-#include "stdint.h"
 #include "motorControl.h"
 #include "Dashboard.h"
-#include "Board.h"
 #include "UDHAL/UDHAL_I2C.h"
 #include "TSL2561/TSL2561.h"
-
-
 
 /*********************************************************************
  * LOCAL POINTERS
@@ -92,10 +91,11 @@ void light_MODE_AUTO()
     if (light_status != lightStatusNew)
     {
         light_status = lightStatusNew;
-        lightControl_mclightStatusChg();
+        lightControl_motorControl_lightStatusChg();
     }
 
 }
+
 /*********************************************************************
 * @fn      lightControl_taskFxn
 *
@@ -105,47 +105,19 @@ void light_MODE_AUTO()
 *
 * @return  None.
 **********************************************************************/
-Char        lightControl_TaskStack[LIGHTCONTROL_TASK_STACK_SIZE];
-Task_Struct lightControl_Task;
-uint16_t    lightControl_measureLUX_time;
-uint8_t     ALS_taskCounter = 0;                               // ALS sampling counter
-uint8_t     powerOnTimeMinute_t = 0;                    // power on time in minutes
-uint32_t    powerOnTimeMS = 0;                          // power on time in milli-seconds
-
-static void lightControl_taskFxn(UArg a0, UArg a1)
+extern uint16_t lightControl_taskFxn()
 {
-    for (; ;)               // infinite for loop, starting at 1 and without exit condition,
-    {
-        /********************  light sensor control (in minutes)  *******************************
-        *****************************************************************************************/
-        if (light_mode == 2)
-        {
-            lightControl_measureLUX_time = ALS_SAMPLING_TIME;
-        // ************   Calls I2C to measure ADC and calculates calibrated lux  ****************
-            lightControl_measureLux();
-        // ************   Convert ALS_Data to luxIndex and compute sumluxIndex  ******************
-            lightControl_ALS_Controller();
-        // ****************************   Light Control                      *********************
-            light_MODE_AUTO();
-        }
-        else
-        {
-            lightControl_measureLUX_time = ALS_NONSAMPLING_TIME;
-        }
-        /********************   Power On Time (in minutes)   *************************************
-         *****************************************************************************************/
-        powerOnTimeMS += lightControl_measureLUX_time;
-
-        if ((powerOnTimeMS/POWERONTIME_MINUTE_TIME) > powerOnTimeMinute_t)
-        {
-            powerOnTimeMinute_t++;
-            motorcontrol_setGatt(DASHBOARD_SERV_UUID, DASHBOARD_POWER_ON_TIME, DASHBOARD_POWER_ON_TIME_LEN, (uint8_t *) &powerOnTimeMinute_t);
-        }
-
-        // Task delay
-        Task_sleep(lightControl_measureLUX_time * 1000 / Clock_tickPeriod);
-        ALS_taskCounter++;
-    }
+    // ********************  light sensor control (in minutes)  *******************************
+            // *****************************************************************************************
+            if (light_mode == 2)
+            {
+            // ************   Calls I2C to measure ADC and calculates calibrated lux  ****************
+                lightControl_measureLux();
+            // ************   Convert ALS_Data to luxIndex and compute sumluxIndex  ******************
+                lightControl_ALS_Controller();
+            // ****************************   Light Control                      *********************
+                light_MODE_AUTO();
+            }
 }
 
 /*********************************************************************
@@ -157,11 +129,10 @@ static void lightControl_taskFxn(UArg a0, UArg a1)
  *
  * @return  None
  *********************************************************************/
-uint8_t powerOnTime_trigger_flag = 0;
 
 void lightControl_init( uint8_t i2cOpenStatus )
 {
-    powerOnTime_trigger_flag = POWERONTIME_MINUTE_TIME / ALS_SAMPLING_TIME;
+    //powerOnTime_trigger_flag = POWERONTIME_MINUTE_TIME / ALS_SAMPLING_TIME;
 
     //** I2C must be initiated before lightControl
     //** At every POWER ON (SYSTEM START-UP), "IF I2C communication is SUCCESSFUL", the light control is in auto mode (LIGHT_MODE_INITIAL), light is off (LIGHT_STATUS_INITIAL).
@@ -180,16 +151,8 @@ void lightControl_init( uint8_t i2cOpenStatus )
     light_status = LIGHT_STATUS_INITIAL;
     lightStatusNew = LIGHT_STATUS_INITIAL;
 
-    // Construct Task for light sensor control
-    Task_Params lightControl_taskParams;
-    // Configure task
-    Task_Params_init(&lightControl_taskParams);
-    lightControl_taskParams.stack = lightControl_TaskStack;
-    lightControl_taskParams.stackSize = LIGHTCONTROL_TASK_STACK_SIZE;
-    lightControl_taskParams.priority = LIGHTCONTROL_TASK_PRIORITY;
-    Task_construct(&lightControl_Task, lightControl_taskFxn, &lightControl_taskParams, NULL);
-
 }
+
 /*********************************************************************************
 * The TSL2561 has two channels: (1) Channel 1 sensor measures visible and IR
 * lights and (2) channel 2 sensor is more sensitive to IR lights.
@@ -200,7 +163,6 @@ void lightControl_init( uint8_t i2cOpenStatus )
 * call light sensor -> measure light level (Lux) data
 * Read Channel 1 via Read Word Protocol
 * ********************************************************************************/
-//uint32_t tempLux = 0xFFFFFFFF;
 uint32_t luxValue = 0xFFFFFFFF;
 void lightControl_measureLux()
 {
@@ -208,8 +170,7 @@ void lightControl_measureLux()
     TSL2561_readChannel(READCHANNEL0);
 
     TSL2561_readChannel(READCHANNEL1);
-    // This is strange -> the value of tempLux fluctuates up and down when not suppose to -> why?
-    //tempLux = TSL2561_lux();
+
     luxValue = TSL2561_lux();
 }
 
@@ -225,7 +186,7 @@ void lightControl_measureLux()
 void light_MODE_OFF(){
     if (light_status != LIGHT_STATUS_OFF) {
         light_status = LIGHT_STATUS_OFF;
-        lightControl_mclightStatusChg();
+        lightControl_motorControl_lightStatusChg();
     }
 }
 /*********************************************************************
@@ -240,14 +201,14 @@ void light_MODE_OFF(){
 void light_MODE_ON(){
     if (light_status != LIGHT_STATUS_ON) {
         light_status = LIGHT_STATUS_ON;
-        lightControl_mclightStatusChg();
+        lightControl_motorControl_lightStatusChg();
     }
 }
 /*********************************************************************
  * EXTERN FUNCTIONS
  */
 /*********************************************************************
- * @fn      lightControl_mclightStatusChg
+ * @fn      lightControl_motorControl_lightStatusChg
  *
  * @brief   Notify light status change
  *
@@ -255,7 +216,7 @@ void light_MODE_ON(){
  *
  * @return  None
  *********************************************************************/
-void lightControl_mclightStatusChg(void){
+void lightControl_motorControl_lightStatusChg(void){
     // switch LED display brightness depending on light status
     uint8_t Board_GPIO_LED_state;   // for Launchpad only
     uint8_t ledPower;
@@ -280,8 +241,8 @@ void lightControl_mclightStatusChg(void){
     motorcontrol_setGatt(DASHBOARD_SERV_UUID, DASHBOARD_LIGHT_STATUS, DASHBOARD_LIGHT_STATUS_LEN, (uint8_t *) &light_status);
     ledControl_setLEDPower(ledPower);
     ledControl_setLightStatus(light_status);
-}
 
+}
 
 /*********************************************************************
  * @fn      lightControl_Change
@@ -305,6 +266,7 @@ void lightControl_lightModeChange()
     (*lightModeArray[light_mode])();
 
 }
+
 /*********************************************************************
  * @fn      lightControl_ALS_Controller
  *

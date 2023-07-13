@@ -63,8 +63,36 @@ static ledControl_ledDisplayManager_t ledDisplay_I2C =
 extern void UDHAL_I2C_init()
 {
     I2C_init();
-    TSL2561_registerALS(&ALS_I2C);
-    lightControl_registerLedDisplay(&ledDisplay_I2C);
+    TSL2561_registerALS(&ALS_I2C);                      // ALS Light Sensor
+    ledControl_registerLedDisplay(&ledDisplay_I2C);     // LED Display
+}
+
+/* ********************************************************************
+ * @fn:     (*I2C_CallbackFxn)
+ *
+ * @brief:  I2C_MODE_CALLBACK
+ *
+ * Arguments:   I2C_Handle handle, I2C_Transaction *transaction, bool transferStatus
+ *
+ * Return:      None
+ ******************************************************************** */
+extern void UDHAL_I2C_CallbackFxn(I2C_Handle i2c_Handle, I2C_Transaction *i2c_Transaction, bool i2c_TransferStatus)
+{
+
+    if (i2c_TransferStatus == false) {
+        //transaction failed
+    }
+    else
+    {
+        // Check for a semaphore handle
+//        if (msg->arg != NULL) {
+
+            // Perform a semaphore post
+//            sem_post((sem_t *) (msg->arg));
+//        }
+
+    }
+
 }
 /*********************************************************************
  * @fn      UDHAL_I2C_params_init
@@ -78,6 +106,8 @@ extern void UDHAL_I2C_init()
 extern void UDHAL_I2C_params_init()
 {
     I2C_Params_init(&i2cParams);
+//    i2cParams.transferMode = I2C_MODE_CALLBACK;
+//    i2cParams.transferCallbackFxn = &UDHAL_I2C_CallbackFxn;
     i2cParams.bitRate = I2C_400kHz;
     if (i2cOpenStatus == 0) // if i2c is not opened, open i2c. i2c can only be opened once.
     {

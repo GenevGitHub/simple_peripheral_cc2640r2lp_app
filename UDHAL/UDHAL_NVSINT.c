@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <ti/drivers/NVS.h>
+#include <ti/drivers/nvs/NVSCC26XX.h>
 #include "Board.h"
 #include "UDHAL_NVSINT.h"
 #include "Application/dataAnalysis.h"

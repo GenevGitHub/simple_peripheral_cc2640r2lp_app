@@ -24,18 +24,9 @@ extern "C"
 /*********************************************************************
 * CONSTANTS
 */
-#define LEDDISPLAYSLAVEADDRESS                          0x29
 #define LED_POWER_LIGHT_ON                              60
 #define LED_POWER_LIGHT_OFF                             100
-
-#define LEDCONTROL_TASK_PRIORITY                        5
-
-#ifndef LEDCONTROL_TASK_STACK_SIZE
-#define LEDCONTROL_TASK_STACK_SIZE                      360
-#endif
-
 #define LEDCONTROL_INIT_TIME                            1500
-
 #define LEDCONTROL_REFRESH_TIME                         120
 
 /*********************************************************************
@@ -63,7 +54,7 @@ typedef struct
 /*********************************************************************
  * API FUNCTIONS
  */
-extern void lightControl_registerLedDisplay( ledControl_ledDisplayManager_t *ledDisplayI2C );
+extern void ledControl_registerLedDisplay( ledControl_ledDisplayManager_t *ledDisplayI2C );
 
 /*********************************************************************
  *  Global Function declaration
@@ -73,17 +64,17 @@ extern void ledControl_init( void );
 
 static void ledControl_taskFxn(UArg a0, UArg a1);
 
-extern void ledControl_setAllOn( void );
-extern void ledControl_setAllOff( void );
-extern void ledControl_setDashSpeed( uint8_t dashSpeed );
-extern void ledControl_setBatteryStatus( uint8_t batteryStatus );
-extern void ledControl_setSpeedMode( uint8_t speedMode );
-extern void ledControl_setUnitSelectDash( uint8_t UnitSelectDash );
-extern void ledControl_setBLEStatus( uint8_t BLEStatus );
-extern void ledControl_setErrorCodeWarning( uint8_t errorCode );
-extern void ledControl_setLightMode( uint8_t light_mode );
-extern void ledControl_setLightStatus( uint8_t light_status );
-extern void ledControl_setLEDPower( uint8_t ledPower );
+extern void ledControl_setAllOn( void );                                // Led All On
+extern void ledControl_setAllOff( void );                               // Led All Off
+extern void ledControl_setDashSpeed( uint8_t dashSpeed );               // Set Speed Digit 1 and Digit 2
+extern void ledControl_setBatteryStatus( uint8_t batteryStatus );       // Set battery level
+extern void ledControl_setSpeedMode( uint8_t speedMode );               // Set speed mode
+extern void ledControl_setUnitSelectDash( uint8_t UnitSelectDash );     // Set Unit
+extern void ledControl_setBLEStatus( uint8_t BLEStatus );               // Set BLE status
+extern void ledControl_setErrorCodeWarning( uint8_t errorCode );        // Set Warning
+extern void ledControl_setLightMode( uint8_t light_mode );              // Set light mode
+extern void ledControl_setLightStatus( uint8_t light_status );          // Set Light Status
+extern void ledControl_setLEDPower( uint8_t ledPower );                 // Set LED Power Level / Brightness
 //
 #ifdef __cplusplus
 }
